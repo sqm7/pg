@@ -59,36 +59,43 @@
         <main>
             <!-- Supabase 連線資訊 -->
             <div class="bg-white p-6 rounded-xl shadow-lg mb-8">
-                <h2 class="text-xl font-semibold text-gray-700 mb-4">資料庫連線資訊</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
+                <h2 class="text-xl font-semibold text-gray-700 mb-4">步驟 1: 連線到資料庫</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                    <div class="md:col-span-1">
                         <label for="supabaseUrl" class="block text-sm font-medium text-gray-700 mb-1">Supabase URL</label>
                         <input type="text" id="supabaseUrl" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" placeholder="https://your-project-ref.supabase.co">
                     </div>
-                    <div>
+                    <div class="md:col-span-1">
                         <label for="supabaseKey" class="block text-sm font-medium text-gray-700 mb-1">Supabase Anon Key</label>
                         <input type="text" id="supabaseKey" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" placeholder="your-public-anon-key">
-                        <p class="mt-1 text-xs text-gray-500">此處使用公開的 Anon Key，資料安全由資料庫的 RLS 政策保護。</p>
+                    </div>
+                    <!-- [新增] 連線按鈕 -->
+                    <div class="md:col-span-1">
+                         <button id="connect-btn" class="w-full bg-indigo-600 text-white font-bold py-2 px-6 rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all">
+                            連線並載入
+                        </button>
                     </div>
                 </div>
+                 <p class="mt-2 text-xs text-gray-500">提示: 此處使用公開的 Anon Key，資料安全由資料庫的 RLS 政策保護。</p>
             </div>
 
             <!-- 篩選器面板 -->
             <div class="bg-white p-6 rounded-xl shadow-lg mb-8">
+                 <h2 class="text-xl font-semibold text-gray-700 mb-4">步驟 2: 設定篩選條件</h2>
                 <div id="filter-form" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
                     <div>
                         <label for="county" class="block text-sm font-medium text-gray-700">縣市</label>
-                        <select id="county" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
-                            <option value="">請選擇縣市</option>
+                        <select id="county" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md" disabled>
+                            <option value="">請先連線</option>
                         </select>
                     </div>
                     <div>
                         <label for="district" class="block text-sm font-medium text-gray-700">行政區</label>
-                        <input type="text" id="district" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md" placeholder="例如：信義區">
+                        <input type="text" id="district" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md" placeholder="例如：信義區" disabled>
                     </div>
                     <div>
                         <label for="type" class="block text-sm font-medium text-gray-700">交易類型</label>
-                        <select id="type" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                        <select id="type" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md" disabled>
                             <option value="">全部</option>
                             <option value="中古交易">中古交易</option>
                             <option value="預售交易">預售交易</option>
@@ -96,7 +103,7 @@
                         </select>
                     </div>
                     <div>
-                        <button id="search-btn" class="w-full bg-blue-600 text-white font-bold py-2 px-6 rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all">
+                        <button id="search-btn" class="w-full bg-blue-600 text-white font-bold py-2 px-6 rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all" disabled>
                             查詢資料
                         </button>
                     </div>
@@ -106,7 +113,7 @@
             <!-- 結果顯示區 -->
             <div id="results-container" class="bg-white p-6 rounded-xl shadow-lg">
                 <div id="message-area" class="text-center p-8 text-gray-500">
-                    請設定篩選條件後點擊查詢。
+                    請先連線至資料庫。
                 </div>
                 <div id="table-container" class="table-container hidden overflow-x-auto">
                     <table id="results-table" class="min-w-full divide-y divide-gray-200">
@@ -124,6 +131,7 @@
             countySelect: document.getElementById('county'),
             districtInput: document.getElementById('district'),
             typeSelect: document.getElementById('type'),
+            connectBtn: document.getElementById('connect-btn'), // [新增]
             searchBtn: document.getElementById('search-btn'),
             messageArea: document.getElementById('message-area'),
             tableContainer: document.getElementById('table-container'),
@@ -132,29 +140,28 @@
 
         let supabase;
 
-        // 初始化函式
-        async function initialize() {
-            // 嘗試從 localStorage 讀取上次的連線資訊
+        // [更新] 初始化函式，只負責讀取 localStorage
+        function initialize() {
             const savedUrl = localStorage.getItem('supabaseUrl');
             const savedKey = localStorage.getItem('supabaseKey');
             if (savedUrl) document.getElementById('supabaseUrl').value = savedUrl;
             if (savedKey) document.getElementById('supabaseKey').value = savedKey;
-
-            if (savedUrl && savedKey) {
-                connectAndLoadCounties();
-            }
         }
         
-        // 連線到 Supabase 並載入縣市列表
+        // [更新] 連線並載入縣市的函式，現在由按鈕觸發
         async function connectAndLoadCounties() {
             const supabaseUrl = document.getElementById('supabaseUrl').value;
             const supabaseKey = document.getElementById('supabaseKey').value;
 
             if (!supabaseUrl || !supabaseKey) {
                 dom.messageArea.innerHTML = '<p class="text-red-500">請先輸入 Supabase 的連線資訊。</p>';
-                return false;
+                return;
             }
             
+            dom.connectBtn.disabled = true;
+            dom.connectBtn.textContent = '連線中...';
+            dom.messageArea.innerHTML = '<div class="loader mx-auto"></div><p class="mt-4">正在連線並載入縣市列表...</p>';
+
             // 儲存連線資訊以便下次使用
             localStorage.setItem('supabaseUrl', supabaseUrl);
             localStorage.setItem('supabaseKey', supabaseKey);
@@ -162,7 +169,6 @@
             supabase = createClient(supabaseUrl, supabaseKey);
             
             try {
-                dom.countySelect.disabled = true;
                 const { data, error } = await supabase
                     .from('county_codes')
                     .select('code, name_zh')
@@ -170,7 +176,6 @@
 
                 if (error) throw error;
                 
-                // 清空舊選項
                 dom.countySelect.innerHTML = '<option value="">請選擇縣市</option>';
                 data.forEach(county => {
                     const option = document.createElement('option');
@@ -178,19 +183,27 @@
                     option.textContent = county.name_zh;
                     dom.countySelect.appendChild(option);
                 });
+                
+                // [新增] 啟用篩選器
                 dom.countySelect.disabled = false;
-                return true;
+                dom.districtInput.disabled = false;
+                dom.typeSelect.disabled = false;
+                dom.searchBtn.disabled = false;
+                dom.messageArea.innerHTML = '<p class="text-green-600">連線成功！請設定篩選條件後點擊查詢。</p>';
+
             } catch (error) {
                 dom.messageArea.innerHTML = `<p class="text-red-500">無法載入縣市列表: ${error.message}</p>`;
-                return false;
+            } finally {
+                dom.connectBtn.disabled = false;
+                dom.connectBtn.textContent = '連線並載入';
             }
         }
 
         // 執行查詢
         async function fetchData() {
             if (!supabase) {
-                const connected = await connectAndLoadCounties();
-                if (!connected) return;
+                dom.messageArea.innerHTML = '<p class="text-red-500">請先點擊「連線並載入」按鈕來連線到資料庫。</p>';
+                return;
             }
 
             dom.messageArea.innerHTML = '<div class="loader mx-auto"></div><p class="mt-4">查詢中，請稍候...</p>';
@@ -249,10 +262,9 @@
         }
 
         // 事件監聽
+        dom.connectBtn.addEventListener('click', connectAndLoadCounties); // [更新]
         dom.searchBtn.addEventListener('click', fetchData);
-        document.getElementById('supabaseUrl').addEventListener('change', connectAndLoadCounties);
-        document.getElementById('supabaseKey').addEventListener('change', connectAndLoadCounties);
-
+        
         // 初始化頁面
         initialize();
     </script>
