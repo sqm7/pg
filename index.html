@@ -276,7 +276,6 @@
                 }
                 if(e.target.classList.contains('expand-btn')) {
                     const cell = e.target.parentElement;
-                    // 【亂碼修正】使用 decodeURIComponent 將文字解碼回來
                     cell.innerHTML = decodeURIComponent(e.target.dataset.fullText);
                 }
             });
@@ -432,7 +431,6 @@
             visibleHeaders.forEach(headerText => {
                 const th = document.createElement('th');
                 th.textContent = headerText;
-                // 【置中修正】為數字類型的表頭也加上置中
                 if (numericColumns.includes(headerText)) {
                     th.classList.add('text-center');
                 }
@@ -455,7 +453,6 @@
                 visibleHeaders.forEach(header => {
                     const td = document.createElement('td');
                     let classes = 'py-2 px-3 border-b border-gray-700';
-                    // 【置中修正】如果欄位是數字類型，則加上 text-center
                     if (numericColumns.includes(header)) {
                         classes += ' text-center';
                     }
@@ -473,7 +470,6 @@
                         } else if (header === '樓層') {
                             td.textContent = convertFloorToNumber(value);
                         } else {
-                             // 對於租賃的其他數字欄位，也進行格式化
                             if (typeof value === 'number' && numericColumns.includes(header)) {
                                 td.textContent = new Intl.NumberFormat('zh-TW').format(value);
                             } else {
