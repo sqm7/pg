@@ -99,24 +99,20 @@
         </header>
         
         <main>
-            <!-- 篩選器面板 -->
             <div class="glass-card p-6 rounded-xl shadow-lg mb-8">
                 <div id="filter-form" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 items-end">
-                    <!-- 縣市 -->
                     <div>
                         <label for="county" class="block text-sm font-medium text-gray-300">縣市</label>
                         <select id="county" class="form-select mt-1 block w-full pl-3 pr-10 py-2 text-base rounded-md">
                             <option value="">請選擇縣市</option>
                         </select>
                     </div>
-                    <!-- 行政區 -->
                     <div>
                         <label for="district" class="block text-sm font-medium text-gray-300">行政區</label>
                         <select id="district" class="form-select mt-1 block w-full pl-3 pr-10 py-2 text-base rounded-md" disabled>
                             <option value="">請先選縣市</option>
                         </select>
                     </div>
-                    <!-- 交易類型 -->
                     <div>
                         <label for="type" class="block text-sm font-medium text-gray-300">交易類型</label>
                         <select id="type" class="form-select mt-1 block w-full pl-3 pr-10 py-2 text-base rounded-md">
@@ -126,7 +122,6 @@
                             <option value="租賃交易">租賃交易</option>
                         </select>
                     </div>
-                    <!-- 日期篩選 -->
                     <div class="grid grid-cols-2 gap-2">
                         <div>
                             <label for="date-start" class="block text-sm font-medium text-gray-300">起始日期</label>
@@ -137,7 +132,6 @@
                             <input type="date" id="date-end" class="form-input mt-1 block w-full pl-3 pr-2 py-2 text-base rounded-md">
                         </div>
                     </div>
-                    <!-- 查詢按鈕 -->
                     <div class="lg:col-start-5">
                         <button id="search-btn" class="w-full bg-gradient-to-r from-cyan-accent to-purple-accent text-white font-bold py-2 px-6 rounded-lg shadow-lg hover:opacity-90 transition-all btn">
                             查詢資料
@@ -146,23 +140,25 @@
                 </div>
             </div>
 
-            <!-- 結果顯示區 -->
             <div id="results-container" class="glass-card p-6 rounded-xl shadow-lg">
                 <div id="message-area" class="text-center p-8 text-gray-400">
                     請設定篩選條件後點擊查詢。
                 </div>
                 <div id="table-container" class="table-container hidden overflow-x-auto">
                     <table id="results-table" class="min-w-full divide-y divide-gray-800">
-                        <!-- 表格內容將由 JS 動態生成 -->
-                    </table>
+                        </table>
                 </div>
             </div>
         </main>
     </div>
 
     <script type="module">
-        // Edge Function 端點
+        // ==================================================================
+        // 設定區：請將 YOUR_SUPABASE_ANON_KEY_HERE 換成您自己的金鑰
+        // ==================================================================
         const EDGE_FUNCTION_ENDPOINT = 'https://zxbmbbfrzbtuueysicoc.supabase.co/functions/v1/query-data';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4Ym1iYmZyemJ0dXVleXNpY29jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA2ODg5ODksImV4cCI6MjA2NjI2NDk4OX0.1IUynv5eK1xF_3pb-oasqaTrPvbeAOC4Sc1oykPBy4M'; // 👈 ！！！請替換此處的金鑰！！！
+        // ==================================================================
         
         // 取得 DOM 元素
         const dom = {
@@ -242,6 +238,12 @@
 
         // 執行查詢
         async function fetchData() {
+            // 檢查金鑰是否已設定
+            if (SUPABASE_ANON_KEY.includes('YOUR_SUPABASE_ANON_KEY_HERE')) {
+                dom.messageArea.innerHTML = `<p class="text-red-500">錯誤：請先在 JavaScript 中設定您的 Supabase anon key！</p>`;
+                return;
+            }
+
             // 開始加載
             document.body.classList.add('loading');
             dom.searchBtn.disabled = true;
@@ -262,19 +264,20 @@
                     method: 'POST',
                     headers: { 
                         'Content-Type': 'application/json',
-                        // 如果需要 JWT 驗證，取消下面這行的註解
-                        // 'Authorization': `Bearer ${您的JWT_TOKEN}`
+                        // ✨ [已修正] 新增呼叫 Edge Function 所需的認證標頭
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
                     },
                     body: JSON.stringify({ filters })
                 });
 
-                const data = await response.json();
+                const result = await response.json();
 
                 if (!response.ok) {
-                    throw new Error(data.error || `伺服器錯誤: ${response.status}`);
+                    throw new Error(result.error || `伺服器錯誤: ${response.status}`);
                 }
 
-                renderTable(data);
+                renderTable(result);
 
             } catch (error) {
                 console.error('查詢錯誤:', error);
@@ -293,13 +296,16 @@
         function renderTable(responseData) {
             // 檢查是否有錯誤
             if (responseData.error) {
-                throw new Error(responseData.error);
+                dom.messageArea.innerHTML = `<p class="text-red-500">查詢失敗: ${responseData.error}</p>`;
+                dom.tableContainer.classList.add('hidden');
+                return;
             }
 
             // 檢查是否有數據
             const data = responseData.data || [];
             if (data.length === 0) {
                 dom.messageArea.innerHTML = '<p class="text-gray-400">找不到符合條件的資料。</p>';
+                dom.tableContainer.classList.add('hidden');
                 return;
             }
 
@@ -312,7 +318,7 @@
                 </p>
             `;
             
-            // 清空表格
+            // 清空表格並顯示
             dom.tableContainer.classList.remove('hidden');
             dom.resultsTable.innerHTML = '';
 
@@ -330,9 +336,9 @@
             // 建立表格內容
             const tbody = document.createElement('tbody');
             tbody.innerHTML = data.map(row => `
-                <tr class="hover:bg-gray-800 transition-colors">
+                <tr class="hover:bg-dark-card transition-colors">
                     ${headers.map(header => `
-                        <td class="border-t border-gray-700">${row[header] === null ? '-' : row[header]}</td>
+                        <td>${row[header] === null || row[header] === '' ? '-' : row[header]}</td>
                     `).join('')}
                 </tr>
             `).join('');
@@ -349,8 +355,6 @@
         // 初始化頁面
         document.addEventListener('DOMContentLoaded', () => {
             initialize();
-            // 自動觸發一次查詢
-            // fetchData();
         });
     </script>
 </body>
