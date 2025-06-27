@@ -25,6 +25,11 @@
             font-family: 'Inter', 'Noto Sans TC', sans-serif; 
             background: #1a1d29;
             color: #e5e7eb;
+            transition: opacity 0.3s ease;
+        }
+        body.loading {
+            pointer-events: none;
+            opacity: 0.7;
         }
         .glass-card {
             background: rgba(37, 40, 54, 0.8);
@@ -71,19 +76,26 @@
             width: 40px;
             height: 40px;
             animation: spin 1s linear infinite;
+            margin: 0 auto;
         }
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        .btn {
+            transition: all 0.2s ease;
+        }
+        .btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body class="p-4 md:p-8">
-
     <div class="max-w-screen-xl mx-auto">
         <header class="mb-8 text-center">
             <h1 class="text-4xl font-extrabold text-white tracking-tight">不動產數據查詢平台</h1>
-            <p class="mt-2 text-lg text-gray-400">您的專屬數據查詢與分析工具。</p>
+            <p class="mt-2 text-lg text-gray-400">您的專屬數據查詢與分析工具</p>
         </header>
         
         <main>
@@ -116,7 +128,7 @@
                     </div>
                     <!-- 日期篩選 -->
                     <div class="grid grid-cols-2 gap-2">
-                         <div>
+                        <div>
                             <label for="date-start" class="block text-sm font-medium text-gray-300">起始日期</label>
                             <input type="date" id="date-start" class="form-input mt-1 block w-full pl-3 pr-2 py-2 text-base rounded-md">
                         </div>
@@ -127,7 +139,7 @@
                     </div>
                     <!-- 查詢按鈕 -->
                     <div class="lg:col-start-5">
-                        <button id="search-btn" class="w-full bg-gradient-to-r from-cyan-accent to-purple-accent text-white font-bold py-2 px-6 rounded-lg shadow-lg hover:opacity-90 transition-all">
+                        <button id="search-btn" class="w-full bg-gradient-to-r from-cyan-accent to-purple-accent text-white font-bold py-2 px-6 rounded-lg shadow-lg hover:opacity-90 transition-all btn">
                             查詢資料
                         </button>
                     </div>
@@ -149,17 +161,10 @@
     </div>
 
     <script type="module">
-        // --- 資料庫連線與安全性說明 ---
-        // [重要] 在這個版本中，我們不再讓前端直接連線到 Supabase。
-        // 而是透過呼叫一個您自己建立的 Supabase Edge Function 來取得資料。
-        // 這樣做可以將您的 Supabase Key 安全地存放在後端，不會暴露給使用者。
-        //
-        // 您需要在您的 Supabase 專案中，建立一個名為 `query-data` 的 Edge Function。
-        // 這個 Function 的程式碼範例會在我們的說明文件中提供。
-        //
-        // 前端程式碼現在只會向這個固定的 API 端點發出請求。
-        const EDGE_FUNCTION_ENDPOINT = 'https://zxbmbbfrzbtuueysicoc.supabase.co/functions/v1/query-data'; // 這是您 Edge Function 的相對路徑
-
+        // Edge Function 端點
+        const EDGE_FUNCTION_ENDPOINT = 'https://zxbmbbfrzbtuueysicoc.supabase.co/functions/v1/query-data';
+        
+        // 取得 DOM 元素
         const dom = {
             countySelect: document.getElementById('county'),
             districtSelect: document.getElementById('district'),
@@ -172,7 +177,7 @@
             resultsTable: document.getElementById('results-table')
         };
         
-        // --- 縣市行政區資料 ---
+        // 縣市行政區資料
         const districtData = {
             "臺北市": ["中正區", "大同區", "中山區", "松山區", "大安區", "萬華區", "信義區", "士林區", "北投區", "內湖區", "南港區", "文山區"],
             "新北市": ["板橋區", "三重區", "中和區", "永和區", "新莊區", "新店區", "樹林區", "鶯歌區", "三峽區", "淡水區", "汐止區", "瑞芳區", "土城區", "蘆洲區", "五股區", "泰山區", "林口區", "深坑區", "石碇區", "坪林區", "三芝區", "石門區", "八里區", "平溪區", "雙溪區", "貢寮區", "金山區", "萬里區", "烏來區"],
@@ -207,6 +212,14 @@
                 option.textContent = countyName;
                 dom.countySelect.appendChild(option);
             });
+
+            // 設置預設日期為最近一個月
+            const endDate = new Date();
+            const startDate = new Date();
+            startDate.setMonth(startDate.getMonth() - 1);
+            
+            dom.dateStartInput.valueAsDate = startDate;
+            dom.dateEndInput.valueAsDate = endDate;
         }
         
         // 更新行政區下拉選單
@@ -229,62 +242,102 @@
 
         // 執行查詢
         async function fetchData() {
-            dom.messageArea.innerHTML = '<div class="loader mx-auto"></div><p class="mt-4">查詢中，請稍候...</p>';
+            // 開始加載
+            document.body.classList.add('loading');
+            dom.searchBtn.disabled = true;
+            dom.messageArea.innerHTML = '<div class="loader"></div><p class="mt-4">查詢中，請稍候...</p>';
             dom.tableContainer.classList.add('hidden');
-            dom.resultsTable.innerHTML = '';
-
-            const filters = {
-                county: dom.countySelect.value,
-                district: dom.districtSelect.value,
-                type: dom.typeSelect.value,
-                dateStart: dom.dateStartInput.value,
-                dateEnd: dom.dateEndInput.value,
-            };
 
             try {
-                // 向後端 Edge Function 發送請求
+                const filters = {
+                    countyCode: dom.countySelect.value,
+                    district: dom.districtSelect.value || undefined,
+                    type: dom.typeSelect.value || undefined,
+                    dateStart: dom.dateStartInput.value || undefined,
+                    dateEnd: dom.dateEndInput.value || undefined
+                };
+
+                // 發送請求到 Edge Function
                 const response = await fetch(EDGE_FUNCTION_ENDPOINT, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        // 如果需要 JWT 驗證，取消下面這行的註解
+                        // 'Authorization': `Bearer ${您的JWT_TOKEN}`
+                    },
                     body: JSON.stringify({ filters })
                 });
 
+                const data = await response.json();
+
                 if (!response.ok) {
-                    const errorResult = await response.json();
-                    throw new Error(errorResult.error || `伺服器錯誤: ${response.status}`);
+                    throw new Error(data.error || `伺服器錯誤: ${response.status}`);
                 }
 
-                const data = await response.json();
                 renderTable(data);
 
             } catch (error) {
-                dom.messageArea.innerHTML = `<p class="text-red-500">查詢失敗: ${error.message}</p>`;
+                console.error('查詢錯誤:', error);
+                dom.messageArea.innerHTML = `
+                    <p class="text-red-500">查詢失敗: ${error.message || '發生未知錯誤'}</p>
+                    <p class="text-sm text-gray-500 mt-2">請檢查您的網路連線或稍後再試。</p>
+                `;
+            } finally {
+                // 結束加載
+                document.body.classList.remove('loading');
+                dom.searchBtn.disabled = false;
             }
         }
 
         // 渲染表格
-        function renderTable(data) {
+        function renderTable(responseData) {
+            // 檢查是否有錯誤
+            if (responseData.error) {
+                throw new Error(responseData.error);
+            }
+
+            // 檢查是否有數據
+            const data = responseData.data || [];
             if (data.length === 0) {
-                dom.messageArea.innerHTML = '<p>找不到符合條件的資料。</p>';
+                dom.messageArea.innerHTML = '<p class="text-gray-400">找不到符合條件的資料。</p>';
                 return;
             }
 
-            dom.messageArea.innerHTML = ''; // 清空訊息
+            // 顯示數據總數
+            const meta = responseData.meta || {};
+            dom.messageArea.innerHTML = `
+                <p class="text-cyan-accent font-medium">
+                    找到 ${meta.count || data.length} 筆資料
+                    ${meta.max_records ? `（最多顯示 ${meta.max_records} 筆）` : ''}
+                </p>
+            `;
+            
+            // 清空表格
             dom.tableContainer.classList.remove('hidden');
+            dom.resultsTable.innerHTML = '';
 
-            const headers = Object.keys(data[0]);
+            // 獲取表頭
+            const headers = Object.keys(data[0] || {});
             
+            // 建立表頭
             const thead = document.createElement('thead');
-            thead.innerHTML = `<tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr>`;
+            thead.innerHTML = `
+                <tr>
+                    ${headers.map(h => `<th>${h}</th>`).join('')}
+                </tr>
+            `;
             
+            // 建立表格內容
             const tbody = document.createElement('tbody');
             tbody.innerHTML = data.map(row => `
-                <tr>
-                    ${headers.map(header => `<td>${row[header] === null ? '' : row[header]}</td>`).join('')}
+                <tr class="hover:bg-gray-800 transition-colors">
+                    ${headers.map(header => `
+                        <td class="border-t border-gray-700">${row[header] === null ? '-' : row[header]}</td>
+                    `).join('')}
                 </tr>
             `).join('');
             
-            dom.resultsTable.innerHTML = '';
+            // 組合表格
             dom.resultsTable.appendChild(thead);
             dom.resultsTable.appendChild(tbody);
         }
@@ -294,7 +347,11 @@
         dom.countySelect.addEventListener('change', updateDistrictOptions);
         
         // 初始化頁面
-        initialize();
+        document.addEventListener('DOMContentLoaded', () => {
+            initialize();
+            // 自動觸發一次查詢
+            // fetchData();
+        });
     </script>
 </body>
 </html>
