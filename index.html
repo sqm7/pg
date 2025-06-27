@@ -112,24 +112,20 @@
         </header>
         
         <main>
-            <!-- 篩選器面板 -->
-             <div class="glass-card p-6 rounded-xl shadow-lg mb-8">
+            <div class="glass-card p-6 rounded-xl shadow-lg mb-8">
                 <div id="filter-form" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 items-end">
-                    <!-- 縣市 -->
                     <div>
-                         <label for="county" class="block text-sm font-medium text-gray-300">縣市</label>
+                        <label for="county" class="block text-sm font-medium text-gray-300">縣市</label>
                         <select id="county" class="form-select mt-1 block w-full pl-3 pr-10 py-2 text-base rounded-md">
                             <option value="">請選擇縣市</option>
                         </select>
-                     </div>
-                    <!-- 行政區 -->
+                    </div>
                     <div>
                         <label for="district" class="block text-sm font-medium text-gray-300">行政區</label>
                         <select id="district" class="form-select mt-1 block w-full pl-3 pr-10 py-2 text-base rounded-md" disabled>
                             <option value="">請先選縣市</option>
                         </select>
                     </div>
-                     <!-- 交易類型 -->
                     <div>
                         <label for="type" class="block text-sm font-medium text-gray-300">交易類型</label>
                         <select id="type" class="form-select mt-1 block w-full pl-3 pr-10 py-2 text-base rounded-md">
@@ -139,8 +135,7 @@
                             <option value="租賃交易">租賃交易</option>
                         </select>
                     </div>
-                    <!-- 日期篩選 -->
-                     <div class="grid grid-cols-2 gap-2">
+                    <div class="grid grid-cols-2 gap-2">
                          <div>
                             <label for="date-start" class="block text-sm font-medium text-gray-300">起始日期</label>
                             <input type="date" id="date-start" class="form-input mt-1 block w-full pl-3 pr-2 py-2 text-base rounded-md">
@@ -151,7 +146,6 @@
                         </div>
                     </div>
 
-                    <!-- 每頁筆數選擇 -->
                     <div>
                         <label for="page-size" class="block text-sm font-medium text-gray-300">每頁筆數</label>
                         <select id="page-size" class="form-select mt-1 block w-full pl-3 pr-10 py-2 text-base rounded-md">
@@ -161,8 +155,7 @@
                         </select>
                     </div>
 
-                    <!-- 查詢按鈕 -->
-                     <div class="lg:col-start-6">
+                    <div class="lg:col-start-6">
                         <button id="search-btn" class="w-full bg-gradient-to-r from-cyan-accent to-purple-accent text-white font-bold py-2 px-6 rounded-lg shadow-lg hover:opacity-90 transition-all">
                             查詢資料
                         </button>
@@ -170,7 +163,6 @@
                 </div>
             </div>
 
-            <!-- 結果顯示區 -->
             <div id="results-container" class="glass-card p-6 rounded-xl shadow-lg">
                 <div id="message-area" class="text-center p-8 text-gray-400">
                      請設定篩選條件後點擊查詢。
@@ -178,19 +170,15 @@
                 <div id="table-wrapper" class="hidden">
                     <div id="table-container" class="table-container overflow-x-auto">
                         <table id="results-table" class="min-w-full divide-y divide-gray-800">
-                           <!-- 表格內容將由 JS 動態生成 -->
-                        </table>
+                           </table>
                     </div>
-                    <!-- 換頁控制項容器 -->
                     <div id="pagination-controls" class="flex justify-between items-center mt-4 text-sm text-gray-400">
-                        <!-- 換頁按鈕將由 JS 動態生成 -->
-                    </div>
+                        </div>
                 </div>
             </div>
         </main>
     </div>
 
-    <!-- Modal 彈出視窗 HTML 結構 -->
     <div id="details-modal" class="modal-overlay hidden">
         <div class="modal-container">
             <div class="flex justify-between items-center mb-6">
@@ -198,8 +186,7 @@
                 <button id="modal-close-btn" class="text-gray-400 hover:text-white text-3xl font-bold">&times;</button>
             </div>
             <div id="modal-content" class="text-gray-300">
-                <!-- 附表資料將會被插入到這裡 -->
-            </div>
+                </div>
         </div>
     </div>
 
@@ -274,6 +261,7 @@
                 currentPage = 1;
                 if(totalRecords > 0) fetchData();
             });
+
             dom.modalCloseBtn.addEventListener('click', () => dom.modal.classList.add('hidden'));
             dom.resultsTable.addEventListener('click', (e) => {
                 if(e.target.classList.contains('details-btn')) {
@@ -306,6 +294,7 @@
             dom.resultsTable.innerHTML = '';
 
             const countyCodeMap = { "臺北市": "A", "新北市": "F", "桃園市": "H", "臺中市": "B", "臺南市": "D", "高雄市": "E", "基隆市": "C", "新竹市": "O", "嘉義市": "I", "新竹縣": "J", "苗栗縣": "K", "彰化縣": "N", "南投縣": "M", "雲林縣": "P", "嘉義縣": "Q", "屏東縣": "T", "宜蘭縣": "G", "花蓮縣": "U", "臺東縣": "V", "澎湖縣": "X", "金門縣": "W", "連江縣": "Z" };
+
             const requestFilters = {};
             const county = dom.countySelect.value;
             if (county) requestFilters.countyCode = countyCodeMap[county] || '';
@@ -332,7 +321,6 @@
                 }
 
                 const result = await response.json();
-                
                 totalRecords = result.count || 0;
 
                 if (!result.data || result.data.length === 0) {
@@ -373,6 +361,7 @@
                 th.textContent = headerText;
                 headerRow.appendChild(th);
             });
+
             const thead = document.createElement('thead');
             thead.appendChild(headerRow);
             
@@ -383,7 +372,9 @@
 
                 const actionCell = document.createElement('td');
                 actionCell.className = 'py-2 px-3 border-b border-gray-700';
-                actionCell.innerHTML = `<button class="details-btn bg-purple-600 hover:bg-purple-500 text-white text-xs px-3 py-1 rounded" data-id="${row['編號']}" data-type="${row['交易類型'] || dom.typeSelect.value}" data-county="${row['縣市代碼']}">附表</button>`;
+                
+                actionCell.innerHTML = `<button class="details-btn bg-purple-600 hover:bg-purple-500 text-white text-xs px-3 py-1 rounded" data-id="${row['編號']}" data-type="${row['交易類型']}" data-county="${row['縣市代碼']}">附表</button>`;
+
                 tr.appendChild(actionCell);
 
                 headers.forEach(header => {
@@ -414,7 +405,6 @@
             }
 
             const totalPages = Math.ceil(totalRecords / pageSize);
-            
             const countInfo = document.createElement('div');
             countInfo.textContent = `共 ${totalRecords} 筆資料`;
 
@@ -422,23 +412,23 @@
             buttonsContainer.className = 'flex items-center space-x-2';
 
             const prevButton = document.createElement('button');
-            prevButton.textContent = '« 上一頁';
+            prevButton.textContent = ' 上一頁';
             prevButton.disabled = currentPage === 1;
             prevButton.onclick = () => { currentPage--; fetchData(); };
 
             const nextButton = document.createElement('button');
-            nextButton.textContent = '下一頁 »';
+            nextButton.textContent = '下一頁 ';
             nextButton.disabled = currentPage >= totalPages;
             nextButton.onclick = () => { currentPage++; fetchData(); };
 
             [prevButton, nextButton].forEach(btn => {
                 btn.className = "bg-gray-700 hover:bg-cyan-600 text-white font-bold py-2 px-4 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors";
             });
-            
+
             const pageInfo = document.createElement('span');
             pageInfo.textContent = `第 ${currentPage} / ${totalPages > 0 ? totalPages : 1} 頁`;
             pageInfo.className = 'px-4';
-            
+
             buttonsContainer.append(prevButton, pageInfo, nextButton);
             dom.paginationControls.append(countInfo, buttonsContainer);
         }
@@ -449,7 +439,6 @@
             }
 
             let html = `<div><h3 class="text-lg font-semibold text-cyan-400 mb-2">${title}</h3>`;
-            
             const headers = Object.keys(records[0]);
             
             html += '<table class="w-full text-sm text-left">';
@@ -484,9 +473,8 @@
             dom.modalTitle.textContent = `附表詳細資料 (編號: ${id})`;
             dom.modalContent.innerHTML = '<div class="loader mx-auto"></div>';
             dom.modal.classList.remove('hidden');
-            
+
             try {
-                // 【修正】增強錯誤處理邏輯
                 if (!id || !type || !county || county === 'undefined') {
                     throw new Error(`前端參數不足，無法查詢附表。 (編號: ${id}, 類型: ${type}, 縣市: ${county})`);
                 }
@@ -521,7 +509,6 @@
                 }
 
                 dom.modalContent.innerHTML = contentHTML;
-
             } catch (error) {
                 dom.modalContent.innerHTML = `<p class="text-red-400">查詢失敗: ${error.message}</p>`;
             }
