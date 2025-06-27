@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>不動產數據查詢平台 (v4.5)</title>
+    <title>不動產數據查詢平台 (v4.7)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
     <script>
@@ -107,7 +107,7 @@
 
     <div class="max-w-screen-xl mx-auto">
         <header class="mb-8 text-center">
-            <h1 class="text-4xl font-extrabold text-white tracking-tight">不動產數據查詢平台 (v4.5)</h1>
+            <h1 class="text-4xl font-extrabold text-white tracking-tight">不動產數據查詢平台 (v4.7)</h1>
             <p class="mt-2 text-lg text-gray-400">您的專屬數據查詢與分析工具。</p>
         </header>
         
@@ -230,6 +230,8 @@
         let pageSize = 500;
         let totalRecords = 0;
 
+        const countyCodeMap = { "臺北市": "A", "新北市": "F", "桃園市": "H", "臺中市": "B", "臺南市": "D", "高雄市": "E", "基隆市": "C", "新竹市": "O", "嘉義市": "I", "新竹縣": "J", "苗栗縣": "K", "彰化縣": "N", "南投縣": "M", "雲林縣": "P", "嘉義縣": "Q", "屏東縣": "T", "宜蘭縣": "G", "花蓮縣": "U", "臺東縣": "V", "澎湖縣": "X", "金門縣": "W", "連江縣": "Z" };
+
         const districtData = {
             "臺北市": ["中正區", "大同區", "中山區", "松山區", "大安區", "萬華區", "信義區", "士林區", "北投區", "內湖區", "南港區", "文山區"],
             "新北市": ["板橋區", "三重區", "中和區", "永和區", "新莊區", "新店區", "樹林區", "鶯歌區", "三峽區", "淡水區", "汐止區", "瑞芳區", "土城區", "蘆洲區", "五股區", "泰山區", "林口區", "深坑區", "石碇區", "坪林區", "三芝區", "石門區", "八里區", "平溪區", "雙溪區", "貢寮區", "金山區", "萬里區", "烏來區"],
@@ -305,7 +307,6 @@
             dom.tableWrapper.classList.add('hidden');
             dom.resultsTable.innerHTML = '';
 
-            const countyCodeMap = { "臺北市": "A", "新北市": "F", "桃園市": "H", "臺中市": "B", "臺南市": "D", "高雄市": "E", "基隆市": "C", "新竹市": "O", "嘉義市": "I", "新竹縣": "J", "苗栗縣": "K", "彰化縣": "N", "南投縣": "M", "雲林縣": "P", "嘉義縣": "Q", "屏東縣": "T", "宜蘭縣": "G", "花蓮縣": "U", "臺東縣": "V", "澎湖縣": "X", "金門縣": "W", "連江縣": "Z" };
             const requestFilters = {};
             const county = dom.countySelect.value;
             if (county) requestFilters.countyCode = countyCodeMap[county] || '';
@@ -355,13 +356,35 @@
             }
         }
 
+        // 【核心修改】 renderTable 函式，使用 desiredOrder 控制欄位順序
         function renderTable(data) {
             if (!data || data.length === 0) {
                 dom.tableWrapper.classList.add('hidden');
                 return;
             }
 
-            const headers = Object.keys(data[0]);
+            // 1. 在此處定義您想要的通用欄位順序。您可以任意調整這個陣列的順序。
+            const desiredOrder = [
+                '縣市代碼', '行政區', '交易類型', '交易日', '地址', 
+                '建案名稱', '總價', '建物型態', '主建物面積', 
+                '產權面積_房車', '租賃面積', '房數', '廳數', '衛浴數', 
+                '樓層', '總樓層', '出租型態', '租賃期間', '備註'
+                // 注意：這裡可以列出所有可能的欄位，程式會自動只顯示本次查詢回傳的欄位
+            ];
+
+            // 2. 從 API 回傳的第一筆資料中，獲取實際存在的欄位
+            const availableHeaders = Object.keys(data[0]);
+
+            // 3. 根據 desiredOrder 排序，並過濾掉不存在的欄位，產生最終要顯示的表頭
+            const headers = desiredOrder.filter(h => availableHeaders.includes(h));
+            
+            // 4. (可選) 將 desiredOrder 中未定義，但 API 有回傳的欄位加到最後面，以防遺漏
+            availableHeaders.forEach(h => {
+                if (!headers.includes(h) && h !== '編號') { // 我們不希望在主表中顯示 "編號"
+                    headers.push(h);
+                }
+            });
+
             const headerRow = document.createElement('tr');
             
             const actionHeader = document.createElement('th');
@@ -383,7 +406,7 @@
 
                 const actionCell = document.createElement('td');
                 actionCell.className = 'py-2 px-3 border-b border-gray-700';
-                actionCell.innerHTML = `<button class="details-btn bg-purple-600 hover:bg-purple-500 text-white text-xs px-3 py-1 rounded" data-id="${row['編號']}" data-type="${row['交易類型'] || dom.typeSelect.value}" data-county="${row['縣市代碼']}">附表</button>`;
+                actionCell.innerHTML = `<button class="details-btn bg-purple-600 hover:bg-purple-500 text-white text-xs px-3 py-1 rounded" data-id="${row['編號']}" data-type="${row['交易類型']}" data-county="${row['縣市代碼']}">附表</button>`;
                 tr.appendChild(actionCell);
 
                 headers.forEach(header => {
@@ -486,7 +509,6 @@
             dom.modal.classList.remove('hidden');
             
             try {
-                // 【修正】增強錯誤處理邏輯
                 if (!id || !type || !county || county === 'undefined') {
                     throw new Error(`前端參數不足，無法查詢附表。 (編號: ${id}, 類型: ${type}, 縣市: ${county})`);
                 }
