@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>不動產數據查詢平台 (v4.1)</title>
+    <title>不動產數據查詢平台 (v4.3)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
     <script>
@@ -107,7 +107,7 @@
 
     <div class="max-w-screen-xl mx-auto">
         <header class="mb-8 text-center">
-            <h1 class="text-4xl font-extrabold text-white tracking-tight">不動產數據查詢平台 (v4.1)</h1>
+            <h1 class="text-4xl font-extrabold text-white tracking-tight">不動產數據查詢平台 (v4.3)</h1>
             <p class="mt-2 text-lg text-gray-400">您的專屬數據查詢與分析工具。</p>
         </header>
         
@@ -133,7 +133,7 @@
                     <div>
                         <label for="type" class="block text-sm font-medium text-gray-300">交易類型</label>
                         <select id="type" class="form-select mt-1 block w-full pl-3 pr-10 py-2 text-base rounded-md">
-                            <option value="">全部</option>
+                            <option value="">請選擇交易類型</option>
                             <option value="中古交易">中古交易</option>
                             <option value="預售交易">預售交易</option>
                             <option value="租賃交易">租賃交易</option>
@@ -230,7 +230,6 @@
         let pageSize = 500;
         let totalRecords = 0;
 
-        // --- 縣市行政區資料 ---
         const districtData = {
             "臺北市": ["中正區", "大同區", "中山區", "松山區", "大安區", "萬華區", "信義區", "士林區", "北投區", "內湖區", "南港區", "文山區"],
             "新北市": ["板橋區", "三重區", "中和區", "永和區", "新莊區", "新店區", "樹林區", "鶯歌區", "三峽區", "淡水區", "汐止區", "瑞芳區", "土城區", "蘆洲區", "五股區", "泰山區", "林口區", "深坑區", "石碇區", "坪林區", "三芝區", "石門區", "八里區", "平溪區", "雙溪區", "貢寮區", "金山區", "萬里區", "烏來區"],
@@ -256,14 +255,6 @@
             "連江縣": ["南竿鄉", "北竿鄉", "莒光鄉", "東引鄉"]
         };
 
-        // 【新增】為不同交易類型定義不同的表頭
-        const TABLE_HEADERS = {
-            '全部': ['操作', '縣市', '行政區', '類型', '交易標的', '地址', '總價', '建物面積', '備註'],
-            '中古交易': ['操作', '縣市', '行政區', '地址', '交易日', '總價', '建物型態', '主建物面積', '房/廳/衛', '備註'],
-            '預售交易': ['操作', '縣市', '行政區', '建案名稱', '地址', '交易日', '總價', '建物型態', '房/廳/衛', '備註'],
-            '租賃交易': ['操作', '縣市', '行政區', '地址', '交易日', '總價', '建物型態', '租賃面積', '房/廳/衛', '備註']
-        };
-
         function initialize() {
             Object.keys(districtData).forEach(countyName => {
                 const option = document.createElement('option');
@@ -281,7 +272,7 @@
             dom.pageSizeSelect.addEventListener('change', (e) => {
                 pageSize = parseInt(e.target.value, 10);
                 currentPage = 1;
-                if(totalRecords > 0) fetchData(); // 只有在已有結果時才重新查詢
+                if(totalRecords > 0) fetchData();
             });
             dom.modalCloseBtn.addEventListener('click', () => dom.modal.classList.add('hidden'));
             dom.resultsTable.addEventListener('click', (e) => {
@@ -336,19 +327,18 @@
                 });
 
                 if (!response.ok) {
-                    const errorResult = await response.json().catch(() => ({}));
+                    const errorResult = await response.json().catch(() => ({ error: '無法解析伺服器回應' }));
                     throw new Error(errorResult.error || `伺服器錯誤: ${response.status}`);
                 }
 
                 const result = await response.json();
                 
-                // 【修改】確保 totalRecords 永遠是數字
                 totalRecords = result.count || 0;
 
                 if (!result.data || result.data.length === 0) {
                     dom.messageArea.innerHTML = '<p>找不到符合條件的資料。</p>';
                     dom.tableWrapper.classList.add('hidden');
-                    renderPagination(); // 清空舊的分頁
+                    renderPagination();
                     return;
                 }
                 
@@ -365,52 +355,67 @@
             }
         }
 
-        // 【修改】 renderTable 函式，使其動態生成欄位
+        // 【修改】 renderTable 函式，實現完全動態的欄位生成
         function renderTable(data) {
-            const selectedType = dom.typeSelect.value || '全部';
-            const headers = TABLE_HEADERS[selectedType] || TABLE_HEADERS['全部'];
+            if (!data || data.length === 0) {
+                dom.tableWrapper.classList.add('hidden');
+                return;
+            }
+
+            // 1. 從第一筆資料動態獲取所有欄位名稱 (keys)
+            const headers = Object.keys(data[0]);
+            const headerRow = document.createElement('tr');
             
+            // 2. 加入一個「操作」欄位在最前面
+            const actionHeader = document.createElement('th');
+            actionHeader.textContent = '操作';
+            headerRow.appendChild(actionHeader);
+
+            // 3. 動態生成表頭
+            headers.forEach(headerText => {
+                const th = document.createElement('th');
+                th.textContent = headerText;
+                headerRow.appendChild(th);
+            });
             const thead = document.createElement('thead');
-            thead.innerHTML = `<tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr>`;
+            thead.appendChild(headerRow);
             
+            // 4. 動態生成表格內容
             const tbody = document.createElement('tbody');
-            
-            // 簡化欄位對應的名稱
-            const fieldMapping = {
-                '縣市': '縣市代碼', '類型': '交易類型', '房/廳/衛': '房廳衛'
-            };
+            data.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-gray-800 transition-colors';
 
-            tbody.innerHTML = data.map(row => {
-                const cells = headers.map(header => {
-                    let cellContent = '';
-                    let fieldKey = fieldMapping[header] || header;
+                // 加入「操作」按鈕的儲存格
+                const actionCell = document.createElement('td');
+                actionCell.className = 'py-2 px-3 border-b border-gray-700';
+                actionCell.innerHTML = `<button class="details-btn bg-purple-600 hover:bg-purple-500 text-white text-xs px-3 py-1 rounded" data-id="${row['編號']}" data-type="${row['交易類型'] || dom.typeSelect.value}" data-county="${row['縣市代碼']}">附表</button>`;
+                tr.appendChild(actionCell);
 
-                    if (header === '操作') {
-                        cellContent = `<button class="details-btn bg-purple-600 hover:bg-purple-500 text-white text-xs px-3 py-1 rounded" data-id="${row['編號']}" data-type="${row['交易類型']}" data-county="${row['縣市代碼']}">附表</button>`;
-                    } else if (header === '房/廳/衛') {
-                        cellContent = `${row['房數'] || 0} / ${row['廳數'] || 0} / ${row['衛浴數'] || 0}`;
-                    } else {
-                        const value = row[fieldKey];
-                        if (typeof value === 'number' && ['總價', '建物面積', '主建物面積', '租賃面積'].includes(fieldKey)) {
-                            cellContent = new Intl.NumberFormat('zh-TW').format(value);
-                        } else {
-                            cellContent = value || '-';
-                        }
+                // 根據表頭順序填入資料
+                headers.forEach(header => {
+                    const td = document.createElement('td');
+                    td.className = 'py-2 px-3 border-b border-gray-700';
+                    let value = row[header];
+
+                    if (typeof value === 'number' && ['交易總價', '車位總價', '產權面積_房車', '車位總面積', '主建物面積', '附屬建物面積', '陽台面積', '租賃面積'].includes(header)) {
+                       value = new Intl.NumberFormat('zh-TW').format(value);
                     }
-                    return `<td class="py-2 px-3 border-b border-gray-700">${cellContent}</td>`;
-                }).join('');
-                return `<tr class="hover:bg-gray-800 transition-colors">${cells}</tr>`;
-            }).join('');
+                    
+                    td.textContent = value ?? '-'; // 使用 ?? 運算子處理 null 和 undefined
+                    tr.appendChild(td);
+                });
+                tbody.appendChild(tr);
+            });
             
             dom.resultsTable.innerHTML = '';
             dom.resultsTable.appendChild(thead);
             dom.resultsTable.appendChild(tbody);
         }
 
-        // 【修改】 renderPagination 函式，處理 totalRecords 為 0 的情況
         function renderPagination() {
             dom.paginationControls.innerHTML = '';
-            if (totalRecords === 0) {
+            if (totalRecords === 0 && currentPage === 1) {
                 dom.paginationControls.innerHTML = `<span>共 0 筆資料</span>`;
                 return;
             }
@@ -438,7 +443,7 @@
             });
             
             const pageInfo = document.createElement('span');
-            pageInfo.textContent = `第 ${currentPage} / ${totalPages} 頁`;
+            pageInfo.textContent = `第 ${currentPage} / ${totalPages > 0 ? totalPages : 1} 頁`;
             pageInfo.className = 'px-4';
             
             buttonsContainer.append(prevButton, pageInfo, nextButton);
@@ -474,13 +479,15 @@
                     let html = `<div><h3 class="text-lg font-semibold text-cyan-400 mb-2">${title}</h3><div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 text-sm">`;
                     for(const [key, value] of Object.entries(data)) {
                         if (key === 'id' || key === '編號') continue;
-                        html += `<div><span class="font-medium text-gray-400">${key}:</span> ${value || '-'}</div>`;
+                        html += `<div><span class="font-medium text-gray-400">${key}:</span> ${value ?? '-'}</div>`;
                     }
                     html += '</div></div>';
                     return html;
                 };
-
-                contentHTML += renderSubTable('建物資料', result.build);
+                
+                if (type !== '預售交易') {
+                    contentHTML += renderSubTable('建物資料', result.build);
+                }
                 contentHTML += renderSubTable('土地資料', result.land);
                 contentHTML += renderSubTable('車位資料', result.park);
 
