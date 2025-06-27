@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>不動產數據查詢工具</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', 'Noto Sans TC', sans-serif;
+            background-color: #f1f5f9;
+        }
+        .table-container {
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border-bottom: 1px solid #e2e8f0;
+            padding: 0.75rem 1rem;
+            text-align: left;
+            font-size: 0.875rem;
+            white-space: nowrap;
+        }
+        thead th {
+            background-color: #f8fafc;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            font-weight: 600;
+            color: #475569;
+        }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-7xl mx-auto">
+        <header class="mb-8 text-center">
+            <h1 class="text-4xl font-extrabold text-gray-900 tracking-tight">不動產數據查詢平台</h1>
+            <p class="mt-2 text-lg text-gray-600">您的專屬數據查詢與分析工具。</p>
+        </header>
+        
+        <main>
+            <!-- Supabase 連線資訊 -->
+            <div class="bg-white p-6 rounded-xl shadow-lg mb-8">
+                <h2 class="text-xl font-semibold text-gray-700 mb-4">資料庫連線資訊</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="supabaseUrl" class="block text-sm font-medium text-gray-700 mb-1">Supabase URL</label>
+                        <input type="text" id="supabaseUrl" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" placeholder="https://your-project-ref.supabase.co">
+                    </div>
+                    <div>
+                        <label for="supabaseKey" class="block text-sm font-medium text-gray-700 mb-1">Supabase Anon Key</label>
+                        <input type="text" id="supabaseKey" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" placeholder="your-public-anon-key">
+                        <p class="mt-1 text-xs text-gray-500">此處使用公開的 Anon Key，資料安全由資料庫的 RLS 政策保護。</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 篩選器面板 -->
+            <div class="bg-white p-6 rounded-xl shadow-lg mb-8">
+                <div id="filter-form" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                    <div>
+                        <label for="county" class="block text-sm font-medium text-gray-700">縣市</label>
+                        <select id="county" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                            <option value="">請選擇縣市</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="district" class="block text-sm font-medium text-gray-700">行政區</label>
+                        <input type="text" id="district" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md" placeholder="例如：信義區">
+                    </div>
+                    <div>
+                        <label for="type" class="block text-sm font-medium text-gray-700">交易類型</label>
+                        <select id="type" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                            <option value="">全部</option>
+                            <option value="中古交易">中古交易</option>
+                            <option value="預售交易">預售交易</option>
+                            <option value="租賃交易">租賃交易</option>
+                        </select>
+                    </div>
+                    <div>
+                        <button id="search-btn" class="w-full bg-blue-600 text-white font-bold py-2 px-6 rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all">
+                            查詢資料
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 結果顯示區 -->
+            <div id="results-container" class="bg-white p-6 rounded-xl shadow-lg">
+                <div id="message-area" class="text-center p-8 text-gray-500">
+                    請設定篩選條件後點擊查詢。
+                </div>
+                <div id="table-container" class="table-container hidden overflow-x-auto">
+                    <table id="results-table" class="min-w-full divide-y divide-gray-200">
+                        <!-- 表格內容將由 JS 動態生成 -->
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+        const dom = {
+            countySelect: document.getElementById('county'),
+            districtInput: document.getElementById('district'),
+            typeSelect: document.getElementById('type'),
+            searchBtn: document.getElementById('search-btn'),
+            messageArea: document.getElementById('message-area'),
+            tableContainer: document.getElementById('table-container'),
+            resultsTable: document.getElementById('results-table')
+        };
+
+        let supabase;
+
+        // 初始化函式
+        async function initialize() {
+            // 嘗試從 localStorage 讀取上次的連線資訊
+            const savedUrl = localStorage.getItem('supabaseUrl');
+            const savedKey = localStorage.getItem('supabaseKey');
+            if (savedUrl) document.getElementById('supabaseUrl').value = savedUrl;
+            if (savedKey) document.getElementById('supabaseKey').value = savedKey;
+
+            if (savedUrl && savedKey) {
+                connectAndLoadCounties();
+            }
+        }
+        
+        // 連線到 Supabase 並載入縣市列表
+        async function connectAndLoadCounties() {
+            const supabaseUrl = document.getElementById('supabaseUrl').value;
+            const supabaseKey = document.getElementById('supabaseKey').value;
+
+            if (!supabaseUrl || !supabaseKey) {
+                dom.messageArea.innerHTML = '<p class="text-red-500">請先輸入 Supabase 的連線資訊。</p>';
+                return false;
+            }
+            
+            // 儲存連線資訊以便下次使用
+            localStorage.setItem('supabaseUrl', supabaseUrl);
+            localStorage.setItem('supabaseKey', supabaseKey);
+
+            supabase = createClient(supabaseUrl, supabaseKey);
+            
+            try {
+                dom.countySelect.disabled = true;
+                const { data, error } = await supabase
+                    .from('county_codes')
+                    .select('code, name_zh')
+                    .order('code', { ascending: true });
+
+                if (error) throw error;
+                
+                // 清空舊選項
+                dom.countySelect.innerHTML = '<option value="">請選擇縣市</option>';
+                data.forEach(county => {
+                    const option = document.createElement('option');
+                    option.value = county.code;
+                    option.textContent = county.name_zh;
+                    dom.countySelect.appendChild(option);
+                });
+                dom.countySelect.disabled = false;
+                return true;
+            } catch (error) {
+                dom.messageArea.innerHTML = `<p class="text-red-500">無法載入縣市列表: ${error.message}</p>`;
+                return false;
+            }
+        }
+
+        // 執行查詢
+        async function fetchData() {
+            if (!supabase) {
+                const connected = await connectAndLoadCounties();
+                if (!connected) return;
+            }
+
+            dom.messageArea.innerHTML = '<div class="loader mx-auto"></div><p class="mt-4">查詢中，請稍候...</p>';
+            dom.tableContainer.classList.add('hidden');
+            dom.resultsTable.innerHTML = '';
+
+            try {
+                let query = supabase
+                    .from('all_transactions_view')
+                    .select('*')
+                    .limit(200); // 限制筆數，避免瀏覽器過載
+
+                const county = dom.countySelect.value;
+                const district = dom.districtInput.value;
+                const type = dom.typeSelect.value;
+
+                if (county) query = query.eq('縣市代碼', county);
+                if (district) query = query.like('行政區', `%${district}%`);
+                if (type) query = query.eq('交易類型', type);
+                
+                const { data, error } = await query;
+                if (error) throw error;
+                
+                renderTable(data);
+
+            } catch (error) {
+                dom.messageArea.innerHTML = `<p class="text-red-500">查詢失敗: ${error.message}</p>`;
+            }
+        }
+
+        // 渲染表格
+        function renderTable(data) {
+            if (data.length === 0) {
+                dom.messageArea.innerHTML = '<p>找不到符合條件的資料。</p>';
+                return;
+            }
+
+            dom.messageArea.innerHTML = ''; // 清空訊息
+            dom.tableContainer.classList.remove('hidden');
+
+            const headers = Object.keys(data[0]);
+            
+            const thead = document.createElement('thead');
+            thead.innerHTML = `<tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr>`;
+            
+            const tbody = document.createElement('tbody');
+            tbody.innerHTML = data.map(row => `
+                <tr>
+                    ${headers.map(header => `<td>${row[header] === null ? '' : row[header]}</td>`).join('')}
+                </tr>
+            `).join('');
+            
+            dom.resultsTable.innerHTML = '';
+            dom.resultsTable.appendChild(thead);
+            dom.resultsTable.appendChild(tbody);
+        }
+
+        // 事件監聽
+        dom.searchBtn.addEventListener('click', fetchData);
+        document.getElementById('supabaseUrl').addEventListener('change', connectAndLoadCounties);
+        document.getElementById('supabaseKey').addEventListener('change', connectAndLoadCounties);
+
+        // 初始化頁面
+        initialize();
+    </script>
+</body>
+</html>
