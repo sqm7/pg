@@ -47,13 +47,20 @@
         table {
             width: 100%;
             border-collapse: collapse;
+            /* 【第一處修改】新增 table-layout: fixed; 讓欄寬計算更穩定 */
+            table-layout: fixed;
         }
         th, td {
             border-bottom: 1px solid #374151;
             padding: 0.75rem 1rem;
             text-align: left;
             font-size: 0.875rem;
-            white-space: nowrap;
+            
+            /* 【第二處修改】實現自動換行 */
+            /* 1. 將 white-space 從 nowrap 改為 normal，允許文字在空白處換行 */
+            white-space: normal;
+            /* 2. 新增 word-break: break-all; 確保即使是連續的長單字或數字也能被強制換行 */
+            word-break: break-all;
         }
         thead th {
             background-color: #252836;
@@ -72,10 +79,8 @@
             animation: spin 1s linear infinite;
         }
         @keyframes spin {
-            0% { transform: rotate(0deg);
-            }
-            100% { transform: rotate(360deg);
-            }
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
         .modal-overlay {
             position: fixed;
@@ -147,7 +152,6 @@
                             <input type="date" id="date-end" class="form-input mt-1 block w-full pl-3 pr-2 py-2 text-base rounded-md">
                         </div>
                     </div>
-
                     <div>
                         <label for="page-size" class="block text-sm font-medium text-gray-300">每頁筆數</label>
                         <select id="page-size" class="form-select mt-1 block w-full pl-3 pr-10 py-2 text-base rounded-md">
@@ -156,18 +160,17 @@
                             <option value="1500">1500</option>
                         </select>
                     </div>
-
                     <div class="lg:col-start-6">
                         <button id="search-btn" class="w-full bg-gradient-to-r from-cyan-accent to-purple-accent text-white font-bold py-2 px-6 rounded-lg shadow-lg hover:opacity-90 transition-all">
                             查詢資料
                         </button>
-                     </div>
+                    </div>
                 </div>
             </div>
 
             <div id="results-container" class="glass-card p-6 rounded-xl shadow-lg">
                 <div id="message-area" class="text-center p-8 text-gray-400">
-                     請設定篩選條件後點擊查詢。
+                    請設定篩選條件後點擊查詢。
                 </div>
                 <div id="table-wrapper" class="hidden">
                     <div id="table-container" class="table-container overflow-x-auto">
@@ -175,7 +178,7 @@
                            </table>
                     </div>
                     <div id="pagination-controls" class="flex justify-between items-center mt-4 text-sm text-gray-400">
-                        </div>
+                    </div>
                 </div>
             </div>
         </main>
@@ -188,7 +191,7 @@
                 <button id="modal-close-btn" class="text-gray-400 hover:text-white text-3xl font-bold">&times;</button>
             </div>
             <div id="modal-content" class="text-gray-300">
-                </div>
+            </div>
         </div>
     </div>
 
@@ -214,9 +217,11 @@
             modalContent: document.getElementById('modal-content'),
             modalCloseBtn: document.getElementById('modal-close-btn'),
         };
+        
         let currentPage = 1;
         let pageSize = 500;
         let totalRecords = 0;
+        
         const districtData = {
             "臺北市": ["中正區", "大同區", "中山區", "松山區", "大安區", "萬華區", "信義區", "士林區", "北投區", "內湖區", "南港區", "文山區"],
             "新北市": ["板橋區", "三重區", "中和區", "永和區", "新莊區", "新店區", "樹林區", "鶯歌區", "三峽區", "淡水區", "汐止區", "瑞芳區", "土城區", "蘆洲區", "五股區", "泰山區", "林口區", "深坑區", "石碇區", "坪林區", "三芝區", "石門區", "八里區", "平溪區", "雙溪區", "貢寮區", "金山區", "萬里區", "烏來區"],
@@ -241,6 +246,7 @@
             "金門縣": ["金城鎮", "金湖鎮", "金沙鎮", "金寧鄉", "烈嶼鄉", "烏坵鄉"],
             "連江縣": ["南竿鄉", "北竿鄉", "莒光鄉", "東引鄉"]
         };
+
         function initialize() {
             Object.keys(districtData).forEach(countyName => {
                 const option = document.createElement('option');
@@ -298,6 +304,7 @@
             if (dom.typeSelect.value) requestFilters.type = dom.typeSelect.value;
             if (dom.dateStartInput.value) requestFilters.dateStart = dom.dateStartInput.value;
             if (dom.dateEndInput.value) requestFilters.dateEnd = dom.dateEndInput.value;
+            
             const pagination = { page: currentPage, limit: pageSize };
 
             try {
@@ -343,18 +350,16 @@
                 return;
             }
             
-            // 【重要】定義您想在畫面上隱藏的欄位
-            const hiddenColumns = ['編號', '縣市代碼', '交易類型']; 
-
+            const hiddenColumns = ['編號', '縣市代碼', '交易類型'];
             const headers = Object.keys(data[0]);
-            const headerRow = document.createElement('tr');
             
+            const headerRow = document.createElement('tr');
             const actionHeader = document.createElement('th');
             actionHeader.textContent = '操作';
+            actionHeader.style.width = '80px'; // 給操作欄一個固定寬度
             headerRow.appendChild(actionHeader);
 
             headers.forEach(headerText => {
-                // 如果目前的欄位名稱不在隱藏清單中，才建立表頭
                 if (!hiddenColumns.includes(headerText)) {
                     const th = document.createElement('th');
                     th.textContent = headerText;
@@ -371,17 +376,21 @@
 
                 const actionCell = document.createElement('td');
                 actionCell.className = 'py-2 px-3 border-b border-gray-700';
-                // 按鈕依然使用完整的 row 物件，確保能取到 '編號' 等資料
                 actionCell.innerHTML = `<button class="details-btn bg-purple-600 hover:bg-purple-500 text-white text-xs px-3 py-1 rounded" data-id="${row['編號']}" data-type="${row['交易類型']}" data-county="${row['縣市代碼']}">附表</button>`;
                 tr.appendChild(actionCell);
 
                 headers.forEach(header => {
-                    // 如果目前的欄位名稱不在隱藏清單中，才建立儲存格
                     if (!hiddenColumns.includes(header)) {
                         const td = document.createElement('td');
                         td.className = 'py-2 px-3 border-b border-gray-700';
                         let value = row[header];
 
+                        // 【第三處修改】自動刪除值後方的空白字元
+                        // 在處理值之前，先檢查是否為字串，若是，則使用 .trim() 清除前後空白
+                        if (typeof value === 'string') {
+                            value = value.trim();
+                        }
+                        
                         if (typeof value === 'number' && ['交易總價', '車位總價', '產權面積_房車', '車位總面積', '主建物面積', '附屬建物面積', '陽台面積', '租賃面積'].includes(header)) {
                            value = new Intl.NumberFormat('zh-TW').format(value);
                         }
@@ -429,7 +438,7 @@
             const pageInfo = document.createElement('span');
             pageInfo.textContent = `第 ${currentPage} / ${totalPages > 0 ? totalPages : 1} 頁`;
             pageInfo.className = 'px-4';
-
+            
             buttonsContainer.append(prevButton, pageInfo, nextButton);
             dom.paginationControls.append(countInfo, buttonsContainer);
         }
@@ -456,7 +465,12 @@
                 html += '<tr class="border-b border-gray-700">';
                 headers.forEach(header => {
                      if (header !== 'id' && header !== '編號') {
-                        html += `<td class="py-2 pr-2">${record[header] ?? '-'}</td>`;
+                        // 【第四處修改】同樣對附表資料的值進行 trim 處理
+                        let value = record[header];
+                        if (typeof value === 'string') {
+                            value = value.trim();
+                        }
+                        html += `<td class="py-2 pr-2">${value ?? '-'}</td>`;
                      }
                 });
                 html += '</tr>';
