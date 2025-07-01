@@ -47,7 +47,6 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            /* 【第一處修改】新增 table-layout: fixed; 讓欄寬計算更穩定 */
             table-layout: fixed;
         }
         th, td {
@@ -55,12 +54,10 @@
             padding: 0.75rem 1rem;
             text-align: left;
             font-size: 0.875rem;
-            
-            /* 【第二處修改】實現自動換行 */
-            /* 1. 將 white-space 從 nowrap 改為 normal，允許文字在空白處換行 */
             white-space: normal;
-            /* 2. 新增 word-break: break-all; 確保即使是連續的長單字或數字也能被強制換行 */
             word-break: break-all;
+            /* 【方案一實作】新增這一行，設定所有欄位的最小寬度 */
+            min-width: 150px; 
         }
         thead th {
             background-color: #252836;
@@ -356,7 +353,7 @@
             const headerRow = document.createElement('tr');
             const actionHeader = document.createElement('th');
             actionHeader.textContent = '操作';
-            actionHeader.style.width = '80px'; // 給操作欄一個固定寬度
+            actionHeader.style.minWidth = '80px'; // 給操作欄一個固定寬度
             headerRow.appendChild(actionHeader);
 
             headers.forEach(headerText => {
@@ -385,8 +382,6 @@
                         td.className = 'py-2 px-3 border-b border-gray-700';
                         let value = row[header];
 
-                        // 【第三處修改】自動刪除值後方的空白字元
-                        // 在處理值之前，先檢查是否為字串，若是，則使用 .trim() 清除前後空白
                         if (typeof value === 'string') {
                             value = value.trim();
                         }
@@ -465,7 +460,6 @@
                 html += '<tr class="border-b border-gray-700">';
                 headers.forEach(header => {
                      if (header !== 'id' && header !== '編號') {
-                        // 【第四處修改】同樣對附表資料的值進行 trim 處理
                         let value = record[header];
                         if (typeof value === 'string') {
                             value = value.trim();
