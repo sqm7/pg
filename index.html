@@ -230,46 +230,66 @@
             "連江縣": ["南竿鄉", "北竿鄉", "莒光鄉", "東引鄉"]
         };
 
+        // --- 最新優化版 getUnitIdentifier 函式 ---
         function getUnitIdentifier(rawText, buildingName, floor) {
+            // 1. 預處理
             if (!rawText || typeof rawText !== 'string') return '';
             let text = rawText.replace(/[\uff01-\uff5e]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 0xfee0)).toUpperCase();
+
+            // 2. 通用清理
             const floorNum = floor ? (String(floor).match(/\d+/) || [''])[0] : '';
             let cleanedText = text.replace(/[棟號樓\-\/]/g, ' ');
             cleanedText = cleanedText.replace(/[\d]+F/g, '');
             const candidates = cleanedText.trim().split(/\s+/).filter(c => c);
+
             if (candidates.length === 0) return '';
             if (candidates.length === 1) {
                 return candidates[0];
             }
+
+            // 3. 評分核心
             let bestCandidate = '';
             let maxScore = -Infinity;
+
             for (const candidate of candidates) {
                 let score = 0;
-                const hasLetter = /[A-Z]/.test(candidate);
-                const hasNumber = /\d/.test(candidate);
-                if (hasLetter && hasNumber) {
-                    score += 10;
-                } else if (hasLetter) {
-                    score += 5;
-                } else if (hasNumber) {
+                const isMixed = /[A-Z]/.test(candidate) && /\d/.test(candidate);
+                const isAlpha = /^[A-Z]+$/.test(candidate);
+                const isNumeric = /^\d+$/.test(candidate);
+
+                if (isMixed) { score += 10; } 
+                else if (isAlpha) { score += 5; } 
+                else if (isNumeric) {
                     if (candidate === floorNum && floorNum !== '') {
                         score -= 20;
                     } else {
                         score += 1;
                     }
                 }
-                if (/^[A-Z]/.test(candidate)) {
-                    score += 2;
-                }
+                
+                if (/^[A-Z]/.test(candidate)) { score += 2; }
+
                 if (score > maxScore) {
                     maxScore = score;
                     bestCandidate = candidate;
                 }
             }
-            const lastCandidate = candidates[candidates.length - 1];
-            if (lastCandidate && /[A-Z]/.test(lastCandidate) && /\d/.test(lastCandidate)) {
-                return lastCandidate;
+            
+            // 4. 組合邏輯
+            if (/^[A-Z]+$/.test(bestCandidate)) {
+                let numericPart = '';
+                for (const candidate of candidates) {
+                    if (/^\d+$/.test(candidate) && candidate !== floorNum) {
+                        numericPart = candidate;
+                        break;
+                    }
+                }
+                if (numericPart) {
+                    return bestCandidate + numericPart;
+                }
             }
+
+            // 5. 回傳最終結果
             return bestCandidate;
         }
 
