@@ -203,9 +203,8 @@
         };
         
         let currentPage = 1;
-        let pageSize = 30; // <--- 這行是修改過的地方
+        let pageSize = 30;
         let totalRecords = 0;
-        
         const districtData = {
             "臺北市": ["中正區", "大同區", "中山區", "松山區", "大安區", "萬華區", "信義區", "士林區", "北投區", "內湖區", "南港區", "文山區"],
             "新北市": ["板橋區", "三重區", "中和區", "永和區", "新莊區", "新店區", "樹林區", "鶯歌區", "三峽區", "淡水區", "汐止區", "瑞芳區", "土城區", "蘆洲區", "五股區", "泰山區", "林口區", "深坑區", "石碇區", "坪林區", "三芝區", "石門區", "八里區", "平溪區", "雙溪區", "貢寮區", "金山區", "萬里區", "烏來區"],
@@ -230,6 +229,74 @@
             "金門縣": ["金城鎮", "金湖鎮", "金沙鎮", "金寧鄉", "烈嶼鄉", "烏坵鄉"],
             "連江縣": ["南竿鄉", "北竿鄉", "莒光鄉", "東引鄉"]
         };
+
+        function getUnitIdentifier(rawText, buildingName, floor) {
+            // 如果沒有戶別資料，直接返回空字串
+            if (!rawText || typeof rawText !== 'string') return '';
+
+            // 第 1 步：基礎文字正規化 (全形轉半形、轉大寫)
+            let text = rawText.replace(/[\uff01-\uff5e]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 0xfee0)).toUpperCase();
+
+            // 第 2 步：專案客製化規則 (此處為未來擴充保留)
+            // const projectParsingRules = { /* '台北101': (txt) => { ... } */ };
+            // if (buildingName && projectParsingRules[buildingName]) {
+            //     return projectParsingRules[buildingName](text);
+            // }
+
+            // 第 3 步：通用文字清理
+            const floorNum = floor ? (String(floor).match(/\d+/) || [''])[0] : '';
+            let cleanedText = text.replace(/[棟號樓\-\/]/g, ' '); // 移除通用關鍵字
+            cleanedText = cleanedText.replace(/[\d]+F/g, '');       // 移除樓層標示 (例如 15F)
+            const candidates = cleanedText.trim().split(/\s+/).filter(c => c); // 拆分為候選陣列
+
+            if (candidates.length === 0) return '';
+
+            // 第 5 步(部分)：最終啟發式規則 - 單一候選
+            if (candidates.length === 1) {
+                return candidates[0];
+            }
+
+            // 第 4 步：候選字串評分與決策
+            let bestCandidate = '';
+            let maxScore = -Infinity;
+
+            for (const candidate of candidates) {
+                let score = 0;
+                const hasLetter = /[A-Z]/.test(candidate);
+                const hasNumber = /\d/.test(candidate);
+
+                if (hasLetter && hasNumber) { // 混合型辨識
+                    score += 10;
+                } else if (hasLetter) { // 純字母辨識
+                    score += 5;
+                } else if (hasNumber) { // 純數字辨識
+                    if (candidate === floorNum && floorNum !== '') {
+                        score -= 20; // 樓層懲罰
+                    } else {
+                        score += 1;
+                    }
+                }
+                
+                if (/^[A-Z]/.test(candidate)) { // 開頭加分
+                    score += 2;
+                }
+
+                if (score > maxScore) {
+                    maxScore = score;
+                    bestCandidate = candidate;
+                }
+            }
+
+            // 第 5 步：最終啟發式規則
+            const lastCandidate = candidates[candidates.length - 1];
+            // 如果最後一個候選字串是混合型，優先回傳它
+            if (lastCandidate && /[A-Z]/.test(lastCandidate) && /\d/.test(lastCandidate)) {
+                return lastCandidate;
+            }
+            
+            // 回傳評分最高的候選者
+            return bestCandidate;
+        }
 
         function initialize() {
             Object.keys(districtData).forEach(countyName => {
@@ -284,7 +351,6 @@
             if (dom.typeSelect.value) requestFilters.type = dom.typeSelect.value;
             if (dom.dateStartInput.value) requestFilters.dateStart = dom.dateStartInput.value;
             if (dom.dateEndInput.value) requestFilters.dateEnd = dom.dateEndInput.value;
-            
             const pagination = { page: currentPage, limit: pageSize };
 
             try {
@@ -296,7 +362,6 @@
                     },
                     body: JSON.stringify({ filters: requestFilters, pagination: pagination })
                 });
-
                 if (!response.ok) {
                     const errorResult = await response.json().catch(() => ({ error: '無法解析伺服器回應' }));
                     throw new Error(errorResult.error || `伺服器錯誤: ${response.status}`);
@@ -337,26 +402,34 @@
             const actionHeader = document.createElement('th');
             actionHeader.textContent = '操作';
             headerRow.appendChild(actionHeader);
-            
+
+            // 建立表頭
             headers.forEach(headerText => {
                 if (!hiddenColumns.includes(headerText)) {
                     const th = document.createElement('th');
                     th.textContent = headerText;
                     headerRow.appendChild(th);
+
+                    // 【修改點 1】如果目前欄位是「戶別」，就在它旁邊新增「戶型」的表頭
+                    if (headerText === '戶別') {
+                        const newTh = document.createElement('th');
+                        newTh.textContent = '戶型'; // 新增的欄位名稱
+                        headerRow.appendChild(newTh);
+                    }
                 }
             });
             
             const thead = document.createElement('thead');
             thead.appendChild(headerRow);
-            
             const tbody = document.createElement('tbody');
+
+            // 建立表格內容
             data.forEach(row => {
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-gray-800 transition-colors';
 
                 const actionCell = document.createElement('td');
                 actionCell.className = 'py-2 px-3 border-b border-gray-700';
-                
                 actionCell.innerHTML = `<button class="details-btn bg-purple-600 hover:bg-purple-500 text-white text-xs px-3 py-1 rounded" data-id="${row['編號']}" data-type="${row['交易類型']}" data-county="${row['縣市代碼']}">附表</button>`;
                 tr.appendChild(actionCell);
 
@@ -372,6 +445,19 @@
                         
                         td.textContent = value ?? '-';
                         tr.appendChild(td);
+
+                        // 【修改點 2】如果目前欄位是「戶別」，就在它旁邊新增「戶型」的資料格
+                        if (header === '戶別') {
+                            const unitTypeTd = document.createElement('td');
+                            unitTypeTd.className = 'py-2 px-3 border-b border-gray-700';
+                            
+                            // 呼叫辨識函式，並傳入所需參數
+                            // 注意：這裡假設您的資料物件(row)中包含 '戶別', '建案名稱', '樓層' 這三個欄位
+                            const unitType = getUnitIdentifier(row['戶別'], row['建案名稱'], row['樓層']);
+                            
+                            unitTypeTd.textContent = unitType || '-';
+                            tr.appendChild(unitTypeTd);
+                        }
                     }
                 });
                 tbody.appendChild(tr);
@@ -395,7 +481,6 @@
 
             const buttonsContainer = document.createElement('div');
             buttonsContainer.className = 'flex items-center space-x-2';
-            
             const prevButton = document.createElement('button');
             prevButton.textContent = ' 上一頁';
             prevButton.disabled = currentPage === 1;
@@ -409,11 +494,9 @@
             [prevButton, nextButton].forEach(btn => {
                 btn.className = "bg-gray-700 hover:bg-cyan-600 text-white font-bold py-2 px-4 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors";
             });
-
             const pageInfo = document.createElement('span');
             pageInfo.textContent = `第 ${currentPage} / ${totalPages > 0 ? totalPages : 1} 頁`;
             pageInfo.className = 'px-4';
-
             buttonsContainer.append(prevButton, pageInfo, nextButton);
             dom.paginationControls.append(countInfo, buttonsContainer);
         }
@@ -473,7 +556,6 @@
                     },
                     body: JSON.stringify({ id, type, county })
                 });
-                
                 if (!response.ok) {
                     const errorResult = await response.json().catch(() => ({ error: '無法從伺服器獲取附表資料' }));
                     throw new Error(errorResult.error);
@@ -495,7 +577,6 @@
                 }
 
                 dom.modalContent.innerHTML = contentHTML;
-
             } catch (error) {
                 dom.modalContent.innerHTML = `<p class="text-red-400">查詢失敗: ${error.message}</p>`;
             }
