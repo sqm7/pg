@@ -47,13 +47,15 @@
         table {
             width: 100%;
             border-collapse: collapse;
+            table-layout: fixed; /* 讓欄寬更穩定 */
         }
         th, td {
             border-bottom: 1px solid #374151;
             padding: 0.75rem 1rem;
-            text-align: left; /* 將由下方更精確的規則覆蓋 */
             font-size: 0.875rem;
-            white-space: nowrap;
+            text-align: center;
+            vertical-align: middle;
+            word-break: break-all; /* 避免超長單字破壞版面 */
         }
         thead th {
             background-color: #252836;
@@ -102,42 +104,43 @@
             transform: scale(1);
         }
 
-        /* --- START: 【修改】新增的 CSS 規則 --- */
-        /* 1. 表格內容置中 */
-        #results-table th, #results-table td,
-        .modal-container table th, .modal-container table td {
-            text-align: center;
-            vertical-align: middle;
-        }
-
-        /* 2. 可展開/縮小欄位的樣式 */
-        .expand-wrapper {
+        /* --- START: 【修改】新的展開/縮小 CSS 規則 --- */
+        .expand-container {
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            margin: auto;
-            white-space: normal; /* 允許文字換行 */
-            max-width: 250px; /* 避免過長的文字破壞版面 */
+            width: 100%;
         }
-        .expand-wrapper .full-text {
-            text-align: left; /* 展開後的長文字靠左對齊，方便閱讀 */
+        .expand-container .text-content {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap; /* 強制不換行 */
+            text-align: left; /* 讓文字靠左對齊 */
+            flex-grow: 1; /* 讓文字區域佔滿可用空間 */
         }
-        .toggle-btn {
-            background: none;
+        .expand-container.expanded .text-content {
+            white-space: normal; /* 展開後允許換行 */
+        }
+        .toggle-btn-new {
+            background-color: #4b5563; /* gray-600 */
+            color: white;
             border: none;
-            padding: 0;
-            margin-top: 4px;
+            border-radius: 4px;
+            width: 20px;
+            height: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            line-height: 20px;
+            text-align: center;
             cursor: pointer;
-            font-size: 0.75rem; /* 調整按鈕字體大小 */
-            font-weight: 500;
-            color: #06b6d4; /* cyan-accent */
-            text-decoration: underline;
+            margin-left: 8px;
+            flex-shrink: 0; /* 防止按鈕被壓縮 */
+            transition: background-color 0.2s;
         }
-        .toggle-btn:hover {
-            color: #8b5cf6; /* purple-accent */
+        .toggle-btn-new:hover {
+            background-color: #6b7280; /* gray-500 */
         }
-        /* --- END: 【修改】新增的 CSS 規則 --- */
+        /* --- END: 【修改】新的展開/縮小 CSS 規則 --- */
     </style>
 </head>
 <body class="p-4 md:p-8">
@@ -192,7 +195,7 @@
                         </button>
                     </div>
                 </div>
-                </div>
+            </div>
 
             <div id="results-container" class="glass-card p-6 rounded-xl shadow-lg">
                 <div id="message-area" class="text-center p-8 text-gray-400">
@@ -235,7 +238,6 @@
             messageArea: document.getElementById('message-area'),
             tableContainer: document.getElementById('table-container'),
             resultsTable: document.getElementById('results-table'),
-            // pageSizeSelect 已被移除
             paginationControls: document.getElementById('pagination-controls'),
             tableWrapper: document.getElementById('table-wrapper'),
             modal: document.getElementById('details-modal'),
@@ -244,7 +246,7 @@
             modalCloseBtn: document.getElementById('modal-close-btn'),
         };
         let currentPage = 1;
-        let pageSize = 500; // 【修改】使用固定的每頁筆數
+        let pageSize = 500;
         let totalRecords = 0;
         const districtData = {
             "臺北市": ["中正區", "大同區", "中山區", "松山區", "大安區", "萬華區", "信義區", "士林區", "北投區", "內湖區", "南港區", "文山區"],
@@ -284,30 +286,23 @@
             });
             dom.countySelect.addEventListener('change', updateDistrictOptions);
             
-            // 【修改】移除 pageSizeSelect 的事件監聽
-            
             dom.modalCloseBtn.addEventListener('click', () => dom.modal.classList.add('hidden'));
 
             // --- START: 【修改】整合表格點擊事件監聽 ---
             dom.resultsTable.addEventListener('click', (e) => {
                 const target = e.target;
                 
-                // 處理「附表」按鈕點擊
                 if (target.classList.contains('details-btn')) {
                     showSubTableDetails(target);
                     return; 
                 }
 
-                // 處理「展開/縮小」按鈕點擊
-                if (target.classList.contains('toggle-btn')) {
-                    const wrapper = target.closest('.expand-wrapper');
+                if (target.classList.contains('toggle-btn-new')) {
+                    const wrapper = target.closest('.expand-container');
                     if (!wrapper) return;
 
-                    const textContent = wrapper.querySelector('.text-content');
-                    const isNowHidden = textContent.querySelector('.full-text').classList.toggle('hidden');
-                    textContent.querySelector('.short-text').classList.toggle('hidden');
-                    
-                    target.textContent = isNowHidden ? '[展開]' : '[縮小]';
+                    const isNowExpanded = wrapper.classList.toggle('expanded');
+                    target.textContent = isNowExpanded ? '-' : '+';
                 }
             });
             // --- END: 【修改】整合表格點擊事件監聽 ---
@@ -391,7 +386,6 @@
             }
             
             const hiddenColumns = ['編號', '縣市代碼', '交易類型'];
-            // 定義哪些欄位需要展開/縮小功能
             const expandableColumns = ['地址', '備註', '主要用途'];
             const headers = Object.keys(data[0]);
             
@@ -404,6 +398,10 @@
                 if (!hiddenColumns.includes(headerText)) {
                     const th = document.createElement('th');
                     th.textContent = headerText;
+                    // 為可展開的欄位設定一個較大的寬度
+                    if (expandableColumns.includes(headerText)) {
+                        th.style.width = '250px';
+                    }
                     headerRow.appendChild(th);
                 }
             });
@@ -426,20 +424,20 @@
                         td.className = 'py-2 px-3 border-b border-gray-700';
                         let value = row[header] ?? '';
 
-                        // 檢查是否為可展開的欄位
-                        if (expandableColumns.includes(header) && value && value.length > 10) {
-                            const shortText = String(value).substring(0, 10);
+                        if (expandableColumns.includes(header) && value && value.length > 15) {
+                            const shortText = String(value).substring(0, 15);
                             td.innerHTML = `
-                                <div class="expand-wrapper">
-                                    <div class="text-content">
-                                        <span class="short-text">${shortText}...</span>
-                                        <span class="full-text hidden">${value}</span>
-                                    </div>
-                                    <button class="toggle-btn">[展開]</button>
+                                <div class="expand-container">
+                                    <span class="text-content">${value}</span>
+                                    <button class="toggle-btn-new">+</button>
                                 </div>
                             `;
+                            // 初始狀態下，用 JS 直接設定縮短的文字，避免 CSS 複雜性
+                            const textSpan = td.querySelector('.text-content');
+                            textSpan.textContent = shortText + '...';
+                            textSpan.dataset.fulltext = value; // 將完整文字存起來
+                            textSpan.dataset.shorttext = shortText + '...';
                         } else {
-                            // 處理數字格式化
                             if (typeof value === 'number' && ['交易總價', '車位總價', '產權面積_房車', '車位總面積', '主建物面積', '附屬建物面積', '陽台面積', '租賃面積', '交易總價(萬)', '房屋總價(萬)', '車位總價(萬)'].includes(header)) {
                                value = new Intl.NumberFormat('zh-TW').format(value);
                             }
@@ -454,6 +452,23 @@
             dom.resultsTable.innerHTML = '';
             dom.resultsTable.appendChild(thead);
             dom.resultsTable.appendChild(tbody);
+
+            // 【修改】新的事件監聽，處理展開/縮小邏輯
+            dom.resultsTable.querySelectorAll('.toggle-btn-new').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const container = e.target.closest('.expand-container');
+                    const textSpan = container.querySelector('.text-content');
+                    const isExpanded = container.classList.toggle('expanded');
+                    
+                    if (isExpanded) {
+                        textSpan.textContent = textSpan.dataset.fulltext;
+                        e.target.textContent = '-';
+                    } else {
+                        textSpan.textContent = textSpan.dataset.shorttext;
+                        e.target.textContent = '+';
+                    }
+                });
+            });
         }
         // --- END: 【修改】渲染主表格的函式 ---
 
@@ -490,7 +505,6 @@
             dom.paginationControls.append(countInfo, buttonsContainer);
         }
         
-        // --- START: 【修改】渲染附表彈窗的函式 ---
         function renderSubTable(title, records) {
             if (!records || !Array.isArray(records) || records.length === 0) {
                 return `<div class="mb-4"><h3 class="text-lg font-semibold text-cyan-400 mb-2">${title}</h3><p class="text-sm text-gray-500">無資料</p></div>`;
@@ -499,7 +513,6 @@
             let html = `<div><h3 class="text-lg font-semibold text-cyan-400 mb-2">${title}</h3>`;
             const headers = Object.keys(records[0]);
             
-            // 移除 text-left 讓表格置中
             html += '<table class="w-full text-sm">';
             html += '<thead><tr class="border-b border-gray-600">';
             headers.forEach(header => {
@@ -523,7 +536,6 @@
             
             return html;
         }
-        // --- END: 【修改】渲染附表彈窗的函式 ---
 
         async function showSubTableDetails(btn) {
             const id = btn.dataset.id;
