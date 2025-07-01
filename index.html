@@ -102,7 +102,7 @@
             transform: scale(1);
         }
 
-        /* --- START: 【修改】新增的 CSS 規則 --- */
+        /* --- START: CSS 規則 --- */
         /* 1. 表格內容置中 */
         #results-table th, #results-table td,
         .modal-container table th, .modal-container table td {
@@ -118,7 +118,8 @@
             justify-content: center;
             margin: auto;
             white-space: normal; /* 允許文字換行 */
-            max-width: 250px; /* 避免過長的文字破壞版面 */
+            max-width: 250px; /* 預設最大寬度 */
+            transition: max-width 0.3s ease-in-out; /* 【新增】增加寬度變化的過渡動畫 */
         }
         .expand-wrapper .full-text {
             text-align: left; /* 展開後的長文字靠左對齊，方便閱讀 */
@@ -137,7 +138,13 @@
         .toggle-btn:hover {
             color: #8b5cf6; /* purple-accent */
         }
-        /* --- END: 【修改】新增的 CSS 規則 --- */
+
+        /* 3. 【新增】展開後讓容器變寬的樣式 */
+        .expand-wrapper.expanded {
+            max-width: 500px; /* 展開後的最大寬度 */
+            align-items: flex-start; /* 展開後，讓內部的文字和按鈕靠左對齊 */
+        }
+        /* --- END: CSS 規則 --- */
     </style>
 </head>
 <body class="p-4 md:p-8">
@@ -196,12 +203,12 @@
 
             <div id="results-container" class="glass-card p-6 rounded-xl shadow-lg">
                 <div id="message-area" class="text-center p-8 text-gray-400">
-                     請設定篩選條件後點擊查詢。
+                        請設定篩選條件後點擊查詢。
                 </div>
                 <div id="table-wrapper" class="hidden">
                     <div id="table-container" class="table-container overflow-x-auto">
                         <table id="results-table" class="min-w-full divide-y divide-gray-800">
-                           </table>
+                            </table>
                     </div>
                     <div id="pagination-controls" class="flex justify-between items-center mt-4 text-sm text-gray-400">
                         </div>
@@ -235,7 +242,6 @@
             messageArea: document.getElementById('message-area'),
             tableContainer: document.getElementById('table-container'),
             resultsTable: document.getElementById('results-table'),
-            // pageSizeSelect 已被移除
             paginationControls: document.getElementById('pagination-controls'),
             tableWrapper: document.getElementById('table-wrapper'),
             modal: document.getElementById('details-modal'),
@@ -244,7 +250,7 @@
             modalCloseBtn: document.getElementById('modal-close-btn'),
         };
         let currentPage = 1;
-        let pageSize = 500; // 【修改】使用固定的每頁筆數
+        let pageSize = 500;
         let totalRecords = 0;
         const districtData = {
             "臺北市": ["中正區", "大同區", "中山區", "松山區", "大安區", "萬華區", "信義區", "士林區", "北投區", "內湖區", "南港區", "文山區"],
@@ -284,11 +290,8 @@
             });
             dom.countySelect.addEventListener('change', updateDistrictOptions);
             
-            // 【修改】移除 pageSizeSelect 的事件監聽
-            
             dom.modalCloseBtn.addEventListener('click', () => dom.modal.classList.add('hidden'));
 
-            // --- START: 【修改】整合表格點擊事件監聽 ---
             dom.resultsTable.addEventListener('click', (e) => {
                 const target = e.target;
                 
@@ -303,6 +306,9 @@
                     const wrapper = target.closest('.expand-wrapper');
                     if (!wrapper) return;
 
+                    // 【修改】切換 .expanded class 來觸發 CSS 寬度變化
+                    wrapper.classList.toggle('expanded');
+
                     const textContent = wrapper.querySelector('.text-content');
                     const isNowHidden = textContent.querySelector('.full-text').classList.toggle('hidden');
                     textContent.querySelector('.short-text').classList.toggle('hidden');
@@ -310,7 +316,6 @@
                     target.textContent = isNowHidden ? '[展開]' : '[縮小]';
                 }
             });
-            // --- END: 【修改】整合表格點擊事件監聽 ---
         }
         
         function updateDistrictOptions() {
@@ -383,7 +388,6 @@
             }
         }
         
-        // --- START: 【修改】渲染主表格的函式 ---
         function renderTable(data) {
             if (!data || data.length === 0) {
                 dom.tableWrapper.classList.add('hidden');
@@ -391,7 +395,6 @@
             }
             
             const hiddenColumns = ['編號', '縣市代碼', '交易類型'];
-            // 定義哪些欄位需要展開/縮小功能
             const expandableColumns = ['地址', '備註', '主要用途'];
             const headers = Object.keys(data[0]);
             
@@ -426,7 +429,6 @@
                         td.className = 'py-2 px-3 border-b border-gray-700';
                         let value = row[header] ?? '';
 
-                        // 檢查是否為可展開的欄位
                         if (expandableColumns.includes(header) && value && value.length > 10) {
                             const shortText = String(value).substring(0, 10);
                             td.innerHTML = `
@@ -439,7 +441,6 @@
                                 </div>
                             `;
                         } else {
-                            // 處理數字格式化
                             if (typeof value === 'number' && ['交易總價', '車位總價', '產權面積_房車', '車位總面積', '主建物面積', '附屬建物面積', '陽台面積', '租賃面積', '交易總價(萬)', '房屋總價(萬)', '車位總價(萬)'].includes(header)) {
                                value = new Intl.NumberFormat('zh-TW').format(value);
                             }
@@ -455,7 +456,6 @@
             dom.resultsTable.appendChild(thead);
             dom.resultsTable.appendChild(tbody);
         }
-        // --- END: 【修改】渲染主表格的函式 ---
 
         function renderPagination() {
             dom.paginationControls.innerHTML = '';
@@ -490,7 +490,6 @@
             dom.paginationControls.append(countInfo, buttonsContainer);
         }
         
-        // --- START: 【修改】渲染附表彈窗的函式 ---
         function renderSubTable(title, records) {
             if (!records || !Array.isArray(records) || records.length === 0) {
                 return `<div class="mb-4"><h3 class="text-lg font-semibold text-cyan-400 mb-2">${title}</h3><p class="text-sm text-gray-500">無資料</p></div>`;
@@ -499,7 +498,6 @@
             let html = `<div><h3 class="text-lg font-semibold text-cyan-400 mb-2">${title}</h3>`;
             const headers = Object.keys(records[0]);
             
-            // 移除 text-left 讓表格置中
             html += '<table class="w-full text-sm">';
             html += '<thead><tr class="border-b border-gray-600">';
             headers.forEach(header => {
@@ -514,7 +512,7 @@
                 html += '<tr class="border-b border-gray-700">';
                 headers.forEach(header => {
                      if (header !== 'id' && header !== '編號') {
-                        html += `<td class="py-2 pr-2">${record[header] ?? '-'}</td>`;
+                         html += `<td class="py-2 pr-2">${record[header] ?? '-'}</td>`;
                      }
                 });
                 html += '</tr>';
@@ -523,7 +521,6 @@
             
             return html;
         }
-        // --- END: 【修改】渲染附表彈窗的函式 ---
 
         async function showSubTableDetails(btn) {
             const id = btn.dataset.id;
