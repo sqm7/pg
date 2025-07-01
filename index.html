@@ -477,55 +477,62 @@
         }
 
         async function showSubTableDetails(btn) {
-            const id = btn.dataset.id;
-            const type = btn.dataset.type;
-            const county = btn.dataset.county;
+    const row = btn.closest('tr');
+    const id = row.querySelector('[data-id]')?.dataset.id;
+    const type = document.querySelector('select[name="transactionType"]').value;
+    const county = document.querySelector('select[name="county"]').value;
 
-            dom.modalTitle.textContent = `附表詳細資料 (編號: ${id})`;
-            dom.modalContent.innerHTML = '<div class="loader mx-auto"></div>';
-            dom.modal.classList.remove('hidden');
-            
-            try {
-                // 【修正】增強錯誤處理邏輯
-                if (!id || !type || !county || county === 'undefined') {
-                    throw new Error(`前端參數不足，無法查詢附表。 (編號: ${id}, 類型: ${type}, 縣市: ${county})`);
-                }
+    if (!id || !type || !county) {
+        alert('無法取得必要的查詢參數，請確認已選擇縣市和交易類型');
+        return;
+    }
 
-                const response = await fetch(SUB_DATA_ENDPOINT, {
-                    method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4Ym1iYmZyemJ0dXVleXNpY29jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA2ODg5ODksImV4cCI6MjA2NjI2NDk4OX0.1IUynv5eK1xF_3pb-oasqaTrPvbeAOC4Sc1oykPBy4M'
-                    },
-                    body: JSON.stringify({ id, type, county })
+    const modal = document.getElementById('subTableModal');
+    const modalContent = modal.querySelector('.modal-content');
+    modalContent.innerHTML = '<div class="loader">載入中...</div>';
+    modal.style.display = 'block';
+
+    try {
+        const response = await fetch('https://zxbmbbfrzbtuueysicoc.supabase.co/functions/v1/query-sub-data', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer YOUR_SUPABASE_ANON_KEY'
+            },
+            body: JSON.stringify({ id, type, county })
+        });
+
+        const result = await response.json();
+        
+        // 顯示結果
+        let html = `<h3>${type} - 附表資料</h3>`;
+        for (const [key, data] of Object.entries(result)) {
+            if (data && data.length > 0) {
+                html += `<h4>${key}:</h4>`;
+                html += '<table class="sub-table"><tr>';
+                // 添加表頭
+                Object.keys(data[0]).forEach(header => {
+                    html += `<th>${header}</th>`;
                 });
-
-                if (!response.ok) {
-                    const errorResult = await response.json().catch(() => ({ error: '無法從伺服器獲取附表資料' }));
-                    throw new Error(errorResult.error);
-                }
-
-                const result = await response.json();
-                let contentHTML = '<div class="space-y-6">';
-                
-                if (type !== '預售交易') {
-                    contentHTML += renderSubTable('建物資料', result.build);
-                }
-                contentHTML += renderSubTable('土地資料', result.land);
-                contentHTML += renderSubTable('車位資料', result.park);
-
-                if (contentHTML === '<div class="space-y-6">') {
-                    contentHTML = '<p>此筆紀錄沒有對應的附表資料。</p>';
-                } else {
-                    contentHTML += '</div>';
-                }
-
-                dom.modalContent.innerHTML = contentHTML;
-
-            } catch (error) {
-                dom.modalContent.innerHTML = `<p class="text-red-400">查詢失敗: ${error.message}</p>`;
+                html += '</tr>';
+                // 添加資料行
+                data.forEach(row => {
+                    html += '<tr>';
+                    Object.values(row).forEach(cell => {
+                        html += `<td>${cell || '-'}</td>`;
+                    });
+                    html += '</tr>';
+                });
+                html += '</table>';
             }
         }
+        
+        modalContent.innerHTML = html;
+    } catch (error) {
+        console.error('Error:', error);
+        modalContent.innerHTML = `<div class="error">載入失敗: ${error.message}</div>`;
+    }
+}
         
         initialize();
     </script>
