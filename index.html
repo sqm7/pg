@@ -343,8 +343,7 @@
                 return;
             }
             
-            // ★★★【修改處】★★★
-            // 定義您想隱藏的欄位名稱
+            // 【重要】定義您想在畫面上隱藏的欄位
             const hiddenColumns = ['編號', '縣市代碼', '交易類型']; 
 
             const headers = Object.keys(data[0]);
@@ -372,7 +371,7 @@
 
                 const actionCell = document.createElement('td');
                 actionCell.className = 'py-2 px-3 border-b border-gray-700';
-                // 這部分不變，按鈕仍然需要所有 data-* 屬性
+                // 按鈕依然使用完整的 row 物件，確保能取到 '編號' 等資料
                 actionCell.innerHTML = `<button class="details-btn bg-purple-600 hover:bg-purple-500 text-white text-xs px-3 py-1 rounded" data-id="${row['編號']}" data-type="${row['交易類型']}" data-county="${row['縣市代碼']}">附表</button>`;
                 tr.appendChild(actionCell);
 
