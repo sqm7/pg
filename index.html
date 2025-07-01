@@ -1,530 +1,556 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>不動產數據查詢平台</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'dark-bg': '#1a1d29',
-                        'dark-card': '#252836',
-                        'cyan-accent': '#06b6d4',
-                        'purple-accent': '#8b5cf6',
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        body { 
-            font-family: 'Inter', 'Noto Sans TC', sans-serif;
-            background: #1a1d29;
-            color: #e5e7eb;
-        }
-        .glass-card {
-            background: rgba(37, 40, 54, 0.8);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .form-input, .form-select {
-            background-color: #1f2937;
-            border: 1px solid #4b5563;
-            color: #d1d5db;
-        }
-        .form-input:focus, .form-select:focus {
-            border-color: #06b6d4;
-            box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.5);
-            outline: none;
-        }
-        .table-container {
-            overflow-y: auto;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            table-layout: fixed;
-        }
-        th, td {
-            border-bottom: 1px solid #374151;
-            padding: 0.75rem 1rem;
-            text-align: left;
-            font-size: 0.875rem;
-            white-space: normal;
-            word-break: break-all;
-            /* 【方案一實作】新增這一行，設定所有欄位的最小寬度 */
-            min-width: 150px; 
-        }
-        thead th {
-            background-color: #252836;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            font-weight: 600;
-            color: #9ca3af;
-        }
-        .loader {
-            border: 4px solid #374151;
-            border-top: 4px solid #06b6d4;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0, 0, 0, 0.7);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            backdrop-filter: blur(5px);
-            transition: opacity 0.3s ease;
-        }
-        .modal-container {
-            background: #252836;
-            padding: 2rem;
-            border-radius: 12px;
-            width: 90%;
-            max-width: 800px;
-            max-height: 80vh;
-            overflow-y: auto;
-            border: 1px solid #4b5563;
-            transform: scale(0.95);
-            transition: transform 0.3s ease;
-        }
-        .modal-overlay:not(.hidden) .modal-container {
-            transform: scale(1);
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>不動產數據查詢平台</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+theme: {
+extend: {
+colors: {
+'dark-bg': '#1a1d29',
+'dark-card': '#252836',
+'cyan-accent': '#06b6d4',
+'purple-accent': '#8b5cf6',
+}
+}
+}
+}
+</script>
+<style>
+body {
+font-family: 'Inter', 'Noto Sans TC', sans-serif;
+background: #1a1d29;
+color: #e5e7eb;
+}
+.glass-card {
+background: rgba(37, 40, 54, 0.8);
+backdrop-filter: blur(10px);
+border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.form-input, .form-select {
+background-color: #1f2937;
+border: 1px solid #4b5563;
+color: #d1d5db;
+}
+.form-input:focus, .form-select:focus {
+border-color: #06b6d4;
+box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.5);
+outline: none;
+}
+.table-container {
+overflow-y: auto;
+}
+table {
+width: 100%;
+border-collapse: collapse;
+}
+th, td {
+border-bottom: 1px solid #374151;
+padding: 0.75rem 1rem;
+text-align: left;
+font-size: 0.875rem;
+/* 設定最大寬度，超過25個字元自動換行 */
+max-width: 25ch;
+word-break: break-all;
+word-wrap: break-word;
+overflow-wrap: break-word;
+white-space: normal;
+}
+thead th {
+background-color: #252836;
+position: sticky;
+top: 0;
+z-index: 10;
+font-weight: 600;
+color: #9ca3af;
+}
+/* 針對操作欄位不換行 */
+th:first-child, 
+td:first-child {
+white-space: nowrap;
+max-width: none;
+min-width: 80px;
+}
+.loader {
+border: 4px solid #374151;
+border-top: 4px solid #06b6d4;
+border-radius: 50%;
+width: 40px;
+height: 40px;
+animation: spin 1s linear infinite;
+}
+@keyframes spin {
+0% { transform: rotate(0deg); }
+100% { transform: rotate(360deg); }
+}
+.modal-overlay {
+position: fixed;
+top: 0; left: 0; right: 0; bottom: 0;
+background: rgba(0, 0, 0, 0.7);
+display: flex;
+align-items: center;
+justify-content: center;
+z-index: 1000;
+backdrop-filter: blur(5px);
+transition: opacity 0.3s ease;
+}
+.modal-container {
+background: #252836;
+padding: 2rem;
+border-radius: 12px;
+width: 90%;
+max-width: 800px;
+max-height: 80vh;
+overflow-y: auto;
+border: 1px solid #4b5563;
+transform: scale(0.95);
+transition: transform 0.3s ease;
+}
+.modal-overlay:not(.hidden) .modal-container {
+transform: scale(1);
+}
+/* 模態框中的表格也套用相同的換行規則 */
+.modal-container table th,
+.modal-container table td {
+max-width: 25ch;
+word-break: break-all;
+word-wrap: break-word;
+overflow-wrap: break-word;
+white-space: normal;
+}
+</style>
 </head>
 <body class="p-4 md:p-8">
 
-    <div class="max-w-screen-xl mx-auto">
-        <header class="mb-8 text-center">
-            <h1 class="text-4xl font-extrabold text-white tracking-tight">不動產數據查詢平台</h1>
-            <p class="mt-2 text-lg text-gray-400">您的專屬數據查詢與分析工具。</p>
-        </header>
-        
-        <main>
-            <div class="glass-card p-6 rounded-xl shadow-lg mb-8">
-                <div id="filter-form" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 items-end">
-                    <div>
-                        <label for="county" class="block text-sm font-medium text-gray-300">縣市</label>
-                        <select id="county" class="form-select mt-1 block w-full pl-3 pr-10 py-2 text-base rounded-md">
-                            <option value="">請選擇縣市</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="district" class="block text-sm font-medium text-gray-300">行政區</label>
-                        <select id="district" class="form-select mt-1 block w-full pl-3 pr-10 py-2 text-base rounded-md" disabled>
-                            <option value="">請先選縣市</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="type" class="block text-sm font-medium text-gray-300">交易類型</label>
-                        <select id="type" class="form-select mt-1 block w-full pl-3 pr-10 py-2 text-base rounded-md">
-                            <option value="">請選擇交易類型</option>
-                            <option value="中古交易">中古交易</option>
-                            <option value="預售交易">預售交易</option>
-                            <option value="租賃交易">租賃交易</option>
-                        </select>
-                    </div>
-                    <div class="grid grid-cols-2 gap-2">
-                        <div>
-                            <label for="date-start" class="block text-sm font-medium text-gray-300">起始日期</label>
-                            <input type="date" id="date-start" class="form-input mt-1 block w-full pl-3 pr-2 py-2 text-base rounded-md">
-                        </div>
-                        <div>
-                            <label for="date-end" class="block text-sm font-medium text-gray-300">結束日期</label>
-                            <input type="date" id="date-end" class="form-input mt-1 block w-full pl-3 pr-2 py-2 text-base rounded-md">
-                        </div>
-                    </div>
-                    <div>
-                        <label for="page-size" class="block text-sm font-medium text-gray-300">每頁筆數</label>
-                        <select id="page-size" class="form-select mt-1 block w-full pl-3 pr-10 py-2 text-base rounded-md">
-                            <option value="500">500</option>
-                            <option value="1000">1000</option>
-                            <option value="1500">1500</option>
-                        </select>
-                    </div>
-                    <div class="lg:col-start-6">
-                        <button id="search-btn" class="w-full bg-gradient-to-r from-cyan-accent to-purple-accent text-white font-bold py-2 px-6 rounded-lg shadow-lg hover:opacity-90 transition-all">
-                            查詢資料
-                        </button>
-                    </div>
-                </div>
-            </div>
+<div class="max-w-screen-xl mx-auto">
+<header class="mb-8 text-center">
+<h1 class="text-4xl font-extrabold text-white tracking-tight">不動產數據查詢平台</h1>
+<p class="mt-2 text-lg text-gray-400">您的專屬數據查詢與分析工具。</p>
+</header>
 
-            <div id="results-container" class="glass-card p-6 rounded-xl shadow-lg">
-                <div id="message-area" class="text-center p-8 text-gray-400">
-                    請設定篩選條件後點擊查詢。
-                </div>
-                <div id="table-wrapper" class="hidden">
-                    <div id="table-container" class="table-container overflow-x-auto">
-                        <table id="results-table" class="min-w-full divide-y divide-gray-800">
-                           </table>
-                    </div>
-                    <div id="pagination-controls" class="flex justify-between items-center mt-4 text-sm text-gray-400">
-                    </div>
-                </div>
-            </div>
-        </main>
-    </div>
+<main>
+<div class="glass-card p-6 rounded-xl shadow-lg mb-8">
+<div id="filter-form" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 items-end">
+<div>
+<label for="county" class="block text-sm font-medium text-gray-300">縣市</label>
+<select id="county" class="form-select mt-1 block w-full pl-3 pr-10 py-2 text-base rounded-md">
+<option value="">請選擇縣市</option>
+</select>
+</div>
+<div>
+<label for="district" class="block text-sm font-medium text-gray-300">行政區</label>
+<select id="district" class="form-select mt-1 block w-full pl-3 pr-10 py-2 text-base rounded-md" disabled>
+<option value="">請先選縣市</option>
+</select>
+</div>
+<div>
+<label for="type" class="block text-sm font-medium text-gray-300">交易類型</label>
+<select id="type" class="form-select mt-1 block w-full pl-3 pr-10 py-2 text-base rounded-md">
+<option value="">請選擇交易類型</option>
+<option value="中古交易">中古交易</option>
+<option value="預售交易">預售交易</option>
+<option value="租賃交易">租賃交易</option>
+</select>
+</div>
+<div class="grid grid-cols-2 gap-2">
+<div>
+<label for="date-start" class="block text-sm font-medium text-gray-300">起始日期</label>
+<input type="date" id="date-start" class="form-input mt-1 block w-full pl-3 pr-2 py-2 text-base rounded-md">
+</div>
+<div>
+<label for="date-end" class="block text-sm font-medium text-gray-300">結束日期</label>
+<input type="date" id="date-end" class="form-input mt-1 block w-full pl-3 pr-2 py-2 text-base rounded-md">
+</div>
+</div>
 
-    <div id="details-modal" class="modal-overlay hidden">
-        <div class="modal-container">
-            <div class="flex justify-between items-center mb-6">
-                <h2 id="modal-title" class="text-2xl font-bold text-white">附表詳細資料</h2>
-                <button id="modal-close-btn" class="text-gray-400 hover:text-white text-3xl font-bold">&times;</button>
-            </div>
-            <div id="modal-content" class="text-gray-300">
-            </div>
-        </div>
-    </div>
+<div>
+<label for="page-size" class="block text-sm font-medium text-gray-300">每頁筆數</label>
+<select id="page-size" class="form-select mt-1 block w-full pl-3 pr-10 py-2 text-base rounded-md">
+<option value="500">500</option>
+<option value="1000">1000</option>
+<option value="1500">1500</option>
+</select>
+</div>
 
-    <script type="module">
-        const EDGE_FUNCTION_ENDPOINT = 'https://zxbmbbfrzbtuueysicoc.supabase.co/functions/v1/query-data';
-        const SUB_DATA_ENDPOINT = 'https://zxbmbbfrzbtuueysicoc.supabase.co/functions/v1/query-sub-data';
+<div class="lg:col-start-6">
+<button id="search-btn" class="w-full bg-gradient-to-r from-cyan-accent to-purple-accent text-white font-bold py-2 px-6 rounded-lg shadow-lg hover:opacity-90 transition-all">
+查詢資料
+</button>
+</div>
+</div>
+</div>
 
-        const dom = {
-            countySelect: document.getElementById('county'),
-            districtSelect: document.getElementById('district'),
-            typeSelect: document.getElementById('type'),
-            dateStartInput: document.getElementById('date-start'),
-            dateEndInput: document.getElementById('date-end'),
-            searchBtn: document.getElementById('search-btn'),
-            messageArea: document.getElementById('message-area'),
-            tableContainer: document.getElementById('table-container'),
-            resultsTable: document.getElementById('results-table'),
-            pageSizeSelect: document.getElementById('page-size'),
-            paginationControls: document.getElementById('pagination-controls'),
-            tableWrapper: document.getElementById('table-wrapper'),
-            modal: document.getElementById('details-modal'),
-            modalTitle: document.getElementById('modal-title'),
-            modalContent: document.getElementById('modal-content'),
-            modalCloseBtn: document.getElementById('modal-close-btn'),
-        };
-        
-        let currentPage = 1;
-        let pageSize = 500;
-        let totalRecords = 0;
-        
-        const districtData = {
-            "臺北市": ["中正區", "大同區", "中山區", "松山區", "大安區", "萬華區", "信義區", "士林區", "北投區", "內湖區", "南港區", "文山區"],
-            "新北市": ["板橋區", "三重區", "中和區", "永和區", "新莊區", "新店區", "樹林區", "鶯歌區", "三峽區", "淡水區", "汐止區", "瑞芳區", "土城區", "蘆洲區", "五股區", "泰山區", "林口區", "深坑區", "石碇區", "坪林區", "三芝區", "石門區", "八里區", "平溪區", "雙溪區", "貢寮區", "金山區", "萬里區", "烏來區"],
-            "桃園市": ["桃園區", "中壢區", "大溪區", "楊梅區", "蘆竹區", "大園區", "龜山區", "八德區", "龍潭區", "平鎮區", "新屋區", "觀音區", "復興區"],
-            "臺中市": ["中區", "東區", "南區", "西區", "北區", "北屯區", "西屯區", "南屯區", "太平區", "大里區", "霧峰區", "烏日區", "豐原區", "后里區", "石岡區", "東勢區", "和平區", "新社區", "潭子區", "大雅區", "神岡區", "大肚區", "沙鹿區", "龍井區", "梧棲區", "清水區", "大甲區", "外埔區", "大安區"],
-            "臺南市": ["中西區", "東區", "南區", "北區", "安平區", "安南區", "永康區", "歸仁區", "新化區", "左鎮區", "玉井區", "楠西區", "南化區", "仁德區", "關廟區", "龍崎區", "官田區", "麻豆區", "佳里區", "西港區", "七股區", "將軍區", "學甲區", "北門區", "新營區", "後壁區", "白河區", "東山區", "六甲區", "下營區", "柳營區", "鹽水區", "善化區", "大內區", "山上區", "新市區", "安定區"],
-            "高雄市": ["新興區", "前金區", "苓雅區", "鹽埕區", "鼓山區", "旗津區", "前鎮區", "三民區", "楠梓區", "小港區", "左營區", "仁武區", "大社區", "岡山區", "路竹區", "阿蓮區", "田寮區", "燕巢區", "橋頭區", "梓官區", "彌陀區", "永安區", "湖內區", "鳳山區", "大寮區", "林園區", "鳥松區", "大樹區", "旗山區", "美濃區", "六龜區", "內門區", "杉林區", "甲仙區", "桃源區", "那瑪夏區", "茂林區", "茄萣區"],
-            "基隆市": ["仁愛區", "信義區", "中正區", "中山區", "安樂區", "暖暖區", "七堵區"],
-            "新竹市": ["東區", "北區", "香山區"],
-            "嘉義市": ["東區", "西區"],
-            "宜蘭縣": ["宜蘭市", "羅東鎮", "蘇澳鎮", "頭城鎮", "礁溪鄉", "壯圍鄉", "員山鄉", "冬山鄉", "五結鄉", "三星鄉", "大同鄉", "南澳鄉"],
-            "新竹縣": ["竹北市", "竹東鎮", "新埔鎮", "關西鎮", "湖口鄉", "新豐鄉", "芎林鄉", "橫山鄉", "北埔鄉", "寶山鄉", "峨眉鄉", "尖石鄉", "五峰鄉"],
-            "苗栗縣": ["苗栗市", "苑裡鎮", "通霄鎮", "竹南鎮", "頭份鎮", "後龍鎮", "卓蘭鎮", "大湖鄉", "公館鄉", "銅鑼鄉", "南庄鄉", "頭屋鄉", "三義鄉", "西湖鄉", "造橋鄉", "三灣鄉", "獅潭鄉", "泰安鄉"],
-            "彰化縣": ["彰化市", "鹿港鎮", "和美鎮", "線西鄉", "伸港鄉", "福興鄉", "秀水鄉", "花壇鄉", "芬園鄉", "員林鎮", "溪湖鎮", "田中鎮", "大村鄉", "埔鹽鄉", "埔心鄉", "永靖鄉", "社頭鄉", "二水鄉", "北斗鎮", "二林鎮", "田尾鄉", "埤頭鄉", "芳苑鄉", "大城鄉", "竹塘鄉", "溪州鄉"],
-            "南投縣": ["南投市", "埔里鎮", "草屯鎮", "竹山鎮", "集集鎮", "名間鄉", "鹿谷鄉", "中寮鄉", "魚池鄉", "國姓鄉", "水里鄉", "信義鄉", "仁愛鄉"],
-            "雲林縣": ["斗六市", "斗南鎮", "虎尾鎮", "西螺鎮", "土庫鎮", "北港鎮", "古坑鄉", "大埤鄉", "莿桐鄉", "林內鄉", "二崙鄉", "崙背鄉", "麥寮鄉", "東勢鄉", "褒忠鄉", "台西鄉", "元長鄉", "四湖鄉", "口湖鄉", "水林鄉"],
-            "嘉義縣": ["太保市", "朴子市", "布袋鎮", "大林鎮", "民雄鄉", "溪口鄉", "新港鄉", "六腳鄉", "東石鄉", "義竹鄉", "鹿草鄉", "水上鄉", "中埔鄉", "竹崎鄉", "梅山鄉", "番路鄉", "大埔鄉", "阿里山鄉"],
-            "屏東縣": ["屏東市", "潮州鎮", "東港鎮", "恆春鎮", "萬丹鄉", "長治鄉", "麟洛鄉", "九如鄉", "里港鄉", "鹽埔鄉", "高樹鄉", "萬巒鄉", "內埔鄉", "竹田鄉", "新埤鄉", "枋寮鄉", "新園鄉", "崁頂鄉", "林邊鄉", "南州鄉", "佳冬鄉", "琉球鄉", "車城鄉", "滿州鄉", "枋山鄉", "霧台鄉", "瑪家鄉", "泰武鄉", "來義鄉", "春日鄉", "獅子鄉", "牡丹鄉", "三地門鄉"],
-            "花蓮縣": ["花蓮市", "鳳林鎮", "玉里鎮", "新城鄉", "吉安鄉", "壽豐鄉", "光復鄉", "豐濱鄉", "瑞穗鄉", "富里鄉", "秀林鄉", "萬榮鄉", "卓溪鄉"],
-            "臺東縣": ["臺東市", "成功鎮", "關山鎮", "卑南鄉", "鹿野鄉", "池上鄉", "東河鄉", "長濱鄉", "太麻里鄉", "大武鄉", "綠島鄉", "海端鄉", "延平鄉", "金峰鄉", "達仁鄉", "蘭嶼鄉"],
-            "澎湖縣": ["馬公市", "湖西鄉", "白沙鄉", "西嶼鄉", "望安鄉", "七美鄉"],
-            "金門縣": ["金城鎮", "金湖鎮", "金沙鎮", "金寧鄉", "烈嶼鄉", "烏坵鄉"],
-            "連江縣": ["南竿鄉", "北竿鄉", "莒光鄉", "東引鄉"]
-        };
+<div id="results-container" class="glass-card p-6 rounded-xl shadow-lg">
+<div id="message-area" class="text-center p-8 text-gray-400">
+請設定篩選條件後點擊查詢。
+</div>
+<div id="table-wrapper" class="hidden">
+<div id="table-container" class="table-container overflow-x-auto">
+<table id="results-table" class="min-w-full divide-y divide-gray-800">
+</table>
+</div>
+<div id="pagination-controls" class="flex justify-between items-center mt-4 text-sm text-gray-400">
+</div>
+</div>
+</div>
+</main>
+</div>
 
-        function initialize() {
-            Object.keys(districtData).forEach(countyName => {
-                const option = document.createElement('option');
-                option.value = countyName;
-                option.textContent = countyName;
-                dom.countySelect.appendChild(option);
-            });
-            dom.searchBtn.addEventListener('click', () => {
-                currentPage = 1;
-                fetchData();
-            });
-            dom.countySelect.addEventListener('change', updateDistrictOptions);
-            
-            dom.pageSizeSelect.addEventListener('change', (e) => {
-                pageSize = parseInt(e.target.value, 10);
-                currentPage = 1;
-                if(totalRecords > 0) fetchData();
-            });
-            dom.modalCloseBtn.addEventListener('click', () => dom.modal.classList.add('hidden'));
-            dom.resultsTable.addEventListener('click', (e) => {
-                if(e.target.classList.contains('details-btn')) {
-                    showSubTableDetails(e.target);
-                }
-            });
-        }
-        
-        function updateDistrictOptions() {
-            const selectedCounty = dom.countySelect.value;
-            dom.districtSelect.innerHTML = '<option value="">全部</option>';
-            
-            if (selectedCounty && districtData[selectedCounty]) {
-                districtData[selectedCounty].forEach(districtName => {
-                    const option = document.createElement('option');
-                    option.value = districtName;
-                    option.textContent = districtName;
-                    dom.districtSelect.appendChild(option);
-                });
-                dom.districtSelect.disabled = false;
-            } else {
-                dom.districtSelect.disabled = true;
-            }
-        }
+<div id="details-modal" class="modal-overlay hidden">
+<div class="modal-container">
+<div class="flex justify-between items-center mb-6">
+<h2 id="modal-title" class="text-2xl font-bold text-white">附表詳細資料</h2>
+<button id="modal-close-btn" class="text-gray-400 hover:text-white text-3xl font-bold">&times;</button>
+</div>
+<div id="modal-content" class="text-gray-300">
+</div>
+</div>
+</div>
 
-        async function fetchData() {
-            dom.messageArea.innerHTML = '<div class="loader mx-auto"></div><p class="mt-4">查詢中，請稍候...</p>';
-            dom.messageArea.classList.remove('hidden');
-            dom.tableWrapper.classList.add('hidden');
-            dom.resultsTable.innerHTML = '';
+<script type="module">
+const EDGE_FUNCTION_ENDPOINT = 'https://zxbmbbfrzbtuueysicoc.supabase.co/functions/v1/query-data';
+const SUB_DATA_ENDPOINT = 'https://zxbmbbfrzbtuueysicoc.supabase.co/functions/v1/query-sub-data';
 
-            const countyCodeMap = { "臺北市": "A", "新北市": "F", "桃園市": "H", "臺中市": "B", "臺南市": "D", "高雄市": "E", "基隆市": "C", "新竹市": "O", "嘉義市": "I", "新竹縣": "J", "苗栗縣": "K", "彰化縣": "N", "南投縣": "M", "雲林縣": "P", "嘉義縣": "Q", "屏東縣": "T", "宜蘭縣": "G", "花蓮縣": "U", "臺東縣": "V", "澎湖縣": "X", "金門縣": "W", "連江縣": "Z" };
-            const requestFilters = {};
-            const county = dom.countySelect.value;
-            if (county) requestFilters.countyCode = countyCodeMap[county] || '';
-            if (dom.districtSelect.value) requestFilters.district = dom.districtSelect.value;
-            if (dom.typeSelect.value) requestFilters.type = dom.typeSelect.value;
-            if (dom.dateStartInput.value) requestFilters.dateStart = dom.dateStartInput.value;
-            if (dom.dateEndInput.value) requestFilters.dateEnd = dom.dateEndInput.value;
-            
-            const pagination = { page: currentPage, limit: pageSize };
+const dom = {
+countySelect: document.getElementById('county'),
+districtSelect: document.getElementById('district'),
+typeSelect: document.getElementById('type'),
+dateStartInput: document.getElementById('date-start'),
+dateEndInput: document.getElementById('date-end'),
+searchBtn: document.getElementById('search-btn'),
+messageArea: document.getElementById('message-area'),
+tableContainer: document.getElementById('table-container'),
+resultsTable: document.getElementById('results-table'),
+pageSizeSelect: document.getElementById('page-size'),
+paginationControls: document.getElementById('pagination-controls'),
+tableWrapper: document.getElementById('table-wrapper'),
+modal: document.getElementById('details-modal'),
+modalTitle: document.getElementById('modal-title'),
+modalContent: document.getElementById('modal-content'),
+modalCloseBtn: document.getElementById('modal-close-btn'),
+};
+let currentPage = 1;
+let pageSize = 500;
+let totalRecords = 0;
 
-            try {
-                const response = await fetch(EDGE_FUNCTION_ENDPOINT, {
-                    method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4Ym1iYmZyemJ0dXVleXNpY29jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA2ODg5ODksImV4cCI6MjA2NjI2NDk4OX0.1IUynv5eK1xF_3pb-oasqaTrPvbeAOC4Sc1oykPBy4M'
-                    },
-                    body: JSON.stringify({ filters: requestFilters, pagination: pagination })
-                });
-                if (!response.ok) {
-                    const errorResult = await response.json().catch(() => ({ error: '無法解析伺服器回應' }));
-                    throw new Error(errorResult.error || `伺服器錯誤: ${response.status}`);
-                }
+// 新增清理數據的函數
+function cleanValue(value) {
+if (typeof value === 'string') {
+return value.trimEnd(); // 去除尾隨空白
+}
+return value;
+}
 
-                const result = await response.json();
-                totalRecords = result.count || 0;
+const districtData = {
+"臺北市": ["中正區", "大同區", "中山區", "松山區", "大安區", "萬華區", "信義區", "士林區", "北投區", "內湖區", "南港區", "文山區"],
+"新北市": ["板橋區", "三重區", "中和區", "永和區", "新莊區", "新店區", "樹林區", "鶯歌區", "三峽區", "淡水區", "汐止區", "瑞芳區", "土城區", "蘆洲區", "五股區", "泰山區", "林口區", "深坑區", "石碇區", "坪林區", "三芝區", "石門區", "八里區", "平溪區", "雙溪區", "貢寮區", "金山區", "萬里區", "烏來區"],
+"桃園市": ["桃園區", "中壢區", "大溪區", "楊梅區", "蘆竹區", "大園區", "龜山區", "八德區", "龍潭區", "平鎮區", "新屋區", "觀音區", "復興區"],
+"臺中市": ["中區", "東區", "南區", "西區", "北區", "北屯區", "西屯區", "南屯區", "太平區", "大里區", "霧峰區", "烏日區", "豐原區", "后里區", "石岡區", "東勢區", "和平區", "新社區", "潭子區", "大雅區", "神岡區", "大肚區", "沙鹿區", "龍井區", "梧棲區", "清水區", "大甲區", "外埔區", "大安區"],
+"臺南市": ["中西區", "東區", "南區", "北區", "安平區", "安南區", "永康區", "歸仁區", "新化區", "左鎮區", "玉井區", "楠西區", "南化區", "仁德區", "關廟區", "龍崎區", "官田區", "麻豆區", "佳里區", "西港區", "七股區", "將軍區", "學甲區", "北門區", "新營區", "後壁區", "白河區", "東山區", "六甲區", "下營區", "柳營區", "鹽水區", "善化區", "大內區", "山上區", "新市區", "安定區"],
+"高雄市": ["新興區", "前金區", "苓雅區", "鹽埕區", "鼓山區", "旗津區", "前鎮區", "三民區", "楠梓區", "小港區", "左營區", "仁武區", "大社區", "岡山區", "路竹區", "阿蓮區", "田寮區", "燕巢區", "橋頭區", "梓官區", "彌陀區", "永安區", "湖內區", "鳳山區", "大寮區", "林園區", "鳥松區", "大樹區", "旗山區", "美濃區", "六龜區", "內門區", "杉林區", "甲仙區", "桃源區", "那瑪夏區", "茂林區", "茄萣區"],
+"基隆市": ["仁愛區", "信義區", "中正區", "中山區", "安樂區", "暖暖區", "七堵區"],
+"新竹市": ["東區", "北區", "香山區"],
+"嘉義市": ["東區", "西區"],
+"宜蘭縣": ["宜蘭市", "羅東鎮", "蘇澳鎮", "頭城鎮", "礁溪鄉", "壯圍鄉", "員山鄉", "冬山鄉", "五結鄉", "三星鄉", "大同鄉", "南澳鄉"],
+"新竹縣": ["竹北市", "竹東鎮", "新埔鎮", "關西鎮", "湖口鄉", "新豐鄉", "芎林鄉", "橫山鄉", "北埔鄉", "寶山鄉", "峨眉鄉", "尖石鄉", "五峰鄉"],
+"苗栗縣": ["苗栗市", "苑裡鎮", "通霄鎮", "竹南鎮", "頭份鎮", "後龍鎮", "卓蘭鎮", "大湖鄉", "公館鄉", "銅鑼鄉", "南庄鄉", "頭屋鄉", "三義鄉", "西湖鄉", "造橋鄉", "三灣鄉", "獅潭鄉", "泰安鄉"],
+"彰化縣": ["彰化市", "鹿港鎮", "和美鎮", "線西鄉", "伸港鄉", "福興鄉", "秀水鄉", "花壇鄉", "芬園鄉", "員林鎮", "溪湖鎮", "田中鎮", "大村鄉", "埔鹽鄉", "埔心鄉", "永靖鄉", "社頭鄉", "二水鄉", "北斗鎮", "二林鎮", "田尾鄉", "埤頭鄉", "芳苑鄉", "大城鄉", "竹塘鄉", "溪州鄉"],
+"南投縣": ["南投市", "埔里鎮", "草屯鎮", "竹山鎮", "集集鎮", "名間鄉", "鹿谷鄉", "中寮鄉", "魚池鄉", "國姓鄉", "水里鄉", "信義鄉", "仁愛鄉"],
+"雲林縣": ["斗六市", "斗南鎮", "虎尾鎮", "西螺鎮", "土庫鎮", "北港鎮", "古坑鄉", "大埤鄉", "莿桐鄉", "林內鄉", "二崙鄉", "崙背鄉", "麥寮鄉", "東勢鄉", "褒忠鄉", "台西鄉", "元長鄉", "四湖鄉", "口湖鄉", "水林鄉"],
+"嘉義縣": ["太保市", "朴子市", "布袋鎮", "大林鎮", "民雄鄉", "溪口鄉", "新港鄉", "六腳鄉", "東石鄉", "義竹鄉", "鹿草鄉", "水上鄉", "中埔鄉", "竹崎鄉", "梅山鄉", "番路鄉", "大埔鄉", "阿里山鄉"],
+"屏東縣": ["屏東市", "潮州鎮", "東港鎮", "恆春鎮", "萬丹鄉", "長治鄉", "麟洛鄉", "九如鄉", "里港鄉", "鹽埔鄉", "高樹鄉", "萬巒鄉", "內埔鄉", "竹田鄉", "新埤鄉", "枋寮鄉", "新園鄉", "崁頂鄉", "林邊鄉", "南州鄉", "佳冬鄉", "琉球鄉", "車城鄉", "滿州鄉", "枋山鄉", "霧台鄉", "瑪家鄉", "泰武鄉", "來義鄉", "春日鄉", "獅子鄉", "牡丹鄉", "三地門鄉"],
+"花蓮縣": ["花蓮市", "鳳林鎮", "玉里鎮", "新城鄉", "吉安鄉", "壽豐鄉", "光復鄉", "豐濱鄉", "瑞穗鄉", "富里鄉", "秀林鄉", "萬榮鄉", "卓溪鄉"],
+"臺東縣": ["臺東市", "成功鎮", "關山鎮", "卑南鄉", "鹿野鄉", "池上鄉", "東河鄉", "長濱鄉", "太麻里鄉", "大武鄉", "綠島鄉", "海端鄉", "延平鄉", "金峰鄉", "達仁鄉", "蘭嶼鄉"],
+"澎湖縣": ["馬公市", "湖西鄉", "白沙鄉", "西嶼鄉", "望安鄉", "七美鄉"],
+"金門縣": ["金城鎮", "金湖鎮", "金沙鎮", "金寧鄉", "烈嶼鄉", "烏坵鄉"],
+"連江縣": ["南竿鄉", "北竿鄉", "莒光鄉", "東引鄉"]
+};
 
-                if (!result.data || result.data.length === 0) {
-                    dom.messageArea.innerHTML = '<p>找不到符合條件的資料。</p>';
-                    dom.tableWrapper.classList.add('hidden');
-                    renderPagination();
-                    return;
-                }
-                
-                renderTable(result.data);
-                renderPagination();
-                dom.messageArea.classList.add('hidden');
-                dom.tableWrapper.classList.remove('hidden');
+function initialize() {
+Object.keys(districtData).forEach(countyName => {
+const option = document.createElement('option');
+option.value = countyName;
+option.textContent = countyName;
+dom.countySelect.appendChild(option);
+});
+dom.searchBtn.addEventListener('click', () => {
+currentPage = 1;
+fetchData();
+});
+dom.countySelect.addEventListener('change', updateDistrictOptions);
 
-            } catch (error) {
-                 console.error('查詢錯誤:', error);
-                 dom.messageArea.innerHTML = `<div class="bg-red-900/50 border border-red-700 text-red-200 p-4 rounded-lg"><h3 class="font-bold">發生錯誤</h3><p>${error.message}</p></div>`;
-                 totalRecords = 0;
-                 renderPagination();
-            }
-        }
+dom.pageSizeSelect.addEventListener('change', (e) => {
+pageSize = parseInt(e.target.value, 10);
+currentPage = 1;
+if(totalRecords > 0) fetchData();
+});
+dom.modalCloseBtn.addEventListener('click', () => dom.modal.classList.add('hidden'));
+dom.resultsTable.addEventListener('click', (e) => {
+if(e.target.classList.contains('details-btn')) {
+showSubTableDetails(e.target);
+}
+});
+}
 
-        function renderTable(data) {
-            if (!data || data.length === 0) {
-                dom.tableWrapper.classList.add('hidden');
-                return;
-            }
-            
-            const hiddenColumns = ['編號', '縣市代碼', '交易類型'];
-            const headers = Object.keys(data[0]);
-            
-            const headerRow = document.createElement('tr');
-            const actionHeader = document.createElement('th');
-            actionHeader.textContent = '操作';
-            actionHeader.style.minWidth = '80px'; // 給操作欄一個固定寬度
-            headerRow.appendChild(actionHeader);
+function updateDistrictOptions() {
+const selectedCounty = dom.countySelect.value;
+dom.districtSelect.innerHTML = '<option value="">全部</option>';
 
-            headers.forEach(headerText => {
-                if (!hiddenColumns.includes(headerText)) {
-                    const th = document.createElement('th');
-                    th.textContent = headerText;
-                    headerRow.appendChild(th);
-                }
-            });
-            const thead = document.createElement('thead');
-            thead.appendChild(headerRow);
-            
-            const tbody = document.createElement('tbody');
-            data.forEach(row => {
-                const tr = document.createElement('tr');
-                tr.className = 'hover:bg-gray-800 transition-colors';
+if (selectedCounty && districtData[selectedCounty]) {
+districtData[selectedCounty].forEach(districtName => {
+const option = document.createElement('option');
+option.value = districtName;
+option.textContent = districtName;
+dom.districtSelect.appendChild(option);
+});
+dom.districtSelect.disabled = false;
+} else {
+dom.districtSelect.disabled = true;
+}
+}
 
-                const actionCell = document.createElement('td');
-                actionCell.className = 'py-2 px-3 border-b border-gray-700';
-                actionCell.innerHTML = `<button class="details-btn bg-purple-600 hover:bg-purple-500 text-white text-xs px-3 py-1 rounded" data-id="${row['編號']}" data-type="${row['交易類型']}" data-county="${row['縣市代碼']}">附表</button>`;
-                tr.appendChild(actionCell);
+async function fetchData() {
+dom.messageArea.innerHTML = '<div class="loader mx-auto"></div><p class="mt-4">查詢中，請稍候...</p>';
+dom.messageArea.classList.remove('hidden');
+dom.tableWrapper.classList.add('hidden');
+dom.resultsTable.innerHTML = '';
 
-                headers.forEach(header => {
-                    if (!hiddenColumns.includes(header)) {
-                        const td = document.createElement('td');
-                        td.className = 'py-2 px-3 border-b border-gray-700';
-                        let value = row[header];
+const countyCodeMap = { "臺北市": "A", "新北市": "F", "桃園市": "H", "臺中市": "B", "臺南市": "D", "高雄市": "E", "基隆市": "C", "新竹市": "O", "嘉義市": "I", "新竹縣": "J", "苗栗縣": "K", "彰化縣": "N", "南投縣": "M", "雲林縣": "P", "嘉義縣": "Q", "屏東縣": "T", "宜蘭縣": "G", "花蓮縣": "U", "臺東縣": "V", "澎湖縣": "X", "金門縣": "W", "連江縣": "Z" };
+const requestFilters = {};
+const county = dom.countySelect.value;
+if (county) requestFilters.countyCode = countyCodeMap[county] || '';
+if (dom.districtSelect.value) requestFilters.district = dom.districtSelect.value;
+if (dom.typeSelect.value) requestFilters.type = dom.typeSelect.value;
+if (dom.dateStartInput.value) requestFilters.dateStart = dom.dateStartInput.value;
+if (dom.dateEndInput.value) requestFilters.dateEnd = dom.dateEndInput.value;
+const pagination = { page: currentPage, limit: pageSize };
 
-                        if (typeof value === 'string') {
-                            value = value.trim();
-                        }
-                        
-                        if (typeof value === 'number' && ['交易總價', '車位總價', '產權面積_房車', '車位總面積', '主建物面積', '附屬建物面積', '陽台面積', '租賃面積'].includes(header)) {
-                           value = new Intl.NumberFormat('zh-TW').format(value);
-                        }
-                        
-                        td.textContent = value ?? '-';
-                        tr.appendChild(td);
-                    }
-                });
-                tbody.appendChild(tr);
-            });
-            
-            dom.resultsTable.innerHTML = '';
-            dom.resultsTable.appendChild(thead);
-            dom.resultsTable.appendChild(tbody);
-        }
+try {
+const response = await fetch(EDGE_FUNCTION_ENDPOINT, {
+method: 'POST',
+headers: {
+'Content-Type': 'application/json',
+'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4Ym1iYmZyemJ0dXVleXNpY29jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA2ODg5ODksImV4cCI6MjA2NjI2NDk4OX0.1IUynv5eK1xF_3pb-oasqaTrPvbeAOC4Sc1oykPBy4M'
+},
+body: JSON.stringify({ filters: requestFilters, pagination: pagination })
+});
+if (!response.ok) {
+const errorResult = await response.json().catch(() => ({ error: '無法解析伺服器回應' }));
+throw new Error(errorResult.error || `伺服器錯誤: ${response.status}`);
+}
 
-        function renderPagination() {
-            dom.paginationControls.innerHTML = '';
-            if (totalRecords === 0 && currentPage === 1) {
-                dom.paginationControls.innerHTML = `<span>共 0 筆資料</span>`;
-                return;
-            }
+const result = await response.json();
+totalRecords = result.count || 0;
 
-            const totalPages = Math.ceil(totalRecords / pageSize);
-            const countInfo = document.createElement('div');
-            countInfo.textContent = `共 ${totalRecords} 筆資料`;
+if (!result.data || result.data.length === 0) {
+dom.messageArea.innerHTML = '<p>找不到符合條件的資料。</p>';
+dom.tableWrapper.classList.add('hidden');
+renderPagination();
+return;
+}
 
-            const buttonsContainer = document.createElement('div');
-            buttonsContainer.className = 'flex items-center space-x-2';
-            
-            const prevButton = document.createElement('button');
-            prevButton.textContent = ' 上一頁';
-            prevButton.disabled = currentPage === 1;
-            prevButton.onclick = () => { currentPage--; fetchData(); };
+renderTable(result.data);
+renderPagination();
+dom.messageArea.classList.add('hidden');
+dom.tableWrapper.classList.remove('hidden');
 
-            const nextButton = document.createElement('button');
-            nextButton.textContent = '下一頁 ';
-            nextButton.disabled = currentPage >= totalPages;
-            nextButton.onclick = () => { currentPage++; fetchData(); };
+} catch (error) {
+console.error('查詢錯誤:', error);
+dom.messageArea.innerHTML = `<div class="bg-red-900/50 border border-red-700 text-red-200 p-4 rounded-lg"><h3 class="font-bold">發生錯誤</h3><p>${error.message}</p></div>`;
+totalRecords = 0;
+renderPagination();
+}
+}
 
-            [prevButton, nextButton].forEach(btn => {
-                btn.className = "bg-gray-700 hover:bg-cyan-600 text-white font-bold py-2 px-4 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors";
-            });
-            
-            const pageInfo = document.createElement('span');
-            pageInfo.textContent = `第 ${currentPage} / ${totalPages > 0 ? totalPages : 1} 頁`;
-            pageInfo.className = 'px-4';
-            
-            buttonsContainer.append(prevButton, pageInfo, nextButton);
-            dom.paginationControls.append(countInfo, buttonsContainer);
-        }
-        
-        function renderSubTable(title, records) {
-            if (!records || !Array.isArray(records) || records.length === 0) {
-                return `<div class="mb-4"><h3 class="text-lg font-semibold text-cyan-400 mb-2">${title}</h3><p class="text-sm text-gray-500">無資料</p></div>`;
-            }
+function renderTable(data) {
+if (!data || data.length === 0) {
+dom.tableWrapper.classList.add('hidden');
+return;
+}
 
-            let html = `<div><h3 class="text-lg font-semibold text-cyan-400 mb-2">${title}</h3>`;
-            const headers = Object.keys(records[0]);
-            
-            html += '<table class="w-full text-sm text-left">';
-            html += '<thead><tr class="border-b border-gray-600">';
-            headers.forEach(header => {
-                if (header !== 'id' && header !== '編號') {
-                     html += `<th class="py-2 pr-2 font-medium text-gray-400">${header}</th>`;
-                }
-            });
-            html += '</tr></thead>';
+// 【重要】定義您想在畫面上隱藏的欄位
+const hiddenColumns = ['編號', '縣市代碼', '交易類型'];
 
-            html += '<tbody>';
-            records.forEach(record => {
-                html += '<tr class="border-b border-gray-700">';
-                headers.forEach(header => {
-                     if (header !== 'id' && header !== '編號') {
-                        let value = record[header];
-                        if (typeof value === 'string') {
-                            value = value.trim();
-                        }
-                        html += `<td class="py-2 pr-2">${value ?? '-'}</td>`;
-                     }
-                });
-                html += '</tr>';
-            });
-            html += '</tbody></table></div>';
-            
-            return html;
-        }
+const headers = Object.keys(data[0]);
+const headerRow = document.createElement('tr');
 
-        async function showSubTableDetails(btn) {
-            const id = btn.dataset.id;
-            const type = btn.dataset.type;
-            const county = btn.dataset.county;
+const actionHeader = document.createElement('th');
+actionHeader.textContent = '操作';
+headerRow.appendChild(actionHeader);
 
-            console.log('【前端】正準備發送附表查詢請求:', { id, type, county });
+headers.forEach(headerText => {
+// 如果目前的欄位名稱不在隱藏清單中，才建立表頭
+if (!hiddenColumns.includes(headerText)) {
+const th = document.createElement('th');
+th.textContent = headerText;
+headerRow.appendChild(th);
+}
+});
+const thead = document.createElement('thead');
+thead.appendChild(headerRow);
 
-            dom.modalTitle.textContent = `附表詳細資料 (編號: ${id})`;
-            dom.modalContent.innerHTML = '<div class="loader mx-auto"></div>';
-            dom.modal.classList.remove('hidden');
+const tbody = document.createElement('tbody');
+data.forEach(row => {
+const tr = document.createElement('tr');
+tr.className = 'hover:bg-gray-800 transition-colors';
 
-            try {
-                if (!id || !type || !county || county === 'undefined') {
-                    throw new Error(`前端參數不足，無法查詢附表。 (編號: ${id}, 類型: ${type}, 縣市: ${county})`);
-                }
+const actionCell = document.createElement('td');
+actionCell.className = 'py-2 px-3 border-b border-gray-700';
+// 按鈕依然使用完整的 row 物件，確保能取到 '編號' 等資料
+actionCell.innerHTML = `<button class="details-btn bg-purple-600 hover:bg-purple-500 text-white text-xs px-3 py-1 rounded" data-id="${row['編號']}" data-type="${row['交易類型']}" data-county="${row['縣市代碼']}">附表</button>`;
+tr.appendChild(actionCell);
 
-                const response = await fetch(SUB_DATA_ENDPOINT, {
-                    method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4Ym1iYmZyemJ0dXVleXNpY29jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA2ODg5ODksImV4cCI6MjA2NjI2NDk4OX0.1IUynv5eK1xF_3pb-oasqaTrPvbeAOC4Sc1oykPBy4M'
-                    },
-                    body: JSON.stringify({ id, type, county })
-                });
-                if (!response.ok) {
-                    const errorResult = await response.json().catch(() => ({ error: '無法從伺服器獲取附表資料' }));
-                    throw new Error(errorResult.error);
-                }
+headers.forEach(header => {
+// 如果目前的欄位名稱不在隱藏清單中，才建立儲存格
+if (!hiddenColumns.includes(header)) {
+const td = document.createElement('td');
+td.className = 'py-2 px-3 border-b border-gray-700';
+let value = row[header];
 
-                const result = await response.json();
-                let contentHTML = '<div class="space-y-6">';
-                
-                if (type !== '預售交易') {
-                    contentHTML += renderSubTable('建物資料', result.build);
-                }
-                contentHTML += renderSubTable('土地資料', result.land);
-                contentHTML += renderSubTable('車位資料', result.park);
+// 清理數據，去除尾隨空白
+value = cleanValue(value);
 
-                if (contentHTML === '<div class="space-y-6">') {
-                    contentHTML = '<p>此筆紀錄沒有對應的附表資料。</p>';
-                } else {
-                    contentHTML += '</div>';
-                }
+if (typeof value === 'number' && ['交易總價', '車位總價', '產權面積_房車', '車位總面積', '主建物面積', '附屬建物面積', '陽台面積', '租賃面積'].includes(header)) {
+value = new Intl.NumberFormat('zh-TW').format(value);
+}
 
-                dom.modalContent.innerHTML = contentHTML;
-            } catch (error) {
-                dom.modalContent.innerHTML = `<p class="text-red-400">查詢失敗: ${error.message}</p>`;
-            }
-        }
-        
-        initialize();
-    </script>
+td.textContent = value ?? '-';
+tr.appendChild(td);
+}
+});
+tbody.appendChild(tr);
+});
+
+dom.resultsTable.innerHTML = '';
+dom.resultsTable.appendChild(thead);
+dom.resultsTable.appendChild(tbody);
+}
+
+function renderPagination() {
+dom.paginationControls.innerHTML = '';
+if (totalRecords === 0 && currentPage === 1) {
+dom.paginationControls.innerHTML = `<span>共 0 筆資料</span>`;
+return;
+}
+
+const totalPages = Math.ceil(totalRecords / pageSize);
+const countInfo = document.createElement('div');
+countInfo.textContent = `共 ${totalRecords} 筆資料`;
+
+const buttonsContainer = document.createElement('div');
+buttonsContainer.className = 'flex items-center space-x-2';
+
+const prevButton = document.createElement('button');
+prevButton.textContent = ' 上一頁';
+prevButton.disabled = currentPage === 1;
+prevButton.onclick = () => { currentPage--; fetchData(); };
+
+const nextButton = document.createElement('button');
+nextButton.textContent = '下一頁 ';
+nextButton.disabled = currentPage >= totalPages;
+nextButton.onclick = () => { currentPage++; fetchData(); };
+
+[prevButton, nextButton].forEach(btn => {
+btn.className = "bg-gray-700 hover:bg-cyan-600 text-white font-bold py-2 px-4 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors";
+});
+
+const pageInfo = document.createElement('span');
+pageInfo.textContent = `第 ${currentPage} / ${totalPages > 0 ? totalPages : 1} 頁`;
+pageInfo.className = 'px-4';
+
+buttonsContainer.append(prevButton, pageInfo, nextButton);
+dom.paginationControls.append(countInfo, buttonsContainer);
+}
+
+function renderSubTable(title, records) {
+if (!records || !Array.isArray(records) || records.length === 0) {
+return `<div class="mb-4"><h3 class="text-lg font-semibold text-cyan-400 mb-2">${title}</h3><p class="text-sm text-gray-500">無資料</p></div>`;
+}
+
+let html = `<div><h3 class="text-lg font-semibold text-cyan-400 mb-2">${title}</h3>`;
+const headers = Object.keys(records[0]);
+
+html += '<table class="w-full text-sm text-left">';
+html += '<thead><tr class="border-b border-gray-600">';
+headers.forEach(header => {
+if (header !== 'id' && header !== '編號') {
+html += `<th class="py-2 pr-2 font-medium text-gray-400">${header}</th>`;
+}
+});
+html += '</tr></thead>';
+
+html += '<tbody>';
+records.forEach(record => {
+html += '<tr class="border-b border-gray-700">';
+headers.forEach(header => {
+if (header !== 'id' && header !== '編號') {
+// 清理數據，去除尾隨空白
+const cleanedValue = cleanValue(record[header]);
+html += `<td class="py-2 pr-2">${cleanedValue ?? '-'}</td>`;
+}
+});
+html += '</tr>';
+});
+html += '</tbody></table></div>';
+
+return html;
+}
+
+async function showSubTableDetails(btn) {
+const id = btn.dataset.id;
+const type = btn.dataset.type;
+const county = btn.dataset.county;
+
+console.log('【前端】正準備發送附表查詢請求:', { id, type, county });
+
+dom.modalTitle.textContent = `附表詳細資料 (編號: ${id})`;
+dom.modalContent.innerHTML = '<div class="loader mx-auto"></div>';
+dom.modal.classList.remove('hidden');
+
+try {
+if (!id || !type || !county || county === 'undefined') {
+throw new Error(`前端參數不足，無法查詢附表。 (編號: ${id}, 類型: ${type}, 縣市: ${county})`);
+}
+
+const response = await fetch(SUB_DATA_ENDPOINT, {
+method: 'POST',
+headers: {
+'Content-Type': 'application/json',
+'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4Ym1iYmZyemJ0dXVleXNpY29jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA2ODg5ODksImV4cCI6MjA2NjI2NDk4OX0.1IUynv5eK1xF_3pb-oasqaTrPvbeAOC4Sc1oykPBy4M'
+},
+body: JSON.stringify({ id, type, county })
+});
+if (!response.ok) {
+const errorResult = await response.json().catch(() => ({ error: '無法從伺服器獲取附表資料' }));
+throw new Error(errorResult.error);
+}
+
+const result = await response.json();
+let contentHTML = '<div class="space-y-6">';
+
+if (type !== '預售交易') {
+contentHTML += renderSubTable('建物資料', result.build);
+}
+contentHTML += renderSubTable('土地資料', result.land);
+contentHTML += renderSubTable('車位資料', result.park);
+
+if (contentHTML === '<div class="space-y-6">') {
+contentHTML = '<p>此筆紀錄沒有對應的附表資料。</p>';
+} else {
+contentHTML += '</div>';
+}
+
+dom.modalContent.innerHTML = contentHTML;
+} catch (error) {
+dom.modalContent.innerHTML = `<p class="text-red-400">查詢失敗: ${error.message}</p>`;
+}
+}
+
+initialize();
+</script>
 </body>
 </html>
