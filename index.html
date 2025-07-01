@@ -47,13 +47,14 @@
         table {
             width: 100%;
             border-collapse: collapse;
+            table-layout: fixed; 
         }
         th, td {
             border-bottom: 1px solid #374151;
             padding: 0.75rem 1rem;
-            text-align: left; /* 將由下方更精確的規則覆蓋 */
+            text-align: center;
+            vertical-align: middle;
             font-size: 0.875rem;
-            white-space: nowrap;
         }
         thead th {
             background-color: #252836;
@@ -103,46 +104,39 @@
         }
 
         /* --- START: CSS 規則 --- */
-        /* 1. 表格內容置中 */
-        #results-table th, #results-table td,
-        .modal-container table th, .modal-container table td {
-            text-align: center;
-            vertical-align: middle;
+        /* 【修改】定義所有可展開欄位內文字的共同行為 (強制不換行 + 省略號) */
+        .col-expandable .text-content {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-align: left;
+            margin: auto;
         }
 
-        /* 2. 可展開/縮小欄位的樣式 */
-        .expand-wrapper {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            margin: auto;
-            white-space: normal; /* 允許文字換行 */
-            max-width: 250px; /* 預設最大寬度 */
-            transition: max-width 0.3s ease-in-out; /* 【新增】增加寬度變化的過渡動畫 */
+        /* 預設(縮小)狀態：只定義寬度 */
+        .col-expandable {
+            width: 220px;
+            transition: width 0.3s ease-in-out;
         }
-        .expand-wrapper .full-text {
-            text-align: left; /* 展開後的長文字靠左對齊，方便閱讀 */
+
+        /* 展開狀態：只定義更寬的寬度，文字行為繼承通用設定，故保持不換行 */
+        .col-expandable.column-expanded {
+            width: 450px;
         }
+        
         .toggle-btn {
             background: none;
             border: none;
             padding: 0;
             margin-top: 4px;
             cursor: pointer;
-            font-size: 0.75rem; /* 調整按鈕字體大小 */
+            font-size: 0.75rem;
             font-weight: 500;
-            color: #06b6d4; /* cyan-accent */
+            color: #06b6d4;
             text-decoration: underline;
         }
         .toggle-btn:hover {
-            color: #8b5cf6; /* purple-accent */
-        }
-
-        /* 3. 【新增】展開後讓容器變寬的樣式 */
-        .expand-wrapper.expanded {
-            max-width: 500px; /* 展開後的最大寬度 */
-            align-items: flex-start; /* 展開後，讓內部的文字和按鈕靠左對齊 */
+            color: #8b5cf6;
         }
         /* --- END: CSS 規則 --- */
     </style>
@@ -199,7 +193,7 @@
                         </button>
                     </div>
                 </div>
-                </div>
+            </div>
 
             <div id="results-container" class="glass-card p-6 rounded-xl shadow-lg">
                 <div id="message-area" class="text-center p-8 text-gray-400">
@@ -211,7 +205,7 @@
                             </table>
                     </div>
                     <div id="pagination-controls" class="flex justify-between items-center mt-4 text-sm text-gray-400">
-                        </div>
+                    </div>
                 </div>
             </div>
         </main>
@@ -224,7 +218,7 @@
                 <button id="modal-close-btn" class="text-gray-400 hover:text-white text-3xl font-bold">&times;</button>
             </div>
             <div id="modal-content" class="text-gray-300">
-                </div>
+            </div>
         </div>
     </div>
 
@@ -252,29 +246,14 @@
         let currentPage = 1;
         let pageSize = 500;
         let totalRecords = 0;
-        const districtData = {
-            "臺北市": ["中正區", "大同區", "中山區", "松山區", "大安區", "萬華區", "信義區", "士林區", "北投區", "內湖區", "南港區", "文山區"],
-            "新北市": ["板橋區", "三重區", "中和區", "永和區", "新莊區", "新店區", "樹林區", "鶯歌區", "三峽區", "淡水區", "汐止區", "瑞芳區", "土城區", "蘆洲區", "五股區", "泰山區", "林口區", "深坑區", "石碇區", "坪林區", "三芝區", "石門區", "八里區", "平溪區", "雙溪區", "貢寮區", "金山區", "萬里區", "烏來區"],
-            "桃園市": ["桃園區", "中壢區", "大溪區", "楊梅區", "蘆竹區", "大園區", "龜山區", "八德區", "龍潭區", "平鎮區", "新屋區", "觀音區", "復興區"],
-            "臺中市": ["中區", "東區", "南區", "西區", "北區", "北屯區", "西屯區", "南屯區", "太平區", "大里區", "霧峰區", "烏日區", "豐原區", "后里區", "石岡區", "東勢區", "和平區", "新社區", "潭子區", "大雅區", "神岡區", "大肚區", "沙鹿區", "龍井區", "梧棲區", "清水區", "大甲區", "外埔區", "大安區"],
-            "臺南市": ["中西區", "東區", "南區", "北區", "安平區", "安南區", "永康區", "歸仁區", "新化區", "左鎮區", "玉井區", "楠西區", "南化區", "仁德區", "關廟區", "龍崎區", "官田區", "麻豆區", "佳里區", "西港區", "七股區", "將軍區", "學甲區", "北門區", "新營區", "後壁區", "白河區", "東山區", "六甲區", "下營區", "柳營區", "鹽水區", "善化區", "大內區", "山上區", "新市區", "安定區"],
-            "高雄市": ["新興區", "前金區", "苓雅區", "鹽埕區", "鼓山區", "旗津區", "前鎮區", "三民區", "楠梓區", "小港區", "左營區", "仁武區", "大社區", "岡山區", "路竹區", "阿蓮區", "田寮區", "燕巢區", "橋頭區", "梓官區", "彌陀區", "永安區", "湖內區", "鳳山區", "大寮區", "林園區", "鳥松區", "大樹區", "旗山區", "美濃區", "六龜區", "內門區", "杉林區", "甲仙區", "桃源區", "那瑪夏區", "茂林區", "茄萣區"],
-            "基隆市": ["仁愛區", "信義區", "中正區", "中山區", "安樂區", "暖暖區", "七堵區"],
-            "新竹市": ["東區", "北區", "香山區"],
-            "嘉義市": ["東區", "西區"],
-            "宜蘭縣": ["宜蘭市", "羅東鎮", "蘇澳鎮", "頭城鎮", "礁溪鄉", "壯圍鄉", "員山鄉", "冬山鄉", "五結鄉", "三星鄉", "大同鄉", "南澳鄉"],
-            "新竹縣": ["竹北市", "竹東鎮", "新埔鎮", "關西鎮", "湖口鄉", "新豐鄉", "芎林鄉", "橫山鄉", "北埔鄉", "寶山鄉", "峨眉鄉", "尖石鄉", "五峰鄉"],
-            "苗栗縣": ["苗栗市", "苑裡鎮", "通霄鎮", "竹南鎮", "頭份鎮", "後龍鎮", "卓蘭鎮", "大湖鄉", "公館鄉", "銅鑼鄉", "南庄鄉", "頭屋鄉", "三義鄉", "西湖鄉", "造橋鄉", "三灣鄉", "獅潭鄉", "泰安鄉"],
-            "彰化縣": ["彰化市", "鹿港鎮", "和美鎮", "線西鄉", "伸港鄉", "福興鄉", "秀水鄉", "花壇鄉", "芬園鄉", "員林鎮", "溪湖鎮", "田中鎮", "大村鄉", "埔鹽鄉", "埔心鄉", "永靖鄉", "社頭鄉", "二水鄉", "北斗鎮", "二林鎮", "田尾鄉", "埤頭鄉", "芳苑鄉", "大城鄉", "竹塘鄉", "溪州鄉"],
-            "南投縣": ["南投市", "埔里鎮", "草屯鎮", "竹山鎮", "集集鎮", "名間鄉", "鹿谷鄉", "中寮鄉", "魚池鄉", "國姓鄉", "水里鄉", "信義鄉", "仁愛鄉"],
-            "雲林縣": ["斗六市", "斗南鎮", "虎尾鎮", "西螺鎮", "土庫鎮", "北港鎮", "古坑鄉", "大埤鄉", "莿桐鄉", "林內鄉", "二崙鄉", "崙背鄉", "麥寮鄉", "東勢鄉", "褒忠鄉", "台西鄉", "元長鄉", "四湖鄉", "口湖鄉", "水林鄉"],
-            "嘉義縣": ["太保市", "朴子市", "布袋鎮", "大林鎮", "民雄鄉", "溪口鄉", "新港鄉", "六腳鄉", "東石鄉", "義竹鄉", "鹿草鄉", "水上鄉", "中埔鄉", "竹崎鄉", "梅山鄉", "番路鄉", "大埔鄉", "阿里山鄉"],
-            "屏東縣": ["屏東市", "潮州鎮", "東港鎮", "恆春鎮", "萬丹鄉", "長治鄉", "麟洛鄉", "九如鄉", "里港鄉", "鹽埔鄉", "高樹鄉", "萬巒鄉", "內埔鄉", "竹田鄉", "新埤鄉", "枋寮鄉", "新園鄉", "崁頂鄉", "林邊鄉", "南州鄉", "佳冬鄉", "琉球鄉", "車城鄉", "滿州鄉", "枋山鄉", "霧台鄉", "瑪家鄉", "泰武鄉", "來義鄉", "春日鄉", "獅子鄉", "牡丹鄉", "三地門鄉"],
-            "花蓮縣": ["花蓮市", "鳳林鎮", "玉里鎮", "新城鄉", "吉安鄉", "壽豐鄉", "光復鄉", "豐濱鄉", "瑞穗鄉", "富里鄉", "秀林鄉", "萬榮鄉", "卓溪鄉"],
-            "臺東縣": ["臺東市", "成功鎮", "關山鎮", "卑南鄉", "鹿野鄉", "池上鄉", "東河鄉", "長濱鄉", "太麻里鄉", "大武鄉", "綠島鄉", "海端鄉", "延平鄉", "金峰鄉", "達仁鄉", "蘭嶼鄉"],
-            "澎湖縣": ["馬公市", "湖西鄉", "白沙鄉", "西嶼鄉", "望安鄉", "七美鄉"],
-            "金門縣": ["金城鎮", "金湖鎮", "金沙鎮", "金寧鄉", "烈嶼鄉", "烏坵鄉"],
-            "連江縣": ["南竿鄉", "北竿鄉", "莒光鄉", "東引鄉"]
+        const districtData = { /* District data remains the same */
+            "臺北市": ["中正區", "大同區", "中山區", "松山區", "大安區", "萬華區", "信義區", "士林區", "北投區", "內湖區", "南港區", "文山區"], "新北市": ["板橋區", "三重區", "中和區", "永和區", "新莊區", "新店區", "樹林區", "鶯歌區", "三峽區", "淡水區", "汐止區", "瑞芳區", "土城區", "蘆洲區", "五股區", "泰山區", "林口區", "深坑區", "石碇區", "坪林區", "三芝區", "石門區", "八里區", "平溪區", "雙溪區", "貢寮區", "金山區", "萬里區", "烏來區"], "桃園市": ["桃園區", "中壢區", "大溪區", "楊梅區", "蘆竹區", "大園區", "龜山區", "八德區", "龍潭區", "平鎮區", "新屋區", "觀音區", "復興區"], "臺中市": ["中區", "東區", "南區", "西區", "北區", "北屯區", "西屯區", "南屯區", "太平區", "大里區", "霧峰區", "烏日區", "豐原區", "后里區", "石岡區", "東勢區", "和平區", "新社區", "潭子區", "大雅區", "神岡區", "大肚區", "沙鹿區", "龍井區", "梧棲區", "清水區", "大甲區", "外埔區", "大安區"], "臺南市": ["中西區", "東區", "南區", "北區", "安平區", "安南區", "永康區", "歸仁區", "新化區", "左鎮區", "玉井區", "楠西區", "南化區", "仁德區", "關廟區", "龍崎區", "官田區", "麻豆區", "佳里區", "西港區", "七股區", "將軍區", "學甲區", "北門區", "新營區", "後壁區", "白河區", "東山區", "六甲區", "下營區", "柳營區", "鹽水區", "善化區", "大內區", "山上區", "新市區", "安定區"], "高雄市": ["新興區", "前金區", "苓雅區", "鹽埕區", "鼓山區", "旗津區", "前鎮區", "三民區", "楠梓區", "小港區", "左營區", "仁武區", "大社區", "岡山區", "路竹區", "阿蓮區", "田寮區", "燕巢區", "橋頭區", "梓官區", "彌陀區", "永安區", "湖內區", "鳳山區", "大寮區", "林園區", "鳥松區", "大樹區", "旗山區", "美濃區", "六龜區", "內門區", "杉林區", "甲仙區", "桃源區", "那瑪夏區", "茂林區", "茄萣區"], "基隆市": ["仁愛區", "信義區", "中正區", "中山區", "安樂區", "暖暖區", "七堵區"], "新竹市": ["東區", "北區", "香山區"], "嘉義市": ["東區", "西區"], "宜蘭縣": ["宜蘭市", "羅東鎮", "蘇澳鎮", "頭城鎮", "礁溪鄉", "壯圍鄉", "員山鄉", "冬山鄉", "五結鄉", "三星鄉", "大同鄉", "南澳鄉"], "新竹縣": ["竹北市", "竹東鎮", "新埔鎮", "關西鎮", "湖口鄉", "新豐鄉", "芎林鄉", "橫山鄉", "北埔鄉", "寶山鄉", "峨眉鄉", "尖石鄉", "五峰鄉"], "苗栗縣": ["苗栗市", "苑裡鎮", "通霄鎮", "竹南鎮", "頭份鎮", "後龍鎮", "卓蘭鎮", "大湖鄉", "公館鄉", "銅鑼鄉", "南庄鄉", "頭屋鄉", "三義鄉", "西湖鄉", "造橋鄉", "三灣鄉", "獅潭鄉", "泰安鄉"], "彰化縣": ["彰化市", "鹿港鎮", "和美鎮", "線西鄉", "伸港鄉", "福興鄉", "秀水鄉", "花壇鄉", "芬園鄉", "員林鎮", "溪湖鎮", "田中鎮", "大村鄉", "埔鹽鄉", "埔心鄉", "永靖鄉", "社頭鄉", "二水鄉", "北斗鎮", "二林鎮", "田尾鄉", "埤頭鄉", "芳苑鄉", "大城鄉", "竹塘鄉", "溪州鄉"], "南投縣": ["南投市", "埔里鎮", "草屯鎮", "竹山鎮", "集集鎮", "名間鄉", "鹿谷鄉", "中寮鄉", "魚池鄉", "國姓鄉", "水里鄉", "信義鄉", "仁愛鄉"], "雲林縣": ["斗六市", "斗南鎮", "虎尾鎮", "西螺鎮", "土庫鎮", "北港鎮", "古坑鄉", "大埤鄉", "莿桐鄉", "林內鄉", "二崙鄉", "崙背鄉", "麥寮鄉", "東勢鄉", "褒忠鄉", "台西鄉", "元長鄉", "四湖鄉", "口湖鄉", "水林鄉"], "嘉義縣": ["太保市", "朴子市", "布袋鎮", "大林鎮", "民雄鄉", "溪口鄉", "新港鄉", "六腳鄉", "東石鄉", "義竹鄉", "鹿草鄉", "水上鄉", "中埔鄉", "竹崎鄉", "梅山鄉", "番路鄉", "大埔鄉", "阿里山鄉"], "屏東縣": ["屏東市", "潮州鎮", "東港鎮", "恆春鎮", "萬丹鄉", "長治鄉", "麟洛鄉", "九如鄉", "里港鄉", "鹽埔鄉", "高樹鄉", "萬巒鄉", "內埔鄉", "竹田鄉", "新埤鄉", "枋寮鄉", "新園鄉", "崁頂鄉", "林邊鄉", "南州鄉", "佳冬鄉", "琉球鄉", "車城鄉", "滿州鄉", "枋山鄉", "霧台鄉", "瑪家鄉", "泰武鄉", "來義鄉", "春日鄉", "獅子鄉", "牡丹鄉", "三地門鄉"], "花蓮縣": ["花蓮市", "鳳林鎮", "玉里鎮", "新城鄉", "吉安鄉", "壽豐鄉", "光復鄉", "豐濱鄉", "瑞穗鄉", "富里鄉", "秀林鄉", "萬榮鄉", "卓溪鄉"], "臺東縣": ["臺東市", "成功鎮", "關山鎮", "卑南鄉", "鹿野鄉", "池上鄉", "東河鄉", "長濱鄉", "太麻里鄉", "大武鄉", "綠島鄉", "海端鄉", "延平鄉", "金峰鄉", "達仁鄉", "蘭嶼鄉"], "澎湖縣": ["馬公市", "湖西鄉", "白沙鄉", "西嶼鄉", "望安鄉", "七美鄉"], "金門縣": ["金城鎮", "金湖鎮", "金沙鎮", "金寧鄉", "烈嶼鄉", "烏坵鄉"], "連江縣": ["南竿鄉", "北竿鄉", "莒光鄉", "東引鄉"]
+        };
+
+        const expandableColumnConfig = {
+            '地址': 'address',
+            '備註': 'notes',
+            '主要用途': 'main-use'
         };
 
         function initialize() {
@@ -295,33 +274,42 @@
             dom.resultsTable.addEventListener('click', (e) => {
                 const target = e.target;
                 
-                // 處理「附表」按鈕點擊
                 if (target.classList.contains('details-btn')) {
                     showSubTableDetails(target);
                     return; 
                 }
 
-                // 處理「展開/縮小」按鈕點擊
                 if (target.classList.contains('toggle-btn')) {
-                    const wrapper = target.closest('.expand-wrapper');
-                    if (!wrapper) return;
-
-                    // 【修改】切換 .expanded class 來觸發 CSS 寬度變化
-                    wrapper.classList.toggle('expanded');
-
-                    const textContent = wrapper.querySelector('.text-content');
-                    const isNowHidden = textContent.querySelector('.full-text').classList.toggle('hidden');
-                    textContent.querySelector('.short-text').classList.toggle('hidden');
+                    const table = dom.resultsTable;
+                    const header = table.querySelector('thead');
+                    const body = table.querySelector('tbody');
+                    const colId = target.dataset.colId;
                     
-                    target.textContent = isNowHidden ? '[展開]' : '[縮小]';
+                    const targetTh = header.querySelector(`th[data-col-id="${colId}"]`);
+                    if (!targetTh) return;
+
+                    const colIndex = Array.from(targetTh.parentNode.children).indexOf(targetTh);
+                    if (colIndex === -1) return;
+                    
+                    const isNowExpanded = targetTh.classList.toggle('column-expanded');
+
+                    body.querySelectorAll('tr').forEach(row => {
+                        const targetTd = row.children[colIndex];
+                        if (targetTd) {
+                            targetTd.classList.toggle('column-expanded', isNowExpanded);
+                        }
+                    });
+
+                    table.querySelectorAll(`button.toggle-btn[data-col-id="${colId}"]`).forEach(btn => {
+                        btn.textContent = isNowExpanded ? '[縮小]' : '[展開]';
+                    });
                 }
             });
         }
         
-        function updateDistrictOptions() {
+        function updateDistrictOptions() { 
             const selectedCounty = dom.countySelect.value;
             dom.districtSelect.innerHTML = '<option value="">全部</option>';
-            
             if (selectedCounty && districtData[selectedCounty]) {
                 districtData[selectedCounty].forEach(districtName => {
                     const option = document.createElement('option');
@@ -335,12 +323,11 @@
             }
         }
 
-        async function fetchData() {
+        async function fetchData() { 
             dom.messageArea.innerHTML = '<div class="loader mx-auto"></div><p class="mt-4">查詢中，請稍候...</p>';
             dom.messageArea.classList.remove('hidden');
             dom.tableWrapper.classList.add('hidden');
             dom.resultsTable.innerHTML = '';
-
             const countyCodeMap = { "臺北市": "A", "新北市": "F", "桃園市": "H", "臺中市": "B", "臺南市": "D", "高雄市": "E", "基隆市": "C", "新竹市": "O", "嘉義市": "I", "新竹縣": "J", "苗栗縣": "K", "彰化縣": "N", "南投縣": "M", "雲林縣": "P", "嘉義縣": "Q", "屏東縣": "T", "宜蘭縣": "G", "花蓮縣": "U", "臺東縣": "V", "澎湖縣": "X", "金門縣": "W", "連江縣": "Z" };
             const requestFilters = {};
             const county = dom.countySelect.value;
@@ -350,7 +337,6 @@
             if (dom.dateStartInput.value) requestFilters.dateStart = dom.dateStartInput.value;
             if (dom.dateEndInput.value) requestFilters.dateEnd = dom.dateEndInput.value;
             const pagination = { page: currentPage, limit: pageSize };
-
             try {
                 const response = await fetch(EDGE_FUNCTION_ENDPOINT, {
                     method: 'POST',
@@ -364,22 +350,18 @@
                     const errorResult = await response.json().catch(() => ({ error: '無法解析伺服器回應' }));
                     throw new Error(errorResult.error || `伺服器錯誤: ${response.status}`);
                 }
-
                 const result = await response.json();
                 totalRecords = result.count || 0;
-
                 if (!result.data || result.data.length === 0) {
                     dom.messageArea.innerHTML = '<p>找不到符合條件的資料。</p>';
                     dom.tableWrapper.classList.add('hidden');
                     renderPagination();
                     return;
                 }
-                
                 renderTable(result.data);
                 renderPagination();
                 dom.messageArea.classList.add('hidden');
                 dom.tableWrapper.classList.remove('hidden');
-
             } catch (error) {
                  console.error('查詢錯誤:', error);
                  dom.messageArea.innerHTML = `<div class="bg-red-900/50 border border-red-700 text-red-200 p-4 rounded-lg"><h3 class="font-bold">發生錯誤</h3><p>${error.message}</p></div>`;
@@ -395,22 +377,29 @@
             }
             
             const hiddenColumns = ['編號', '縣市代碼', '交易類型'];
-            const expandableColumns = ['地址', '備註', '主要用途'];
             const headers = Object.keys(data[0]);
             
+            const thead = document.createElement('thead');
             const headerRow = document.createElement('tr');
+            
             const actionHeader = document.createElement('th');
             actionHeader.textContent = '操作';
+            actionHeader.style.width = '100px'; 
             headerRow.appendChild(actionHeader);
 
             headers.forEach(headerText => {
                 if (!hiddenColumns.includes(headerText)) {
                     const th = document.createElement('th');
                     th.textContent = headerText;
+                    
+                    const colId = expandableColumnConfig[headerText];
+                    if (colId) {
+                        th.classList.add('col-expandable');
+                        th.dataset.colId = colId;
+                    }
                     headerRow.appendChild(th);
                 }
             });
-            const thead = document.createElement('thead');
             thead.appendChild(headerRow);
             
             const tbody = document.createElement('tbody');
@@ -419,26 +408,26 @@
                 tr.className = 'hover:bg-gray-800 transition-colors';
 
                 const actionCell = document.createElement('td');
-                actionCell.className = 'py-2 px-3 border-b border-gray-700';
                 actionCell.innerHTML = `<button class="details-btn bg-purple-600 hover:bg-purple-500 text-white text-xs px-3 py-1 rounded" data-id="${row['編號']}" data-type="${row['交易類型']}" data-county="${row['縣市代碼']}">附表</button>`;
                 tr.appendChild(actionCell);
 
                 headers.forEach(header => {
                     if (!hiddenColumns.includes(header)) {
                         const td = document.createElement('td');
-                        td.className = 'py-2 px-3 border-b border-gray-700';
                         let value = row[header] ?? '';
+                        
+                        const colId = expandableColumnConfig[header];
+                        if (colId) {
+                            td.classList.add('col-expandable');
+                        }
 
-                        if (expandableColumns.includes(header) && value && value.length > 10) {
-                            const shortText = String(value).substring(0, 10);
+                        // 【簡化】不再區分 short-text/full-text
+                        if (colId && value) {
                             td.innerHTML = `
-                                <div class="expand-wrapper">
-                                    <div class="text-content">
-                                        <span class="short-text">${shortText}...</span>
-                                        <span class="full-text hidden">${value}</span>
-                                    </div>
-                                    <button class="toggle-btn">[展開]</button>
+                                <div class="text-content">
+                                    <span>${value}</span>
                                 </div>
+                                <button class="toggle-btn" data-col-id="${colId}">[展開]</button>
                             `;
                         } else {
                             if (typeof value === 'number' && ['交易總價', '車位總價', '產權面積_房車', '車位總面積', '主建物面積', '附屬建物面積', '陽台面積', '租賃面積', '交易總價(萬)', '房屋總價(萬)', '車位總價(萬)'].includes(header)) {
@@ -457,29 +446,25 @@
             dom.resultsTable.appendChild(tbody);
         }
 
-        function renderPagination() {
+        function renderPagination() { 
             dom.paginationControls.innerHTML = '';
             if (totalRecords === 0 && currentPage === 1) {
                 dom.paginationControls.innerHTML = `<span>共 0 筆資料</span>`;
                 return;
             }
-
             const totalPages = Math.ceil(totalRecords / pageSize);
             const countInfo = document.createElement('div');
             countInfo.textContent = `共 ${totalRecords} 筆資料`;
-
             const buttonsContainer = document.createElement('div');
             buttonsContainer.className = 'flex items-center space-x-2';
             const prevButton = document.createElement('button');
             prevButton.textContent = ' 上一頁';
             prevButton.disabled = currentPage === 1;
             prevButton.onclick = () => { currentPage--; fetchData(); };
-
             const nextButton = document.createElement('button');
             nextButton.textContent = '下一頁 ';
             nextButton.disabled = currentPage >= totalPages;
             nextButton.onclick = () => { currentPage++; fetchData(); };
-
             [prevButton, nextButton].forEach(btn => {
                 btn.className = "bg-gray-700 hover:bg-cyan-600 text-white font-bold py-2 px-4 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors";
             });
@@ -494,10 +479,8 @@
             if (!records || !Array.isArray(records) || records.length === 0) {
                 return `<div class="mb-4"><h3 class="text-lg font-semibold text-cyan-400 mb-2">${title}</h3><p class="text-sm text-gray-500">無資料</p></div>`;
             }
-
             let html = `<div><h3 class="text-lg font-semibold text-cyan-400 mb-2">${title}</h3>`;
             const headers = Object.keys(records[0]);
-            
             html += '<table class="w-full text-sm">';
             html += '<thead><tr class="border-b border-gray-600">';
             headers.forEach(header => {
@@ -506,7 +489,6 @@
                 }
             });
             html += '</tr></thead>';
-
             html += '<tbody>';
             records.forEach(record => {
                 html += '<tr class="border-b border-gray-700">';
@@ -518,7 +500,6 @@
                 html += '</tr>';
             });
             html += '</tbody></table></div>';
-            
             return html;
         }
 
@@ -526,18 +507,13 @@
             const id = btn.dataset.id;
             const type = btn.dataset.type;
             const county = btn.dataset.county;
-
-            console.log('【前端】正準備發送附表查詢請求:', { id, type, county });
-
             dom.modalTitle.textContent = `附表詳細資料 (編號: ${id})`;
             dom.modalContent.innerHTML = '<div class="loader mx-auto"></div>';
             dom.modal.classList.remove('hidden');
-
             try {
                 if (!id || !type || !county || county === 'undefined') {
                     throw new Error(`前端參數不足，無法查詢附表。 (編號: ${id}, 類型: ${type}, 縣市: ${county})`);
                 }
-
                 const response = await fetch(SUB_DATA_ENDPOINT, {
                     method: 'POST',
                     headers: { 
@@ -550,22 +526,18 @@
                     const errorResult = await response.json().catch(() => ({ error: '無法從伺服器獲取附表資料' }));
                     throw new Error(errorResult.error);
                 }
-
                 const result = await response.json();
                 let contentHTML = '<div class="space-y-6">';
-                
                 if (type !== '預售交易') {
                     contentHTML += renderSubTable('建物資料', result.build);
                 }
                 contentHTML += renderSubTable('土地資料', result.land);
                 contentHTML += renderSubTable('車位資料', result.park);
-
                 if (contentHTML === '<div class="space-y-6">') {
                     contentHTML = '<p>此筆紀錄沒有對應的附表資料。</p>';
                 } else {
                     contentHTML += '</div>';
                 }
-
                 dom.modalContent.innerHTML = contentHTML;
             } catch (error) {
                 dom.modalContent.innerHTML = `<p class="text-red-400">查詢失敗: ${error.message}</p>`;
