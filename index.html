@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>不動產數據查詢平台</title>
-    
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
     <script>
@@ -110,7 +109,7 @@
 
     <div class="max-w-screen-xl mx-auto">
         <header class="mb-8 text-center">
-            <h1 class="text-4xl font-extrabold text-white tracking-tight">您的專屬數據查詢與分析工具。 </h1>
+            <h1 class="text-4xl font-extrabold text-white tracking-tight">不動產數據查詢平台</h1>
             <p class="mt-2 text-lg text-gray-400">您的專屬數據查詢與分析工具。</p>
         </header>
         
@@ -118,21 +117,21 @@
             <div class="glass-card p-6 rounded-xl shadow-lg mb-8">
                 <div id="filter-form" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 items-end">
                     <div>
-                        <label for="county" class="block text-sm font-medium text-gray-300">縣市 [cite: 24]</label>
+                        <label for="county" class="block text-sm font-medium text-gray-300">縣市</label>
                         <select id="county" class="form-select mt-1 block w-full pl-3 pr-10 py-2 text-base rounded-md">
-                            <option value="">請選擇縣市 </option>
+                            <option value="">請選擇縣市</option>
                         </select>
                     </div>
                     <div>
-                        <label for="district" class="block text-sm font-medium text-gray-300">行政區 </label>
+                        <label for="district" class="block text-sm font-medium text-gray-300">行政區</label>
                         <select id="district" class="form-select mt-1 block w-full pl-3 pr-10 py-2 text-base rounded-md" disabled>
-                            <option value="">請先選縣市 </option>
+                            <option value="">請先選縣市</option>
                         </select>
                     </div>
                     <div>
-                        <label for="type" class="block text-sm font-medium text-gray-300">交易類型 [cite: 27]</label>
+                        <label for="type" class="block text-sm font-medium text-gray-300">交易類型</label>
                         <select id="type" class="form-select mt-1 block w-full pl-3 pr-10 py-2 text-base rounded-md">
-                            <option value="">請選擇交易類型 [cite: 27]</option>
+                            <option value="">請選擇交易類型</option>
                             <option value="中古交易">中古交易</option>
                             <option value="預售交易">預售交易</option>
                             <option value="租賃交易">租賃交易</option>
@@ -140,20 +139,19 @@
                     </div>
                     <div class="grid grid-cols-2 gap-2">
                         <div>
-                            <label for="date-start" class="block text-sm font-medium text-gray-300">起始日期 [cite: 30]</label>
-                            <input type="date" id="date-start" class="form-input mt-1 block w-full pl-3 pr-2 py-2 
-text-base rounded-md">
+                            <label for="date-start" class="block text-sm font-medium text-gray-300">起始日期</label>
+                            <input type="date" id="date-start" class="form-input mt-1 block w-full pl-3 pr-2 py-2 text-base rounded-md">
                         </div>
                         <div>
-                            <label for="date-end" class="block text-sm font-medium text-gray-300">結束日期 [cite: 31]</label>
+                            <label for="date-end" class="block text-sm font-medium text-gray-300">結束日期</label>
                             <input type="date" id="date-end" class="form-input mt-1 block w-full pl-3 pr-2 py-2 text-base rounded-md">
                         </div>
                     </div>
 
                     <div>
-                        <label for="page-size" class="block text-sm font-medium text-gray-300">每頁筆數 [cite: 33]</label>
+                        <label for="page-size" class="block text-sm font-medium text-gray-300">每頁筆數</label>
                         <select id="page-size" class="form-select mt-1 block w-full pl-3 pr-10 py-2 text-base rounded-md">
-                            <option value="500">500 [cite: 35]</option>
+                            <option value="500">500</option>
                             <option value="1000">1000</option>
                             <option value="1500">1500</option>
                         </select>
@@ -161,7 +159,7 @@ text-base rounded-md">
 
                     <div class="lg:col-start-6">
                         <button id="search-btn" class="w-full bg-gradient-to-r from-cyan-accent to-purple-accent text-white font-bold py-2 px-6 rounded-lg shadow-lg hover:opacity-90 transition-all">
-                            查詢資料 [cite: 35, 36]
+                            查詢資料
                         </button>
                      </div>
                 </div>
@@ -169,7 +167,7 @@ text-base rounded-md">
 
             <div id="results-container" class="glass-card p-6 rounded-xl shadow-lg">
                 <div id="message-area" class="text-center p-8 text-gray-400">
-                     請設定篩選條件後點擊查詢。 [cite: 37]
+                     請設定篩選條件後點擊查詢。
                 </div>
                 <div id="table-wrapper" class="hidden">
                     <div id="table-container" class="table-container overflow-x-auto">
@@ -344,6 +342,10 @@ text-base rounded-md">
                 dom.tableWrapper.classList.add('hidden');
                 return;
             }
+            
+            // ★★★【修改處】★★★
+            // 定義您想隱藏的欄位名稱
+            const hiddenColumns = ['編號', '縣市代碼', '交易類型']; 
 
             const headers = Object.keys(data[0]);
             const headerRow = document.createElement('tr');
@@ -353,9 +355,12 @@ text-base rounded-md">
             headerRow.appendChild(actionHeader);
 
             headers.forEach(headerText => {
-                const th = document.createElement('th');
-                th.textContent = headerText;
-                headerRow.appendChild(th);
+                // 如果目前的欄位名稱不在隱藏清單中，才建立表頭
+                if (!hiddenColumns.includes(headerText)) {
+                    const th = document.createElement('th');
+                    th.textContent = headerText;
+                    headerRow.appendChild(th);
+                }
             });
             const thead = document.createElement('thead');
             thead.appendChild(headerRow);
@@ -367,20 +372,24 @@ text-base rounded-md">
 
                 const actionCell = document.createElement('td');
                 actionCell.className = 'py-2 px-3 border-b border-gray-700';
+                // 這部分不變，按鈕仍然需要所有 data-* 屬性
                 actionCell.innerHTML = `<button class="details-btn bg-purple-600 hover:bg-purple-500 text-white text-xs px-3 py-1 rounded" data-id="${row['編號']}" data-type="${row['交易類型']}" data-county="${row['縣市代碼']}">附表</button>`;
                 tr.appendChild(actionCell);
 
                 headers.forEach(header => {
-                    const td = document.createElement('td');
-                    td.className = 'py-2 px-3 border-b border-gray-700';
-                    let value = row[header];
+                    // 如果目前的欄位名稱不在隱藏清單中，才建立儲存格
+                    if (!hiddenColumns.includes(header)) {
+                        const td = document.createElement('td');
+                        td.className = 'py-2 px-3 border-b border-gray-700';
+                        let value = row[header];
 
-                    if (typeof value === 'number' && ['交易總價', '車位總價', '產權面積_房車', '車位總面積', '主建物面積', '附屬建物面積', '陽台面積', '租賃面積'].includes(header)) {
-                       value = new Intl.NumberFormat('zh-TW').format(value);
+                        if (typeof value === 'number' && ['交易總價', '車位總價', '產權面積_房車', '車位總面積', '主建物面積', '附屬建物面積', '陽台面積', '租賃面積'].includes(header)) {
+                           value = new Intl.NumberFormat('zh-TW').format(value);
+                        }
+                        
+                        td.textContent = value ?? '-';
+                        tr.appendChild(td);
                     }
-                    
-                    td.textContent = value ?? '-';
-                    tr.appendChild(td);
                 });
                 tbody.appendChild(tr);
             });
@@ -463,10 +472,7 @@ text-base rounded-md">
             const type = btn.dataset.type;
             const county = btn.dataset.county;
 
-            // ==================【偵錯日誌：第 1 站】==================
-            // 在瀏覽器的開發者工具(F12)中查看，確認送出的參數是否正確
             console.log('【前端】正準備發送附表查詢請求:', { id, type, county });
-            // =========================================================
 
             dom.modalTitle.textContent = `附表詳細資料 (編號: ${id})`;
             dom.modalContent.innerHTML = '<div class="loader mx-auto"></div>';
