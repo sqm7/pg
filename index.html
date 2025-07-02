@@ -6,7 +6,6 @@
     <title>不動產數據查詢平台</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
-    <!-- 載入 Chart.js 圖表工具 -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         tailwind.config = {
@@ -118,7 +117,7 @@
         }
 
         .scrollable-cell {
-            max-width: 25ch; 
+            max-width: 25ch;
             overflow-x: auto;
             white-space: nowrap;
             padding-top: 4px;
@@ -147,6 +146,7 @@
         
         <main>
             <div class="glass-card p-6 rounded-xl shadow-lg mb-8">
+    
                 <div id="filter-form" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4 items-end">
                     
                     <div>
@@ -241,7 +241,6 @@
         </main>
     </div>
 
-    <!-- 詳細資料 Modal -->
     <div id="details-modal" class="modal-overlay hidden">
         <div class="modal-container">
             <div class="flex justify-between items-center mb-6">
@@ -253,7 +252,6 @@
         </div>
     </div>
     
-    <!-- 圖表 Modal -->
     <div id="chart-modal" class="modal-overlay hidden">
         <div class="modal-container">
             <div class="flex justify-between items-center mb-6">
@@ -301,7 +299,7 @@
             chartModalCloseBtn: document.getElementById('chart-modal-close-btn'),
             chartCanvas: document.getElementById('analysis-chart'),
         };
-        
+
         // State variables
         let currentPage = 1;
         let pageSize = 30;
@@ -322,15 +320,17 @@
                 option.textContent = countyName;
                 dom.countySelect.appendChild(option);
             });
+
             // Add event listeners
             dom.searchBtn.addEventListener('click', () => {
                 currentPage = 1;
                 fetchData();
             });
-            dom.analyzeBtn.addEventListener('click', analyzeData);
+            dom.analyzeBtn.addEventListener('click', analyzeData); // This is correct
             dom.countySelect.addEventListener('change', updateDistrictOptions);
             dom.modalCloseBtn.addEventListener('click', () => dom.modal.classList.add('hidden'));
             dom.chartModalCloseBtn.addEventListener('click', () => dom.chartModal.classList.add('hidden'));
+
             dom.resultsTable.addEventListener('click', (e) => {
                 const target = e.target.closest('.details-btn');
                 if (target) {
@@ -363,12 +363,12 @@
                 dom.districtSelect.disabled = false;
                 dom.projectNameInput.disabled = false;
                 dom.projectNameInput.placeholder = "輸入建案名稱搜尋...";
-                dom.analyzeBtn.disabled = false; // Enable analyze button
+                dom.analyzeBtn.disabled = false;
             } else {
                 dom.districtSelect.disabled = true;
                 dom.projectNameInput.disabled = true;
                 dom.projectNameInput.placeholder = "請先選縣市...";
-                dom.analyzeBtn.disabled = true; // Disable analyze button
+                dom.analyzeBtn.disabled = true;
             }
             clearSelectedProjects();
         }
@@ -384,7 +384,7 @@
             clearTimeout(suggestionDebounceTimer);
             suggestionDebounceTimer = setTimeout(() => {
                 fetchProjectNameSuggestions(dom.projectNameInput.value);
-            }, 300); 
+            }, 300);
         }
 
         function onSuggestionClick(e) {
@@ -394,8 +394,7 @@
             const name = target.dataset.name;
             const checkbox = target.querySelector('input[type="checkbox"]');
             if (!name || !checkbox) return;
-
-            // Use setTimeout to allow the checkbox's checked state to update before we read it
+            
             setTimeout(() => {
                 if (checkbox.checked) {
                     if (!selectedProjects.includes(name)) {
@@ -473,14 +472,11 @@
         }
 
         function renderProjectTags() {
-            // Clear existing tags
             const tags = dom.projectNameContainer.querySelectorAll('.project-tag');
             tags.forEach(tag => tag.remove());
             
-            // Ensure input is the first child for layout purposes
             dom.projectNameContainer.insertBefore(dom.projectNameInput, dom.projectNameContainer.firstChild);
-            
-            // Add new tags
+
             selectedProjects.forEach(name => {
                 const tagElement = document.createElement('span');
                 tagElement.className = 'project-tag';
@@ -488,15 +484,13 @@
                 
                 const removeBtn = document.createElement('span');
                 removeBtn.className = 'project-tag-remove';
-                removeBtn.innerHTML = '&times;'; // Use a multiplication sign for the 'x'
+                removeBtn.innerHTML = '&times;';
                 removeBtn.dataset.name = name;
 
                 tagElement.appendChild(removeBtn);
-                // Insert tag before the input element
                 dom.projectNameContainer.insertBefore(tagElement, dom.projectNameInput);
             });
-
-            // Toggle clear button visibility
+            
             if (selectedProjects.length > 0) {
                 dom.clearProjectsBtn.classList.remove('hidden');
             } else {
@@ -504,23 +498,25 @@
             }
         }
         
+        // ==================================================================
+        // 【已修改】analyzeData 函式
+        // ==================================================================
         async function analyzeData() {
             const county = dom.countySelect.value;
             if (!county) {
-                // Using a custom modal/message instead of alert()
                 dom.messageArea.innerHTML = '<p class="text-yellow-400">請先選擇一個縣市再進行分析。</p>';
                 dom.messageArea.classList.remove('hidden');
                 return;
             }
 
-            // Show modal and set title
+            // 顯示 Modal 並設置載入中狀態
             dom.chartModal.classList.remove('hidden');
-            dom.chartModalTitle.textContent = `${county} 各區平均單價分析`;
+            dom.chartModalTitle.textContent = '分析資料載入中...';
+            dom.chartModal.querySelector('#chart-modal-content').innerHTML = '<div class="p-8 flex justify-center"><div class="loader"></div></div>';
             
-            // 【修正】建立請求篩選條件，並加入交易類型
+            // 建立請求篩選條件
             const requestFilters = {};
             requestFilters.countyCode = countyCodeMap[county];
-            requestFilters.transactionType = dom.typeSelect.value; // <-- 這行是關鍵修正
             if (dom.buildingTypeSelect.value) requestFilters.buildingType = dom.buildingTypeSelect.value;
             if (selectedProjects.length > 0) requestFilters.projectNames = selectedProjects;
             
@@ -531,7 +527,11 @@
                         'Content-Type': 'application/json',
                         'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4Ym1iYmZyemJ0dXVleXNpY29jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA2ODg5ODksImV4cCI6MjA2NjI2NDk4OX0.1IUynv5eK1xF_3pb-oasqaTrPvbeAOC4Sc1oykPBy4M'
                     },
-                    body: JSON.stringify({ filters: requestFilters })
+                    body: JSON.stringify({ 
+                        filters: requestFilters, 
+                        tab: 'core_and_ranking', // 明確指定頁籤
+                        sortBy: 'total_price'  // 明確指定預設排序
+                    })
                 });
 
                 if (!response.ok) {
@@ -539,37 +539,52 @@
                     throw new Error(errorResult.error || `分析請求失敗: ${response.status}`);
                 }
                 const analysisResult = await response.json();
+                
+                // 【修正核心】從回傳的物件中，提取出圖表需要的 `project_ranking` 陣列
+                const chartData = analysisResult.project_ranking;
 
-                // Check if analysis result is empty
-                if (!analysisResult || analysisResult.length === 0) {
+                // 【修正核心】檢查 `chartData` 是否存在且有內容
+                if (!chartData || chartData.length === 0) {
+                    dom.chartModalTitle.textContent = '數據分析結果';
                     dom.chartModal.querySelector('#chart-modal-content').innerHTML = `<p class="text-gray-400 p-8 text-center">找不到符合條件的分析資料。</p>`;
                 } else {
-                    // Ensure canvas is there before rendering
+                    // 更新 Modal 標題以反映內容
+                    dom.chartModalTitle.textContent = `${county} 建案銷售排行與單價分析`;
+                    
+                    // 確保 canvas 存在才渲染
                     dom.chartModal.querySelector('#chart-modal-content').innerHTML = `<canvas id="analysis-chart"></canvas>`;
                     const newCanvas = document.getElementById('analysis-chart');
-                    renderAnalysisChart(analysisResult, newCanvas);
+                    
+                    // 【修正核心】將正確的陣列傳遞給圖表函式
+                    renderAnalysisChart(chartData, newCanvas);
                 }
 
             } catch(error) {
                 console.error("數據分析失敗:", error);
+                dom.chartModalTitle.textContent = '分析失敗';
                 dom.chartModal.querySelector('#chart-modal-content').innerHTML = `<p class="text-red-400 p-8 text-center">數據分析失敗: ${error.message}</p>`;
             }
         }
-
+        
+        // ==================================================================
+        // 【已修改】renderAnalysisChart 函式
+        // ==================================================================
         function renderAnalysisChart(data, canvasElement) {
             if (analysisChartInstance) {
                 analysisChartInstance.destroy();
             }
 
-            const labels = data.map(item => item.行政區);
-            const prices = data.map(item => item.平均單價);
+            // 【修正核心】使用從 SQL 查詢中得到的正確欄位名稱
+            const labels = data.map(item => item.建案名稱);
+            const prices = data.map(item => item['平均單價(萬)']); // 使用方括號是為了處理包含特殊符號的 key
 
             analysisChartInstance = new Chart(canvasElement, {
                 type: 'bar',
                 data: {
                     labels: labels,
                     datasets: [{
-                        label: '平均房屋單價 (萬/坪)',
+                        // 【修正核心】更新圖表的標籤文字
+                        label: '建案平均單價 (萬/坪)',
                         data: prices,
                         backgroundColor: 'rgba(6, 182, 212, 0.6)',
                         borderColor: 'rgba(6, 182, 212, 1)',
@@ -611,7 +626,6 @@
             });
         }
 
-
         async function fetchData() {
             dom.messageArea.innerHTML = '<div class="loader mx-auto"></div><p class="mt-4">查詢中，請稍候...</p>';
             dom.messageArea.classList.remove('hidden');
@@ -632,7 +646,7 @@
             }
 
             const pagination = { page: currentPage, limit: pageSize };
-            
+
             try {
                 const response = await fetch(EDGE_FUNCTION_ENDPOINT, {
                     method: 'POST',
@@ -642,18 +656,21 @@
                     },
                     body: JSON.stringify({ filters: requestFilters, pagination: pagination })
                 });
+
                 if (!response.ok) {
                     const errorResult = await response.json().catch(() => ({ error: '無法解析伺服器回應' }));
                     throw new Error(errorResult.error || `伺服器錯誤: ${response.status}`);
                 }
                 const result = await response.json();
                 totalRecords = result.count || 0;
+
                 if (!result.data || result.data.length === 0) {
                     dom.messageArea.innerHTML = '<p>找不到符合條件的資料。</p>';
                     dom.tableWrapper.classList.add('hidden');
                     renderPagination();
                     return;
                 }
+
                 renderTable(result.data);
                 renderPagination();
                 dom.messageArea.classList.add('hidden');
@@ -718,7 +735,6 @@
                             td.textContent = value ?? '-';
                         }
                         tr.appendChild(td);
-
                         if (isPresale && header === '戶別') {
                             const unitTypeTd = document.createElement('td');
                             unitTypeTd.textContent = row['戶型'] || '-';
