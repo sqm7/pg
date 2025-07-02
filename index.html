@@ -161,7 +161,7 @@
                         <label for="project-name-input" class="block text-sm font-medium text-gray-300">建案名稱 (可複選)</label>
                         <div class="relative mt-1">
                             <div id="project-name-container" class="form-input flex flex-wrap items-center gap-2 p-1 min-h-[42px] rounded-md">
-                                <input type="text" id="project-name-input" placeholder="輸入建案名稱搜尋..." class="bg-transparent flex-grow outline-none text-base py-1 px-2">
+                                <input type="text" id="project-name-input" placeholder="請先選縣市，再輸入建案..." class="bg-transparent flex-grow outline-none text-base py-1 px-2">
                             </div>
                             <div id="project-name-suggestions" class="absolute z-20 w-full mt-1 bg-dark-card border border-gray-600 rounded-md shadow-lg hidden">
                             </div>
@@ -280,6 +280,7 @@
             });
         }
         
+        // 【優化】更換縣市時，自動清空已選建案
         function updateDistrictOptions() {
             const selectedCounty = dom.countySelect.value;
             dom.districtSelect.innerHTML = '<option value="">全部</option>';
@@ -294,6 +295,11 @@
             } else {
                 dom.districtSelect.disabled = true;
             }
+            // 清空已選建案和相關輸入
+            selectedProjects = [];
+            renderProjectTags();
+            dom.projectNameInput.value = '';
+            dom.projectNameSuggestions.classList.add('hidden');
         }
 
         // --- 建案複選相關函式 ---
@@ -305,7 +311,7 @@
             }, 300); 
         }
 
-        // 【修改】點擊建議列表的處理函式
+        // 【修正】點擊建議列表的處理函式
         function onSuggestionClick(e) {
             const target = e.target.closest('.suggestion-item');
             if (!target) return;
@@ -314,22 +320,18 @@
             const checkbox = target.querySelector('input[type="checkbox"]');
             if (!name || !checkbox) return;
 
-            // 如果點擊的不是複選框本身，就手動改變它的狀態
-            if (e.target.type !== 'checkbox') {
-                checkbox.checked = !checkbox.checked;
-            }
-
-            // 根據複選框的最新狀態來更新 selectedProjects 陣列
-            if (checkbox.checked) {
-                if (!selectedProjects.includes(name)) {
-                    selectedProjects.push(name);
+            // 等待瀏覽器完成預設的點擊行為 (切換 checkbox 狀態)
+            // 然後再讀取最新的狀態來更新我們的資料
+            setTimeout(() => {
+                if (checkbox.checked) {
+                    if (!selectedProjects.includes(name)) {
+                        selectedProjects.push(name);
+                    }
+                } else {
+                    selectedProjects = selectedProjects.filter(p => p !== name);
                 }
-            } else {
-                selectedProjects = selectedProjects.filter(p => p !== name);
-            }
-
-            // 更新顯示在輸入框上方的標籤
-            renderProjectTags();
+                renderProjectTags();
+            }, 0);
         }
 
         function onTagRemove(e) {
@@ -365,7 +367,6 @@
             }
         }
 
-        // 【修改】渲染建議列表，加入複選框
         function renderSuggestions(names) {
             if (names.length === 0) {
                 dom.projectNameSuggestions.innerHTML = '<div class="p-2 text-gray-500">無相符建案</div>';
@@ -388,7 +389,6 @@
         function removeProject(name) {
             selectedProjects = selectedProjects.filter(p => p !== name);
             renderProjectTags();
-            // 當標籤被移除時，如果建議列表是開啟的，也同步更新列表中的複選框狀態
             const openSuggestionCheckbox = dom.projectNameSuggestions.querySelector(`label[data-name="${name}"] input`);
             if(openSuggestionCheckbox) {
                 openSuggestionCheckbox.checked = false;
@@ -396,11 +396,11 @@
         }
 
         function renderProjectTags() {
-            // 清除舊的標籤
             const tags = dom.projectNameContainer.querySelectorAll('.project-tag');
             tags.forEach(tag => tag.remove());
             
-            // 根據 selectedProjects 陣列重新渲染標籤
+            dom.projectNameContainer.insertBefore(dom.projectNameInput, dom.projectNameContainer.firstChild);
+            
             selectedProjects.forEach(name => {
                 const tagElement = document.createElement('span');
                 tagElement.className = 'project-tag';
