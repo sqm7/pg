@@ -21,7 +21,7 @@
         }
     </script>
     <style>
-        body { 
+        body {
             font-family: 'Inter', 'Noto Sans TC', sans-serif;
             background: #1a1d29;
             color: #e5e7eb;
@@ -113,7 +113,7 @@
         
         <main>
             <div class="glass-card p-6 rounded-xl shadow-lg mb-8">
-                <div id="filter-form" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 items-end">
+                <div id="filter-form" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-7 xl:grid-cols-8 gap-4 items-end">
                     <div>
                         <label for="county" class="block text-sm font-medium text-gray-300">縣市</label>
                         <select id="county" class="form-select mt-1 block w-full pl-3 pr-10 py-2 text-base rounded-md">
@@ -129,10 +129,29 @@
                     <div>
                         <label for="type" class="block text-sm font-medium text-gray-300">交易類型</label>
                         <select id="type" class="form-select mt-1 block w-full pl-3 pr-10 py-2 text-base rounded-md">
-                            <option value="">請選擇交易類型</option>
-                            <option value="中古交易">中古交易</option>
-                            <option value="預售交易">預售交易</option>
-                            <option value="租賃交易">租賃交易</option>
+                            <option value="預售交易" selected>預售交易</option>
+                            <option value="中古交易" disabled>中古交易 (暫不開放)</option>
+                            <option value="租賃交易" disabled>租賃交易 (暫不開放)</option>
+                        </select>
+                    </div>
+                    <div id="project-name-group">
+                        <label for="projectName" class="block text-sm font-medium text-gray-300">建案名稱</label>
+                        <input type="text" id="projectName" class="form-input mt-1 block w-full pl-3 pr-2 py-2 text-base rounded-md" placeholder="輸入建案名稱關鍵字">
+                    </div>
+                    <div id="building-type-group">
+                        <label for="buildingType" class="block text-sm font-medium text-gray-300">建物型態</label>
+                        <select id="buildingType" class="form-select mt-1 block w-full pl-3 pr-10 py-2 text-base rounded-md">
+                            <option value="">全部</option>
+                            <option value="住宅大樓(11層含以上)">住宅大樓(11層含以上)</option>
+                            <option value="華廈(10層含以下)">華廈(10層含以下)</option>
+                            <option value="公寓(5層含以下)">公寓(5層含以下)</option>
+                            <option value="透天厝">透天厝</option>
+                            <option value="店面(店鋪)">店面(店鋪)</option>
+                            <option value="廠辦">廠辦</option>
+                            <option value="辦公商業大樓">辦公商業大樓</option>
+                            <option value="廠房">廠房</option>
+                            <option value="農舍">農舍</option>
+                            <option value="其他">其他</option>
                         </select>
                     </div>
                     <div class="grid grid-cols-2 gap-2 lg:col-span-2">
@@ -145,7 +164,7 @@
                             <input type="date" id="date-end" class="form-input mt-1 block w-full pl-3 pr-2 py-2 text-base rounded-md">
                         </div>
                     </div>
-                    <div class="lg:col-start-6">
+                    <div class="lg:col-start-auto">
                         <button id="search-btn" class="w-full bg-gradient-to-r from-cyan-accent to-purple-accent text-white font-bold py-2 px-6 rounded-lg shadow-lg hover:opacity-90 transition-all">
                             查詢資料
                         </button>
@@ -188,6 +207,9 @@
             countySelect: document.getElementById('county'),
             districtSelect: document.getElementById('district'),
             typeSelect: document.getElementById('type'),
+            // 新增 DOM 元素獲取
+            projectNameInput: document.getElementById('projectName'),
+            buildingTypeSelect: document.getElementById('buildingType'),
             dateStartInput: document.getElementById('date-start'),
             dateEndInput: document.getElementById('date-end'),
             searchBtn: document.getElementById('search-btn'),
@@ -200,6 +222,9 @@
             modalTitle: document.getElementById('modal-title'),
             modalContent: document.getElementById('modal-content'),
             modalCloseBtn: document.getElementById('modal-close-btn'),
+            // 獲取新增的篩選條件組
+            projectNameGroup: document.getElementById('project-name-group'),
+            buildingTypeGroup: document.getElementById('building-type-group'),
         };
         
         let currentPage = 1;
@@ -230,8 +255,6 @@
             "連江縣": ["南竿鄉", "北竿鄉", "莒光鄉", "東引鄉"]
         };
 
-        // 【已刪除】這裡原本的 getUnitIdentifier 函數已被移除
-
         function initialize() {
             Object.keys(districtData).forEach(countyName => {
                 const option = document.createElement('option');
@@ -250,8 +273,28 @@
                     showSubTableDetails(e.target);
                 }
             });
+
+            // 新增: 監聽交易類型變動，控制建案名稱和建物型態欄位的顯示
+            dom.typeSelect.addEventListener('change', toggleTypeSpecificFilters);
+            // 初始化時呼叫一次，確保預設的「預售交易」顯示正確的篩選條件
+            toggleTypeSpecificFilters();
         }
         
+        // 新增函數: 根據交易類型控制篩選條件的顯示/隱藏
+        function toggleTypeSpecificFilters() {
+            const selectedType = dom.typeSelect.value;
+            if (selectedType === '預售交易') {
+                dom.projectNameGroup.classList.remove('hidden');
+                dom.buildingTypeGroup.classList.remove('hidden');
+            } else {
+                dom.projectNameGroup.classList.add('hidden');
+                dom.buildingTypeGroup.classList.add('hidden');
+                // 清空非預售交易下的相關篩選值，避免誤傳
+                dom.projectNameInput.value = '';
+                dom.buildingTypeSelect.value = '';
+            }
+        }
+
         function updateDistrictOptions() {
             const selectedCounty = dom.countySelect.value;
             dom.districtSelect.innerHTML = '<option value="">全部</option>';
@@ -278,7 +321,14 @@
             const county = dom.countySelect.value;
             if (county) requestFilters.countyCode = countyCodeMap[county] || '';
             if (dom.districtSelect.value) requestFilters.district = dom.districtSelect.value;
+            // 修改: 新增建案名稱和建物型態篩選條件
             if (dom.typeSelect.value) requestFilters.type = dom.typeSelect.value;
+            if (dom.projectNameInput.value && dom.typeSelect.value === '預售交易') { // 只在預售交易下傳遞建案名稱
+                requestFilters.projectName = dom.projectNameInput.value;
+            }
+            if (dom.buildingTypeSelect.value && dom.typeSelect.value === '預售交易') { // 只在預售交易下傳遞建物型態
+                requestFilters.buildingType = dom.buildingTypeSelect.value;
+            }
             if (dom.dateStartInput.value) requestFilters.dateStart = dom.dateStartInput.value;
             if (dom.dateEndInput.value) requestFilters.dateEnd = dom.dateEndInput.value;
             const pagination = { page: currentPage, limit: pageSize };
@@ -287,7 +337,7 @@
                     method: 'POST',
                     headers: { 
                         'Content-Type': 'application/json',
-                        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4Ym1iYmZyemJ0dXVleXNpY29jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA2ODg5ODksImV4cCI6MjA2NjI2NDk4OX0.1IUynv5eK1xF_3pb-oasqaTrPvbeAOC4Sc1oykPBy4M'
+                        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4Ym1iYmZyemJ0dXVleXNpY29jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA2ODg5ODksImV4cCI6MjA2NjI2NDk4OX0.1IUynv5eK1xF_3pb-oasqaTrPvbeAOC4Sc1oypPBy4M'
                     },
                     body: JSON.stringify({ filters: requestFilters, pagination: pagination })
                 });
@@ -321,21 +371,17 @@
                 return;
             }
             const isPresale = data[0]['交易類型'] === '預售交易';
-            // 因為戶型欄位已由後端提供，從隱藏欄位中移除 '戶型'
-            const hiddenColumns = ['編號', '縣市代碼', '交易類型', '戶型']; 
-            
+            const hiddenColumns = ['編號', '縣市代碼', '交易類型', '戶型'];
             const headers = Object.keys(data[0]);
             const headerRow = document.createElement('tr');
             const actionHeader = document.createElement('th');
             actionHeader.textContent = '操作';
             headerRow.appendChild(actionHeader);
-
             headers.forEach(headerText => {
                 if (!hiddenColumns.includes(headerText)) {
                     const th = document.createElement('th');
                     th.textContent = headerText;
                     headerRow.appendChild(th);
-         
                     if (isPresale && headerText === '戶別') {
                         const newTh = document.createElement('th');
                         newTh.textContent = '戶型'; // 加上戶型欄位標頭
@@ -366,12 +412,10 @@
                         td.textContent = value ?? '-';
                         tr.appendChild(td);
 
-                        // 【修改後】
-                        // 不再需要計算，直接讀取後端給的 '戶型' 欄位
                         if (isPresale && header === '戶別') {
                             const unitTypeTd = document.createElement('td');
                             unitTypeTd.className = 'py-2 px-3 border-b border-gray-700';
-                            unitTypeTd.textContent = row['戶型'] || '-'; // 直接使用 row['戶型']
+                            unitTypeTd.textContent = row['戶型'] || '-';
                             tr.appendChild(unitTypeTd);
                         }
                     }
@@ -428,7 +472,7 @@
             html += '</tr></thead>';
             html += '<tbody>';
             records.forEach(record => {
-                html += '<tr class="border-b border-gray-700">';
+                html += '<tr class="border-b border-700">';
                 headers.forEach(header => {
                      if (header !== 'id' && header !== '編號') {
                         html += `<td class="py-2 pr-2">${record[header] ?? '-'}</td>`; 
@@ -456,7 +500,7 @@
                     method: 'POST',
                     headers: { 
                         'Content-Type': 'application/json',
-                        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4Ym1iYmZyemJ0dXVleXNpY29jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA2ODg5ODksImV4cCI6MjA2NjI2NDk4OX0.1IUynv5eK1xF_3pb-oasqaTrPvbeAOC4Sc1oykPBy4M'
+                        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4Ym1iYmZyemJ0dXVleXNpY29jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA2ODg5ODksImV4cCI6MjA2NjI2NDk4OX0.1IUynv5eK1xF_3pb-oasqaTrPvbeAOC4Sc1oypPBy4M'
                     },
                     body: JSON.stringify({ id, type, county })
                 });
