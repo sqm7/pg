@@ -115,6 +115,25 @@
             border-radius: 20px;
         }
 
+        /* 【新增】可水平捲動的儲存格樣式 */
+        .scrollable-cell {
+            max-width: 25ch; /* 約 25 個中文字元的寬度 */
+            overflow-x: auto;
+            white-space: nowrap;
+            padding-top: 4px;
+            padding-bottom: 4px;
+        }
+        .scrollable-cell::-webkit-scrollbar {
+            height: 4px;
+        }
+        .scrollable-cell::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .scrollable-cell::-webkit-scrollbar-thumb {
+            background-color: #4b5563;
+            border-radius: 20px;
+        }
+
     </style>
 </head>
 <body class="p-4 md:p-8">
@@ -170,7 +189,6 @@
                     </div>
 
                     <div class="xl:col-span-2">
-                        <!-- 【修改】將 label 和新增的按鈕包裝起來 -->
                         <div class="flex justify-between items-center">
                             <label for="project-name-input" class="block text-sm font-medium text-gray-300">建案名稱 (可複選)</label>
                             <button id="clear-projects-btn" class="text-xs text-cyan-400 hover:text-cyan-300 hidden transition-opacity">清除選取</button>
@@ -255,7 +273,6 @@
             projectNameContainer: document.getElementById('project-name-container'),
             projectNameInput: document.getElementById('project-name-input'),
             projectNameSuggestions: document.getElementById('project-name-suggestions'),
-            // 【新增】清除按鈕的 DOM 元素
             clearProjectsBtn: document.getElementById('clear-projects-btn'),
         };
         
@@ -296,7 +313,6 @@
                     dom.projectNameSuggestions.classList.add('hidden');
                 }
             });
-            // 【新增】為清除按鈕加上事件監聽
             dom.clearProjectsBtn.addEventListener('click', clearSelectedProjects);
         }
         
@@ -323,11 +339,9 @@
 
         // --- 建案複選相關函式 ---
         
-        // 【新增】清除所有已選建案的函式
         function clearSelectedProjects() {
             selectedProjects = [];
             renderProjectTags();
-            // 同步更新建議列表中的勾選狀態
             const suggestionCheckboxes = dom.projectNameSuggestions.querySelectorAll('input[type="checkbox"]');
             suggestionCheckboxes.forEach(cb => cb.checked = false);
         }
@@ -443,7 +457,6 @@
                 dom.projectNameContainer.insertBefore(tagElement, dom.projectNameInput);
             });
 
-            // 【修改】根據是否有已選項目，來決定是否顯示清除按鈕
             if (selectedProjects.length > 0) {
                 dom.clearProjectsBtn.classList.remove('hidden');
             } else {
@@ -505,6 +518,7 @@
             }
         }
 
+        // 【修改】調整 renderTable 函式以處理特定欄位的寬度
         function renderTable(data) {
             if (!data || data.length === 0) {
                 dom.tableWrapper.classList.add('hidden');
@@ -547,10 +561,16 @@
                     if (!hiddenColumns.includes(header)) {
                         const td = document.createElement('td');
                         let value = row[header];
-                        if (typeof value === 'number' && !Number.isInteger(value)) {
-                            value = new Intl.NumberFormat('zh-TW').format(value);
+                        
+                        // 【修改】針對「地址」和「備註」欄位，將內容包在可捲動的 div 中
+                        if (header === '地址' || header === '備註') {
+                            td.innerHTML = `<div class="scrollable-cell">${value ?? '-'}</div>`;
+                        } else {
+                            if (typeof value === 'number' && !Number.isInteger(value)) {
+                                value = new Intl.NumberFormat('zh-TW').format(value);
+                            }
+                            td.textContent = value ?? '-';
                         }
-                        td.textContent = value ?? '-';
                         tr.appendChild(td);
 
                         if (isPresale && header === '戶別') {
