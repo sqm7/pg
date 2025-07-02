@@ -58,11 +58,11 @@
         .modal-container { background: #252836; padding: 2rem; border-radius: 12px; width: 90%; max-width: 800px; max-height: 80vh; overflow-y: auto; border: 1px solid #4b5563; transform: scale(0.95); transition: transform 0.3s ease; }
         .modal-overlay:not(.hidden) .modal-container { transform: scale(1); }
 
-        /* 【新增】多選建案的樣式 */
+        /* 多選建案的樣式 */
         .project-tag {
             display: inline-flex;
             align-items: center;
-            background-color: #4b5563; /* Slightly lighter for contrast */
+            background-color: #4b5563;
             color: #d1d5db;
             padding: 0.25rem 0.75rem;
             border-radius: 9999px;
@@ -81,12 +81,28 @@
             overflow-y: auto;
         }
         .suggestion-item {
+            display: flex;
+            align-items: center;
             padding: 0.5rem 1rem;
             cursor: pointer;
         }
         .suggestion-item:hover, .suggestion-item.active {
-            background-color: #252836; /* Same as card background */
+            background-color: #374151;
         }
+        .suggestion-item input[type="checkbox"] {
+            margin-right: 0.75rem;
+            height: 1rem;
+            width: 1rem;
+            border-radius: 0.25rem;
+            border-color: #6b7280;
+            background-color: #374151;
+            color: #06b6d4;
+            cursor: pointer;
+        }
+        .suggestion-item input[type="checkbox"]:focus {
+            ring: #06b6d4;
+        }
+
     </style>
 </head>
 <body class="p-4 md:p-8">
@@ -141,7 +157,6 @@
                         </select>
                     </div>
 
-                    <!-- 【修改】建案名稱篩選器改為多選元件 -->
                     <div class="xl:col-span-2">
                         <label for="project-name-input" class="block text-sm font-medium text-gray-300">建案名稱 (可複選)</label>
                         <div class="relative mt-1">
@@ -149,7 +164,6 @@
                                 <input type="text" id="project-name-input" placeholder="輸入建案名稱搜尋..." class="bg-transparent flex-grow outline-none text-base py-1 px-2">
                             </div>
                             <div id="project-name-suggestions" class="absolute z-20 w-full mt-1 bg-dark-card border border-gray-600 rounded-md shadow-lg hidden">
-                                <!-- 建議項目將由 JS 動態填入 -->
                             </div>
                         </div>
                     </div>
@@ -203,7 +217,6 @@
     <script type="module">
         const EDGE_FUNCTION_ENDPOINT = 'https://zxbmbbfrzbtuueysicoc.supabase.co/functions/v1/query-data';
         const SUB_DATA_ENDPOINT = 'https://zxbmbbfrzbtuueysicoc.supabase.co/functions/v1/query-sub-data';
-        // 【新增】建案名稱建議的 API 端點
         const PROJECT_NAMES_ENDPOINT = 'https://zxbmbbfrzbtuueysicoc.supabase.co/functions/v1/query-project-names';
 
         const dom = {
@@ -223,7 +236,6 @@
             modalTitle: document.getElementById('modal-title'),
             modalContent: document.getElementById('modal-content'),
             modalCloseBtn: document.getElementById('modal-close-btn'),
-            // 【新增】建案複選元件的 DOM 元素
             projectNameContainer: document.getElementById('project-name-container'),
             projectNameInput: document.getElementById('project-name-input'),
             projectNameSuggestions: document.getElementById('project-name-suggestions'),
@@ -232,7 +244,6 @@
         let currentPage = 1;
         let pageSize = 30;
         let totalRecords = 0;
-        // 【新增】管理建案複選的狀態
         let selectedProjects = [];
         let suggestionDebounceTimer;
 
@@ -259,11 +270,9 @@
                 }
             });
 
-            // 【新增】為建案複選元件加上事件監聽
             dom.projectNameInput.addEventListener('input', onProjectInput);
             dom.projectNameSuggestions.addEventListener('click', onSuggestionClick);
             dom.projectNameContainer.addEventListener('click', onTagRemove);
-            // 點擊元件外部時，隱藏建議列表
             document.addEventListener('click', (e) => {
                 if (!dom.projectNameContainer.parentElement.contains(e.target)) {
                     dom.projectNameSuggestions.classList.add('hidden');
@@ -287,20 +296,40 @@
             }
         }
 
-        // --- 【新增】建案複選相關函式 ---
+        // --- 建案複選相關函式 ---
         
         function onProjectInput() {
             clearTimeout(suggestionDebounceTimer);
             suggestionDebounceTimer = setTimeout(() => {
                 fetchProjectNameSuggestions(dom.projectNameInput.value);
-            }, 300); // 延遲 300 毫秒觸發，避免使用者打字時頻繁查詢
+            }, 300); 
         }
 
+        // 【修改】點擊建議列表的處理函式
         function onSuggestionClick(e) {
             const target = e.target.closest('.suggestion-item');
-            if (target && target.dataset.name) {
-                addProject(target.dataset.name);
+            if (!target) return;
+            
+            const name = target.dataset.name;
+            const checkbox = target.querySelector('input[type="checkbox"]');
+            if (!name || !checkbox) return;
+
+            // 如果點擊的不是複選框本身，就手動改變它的狀態
+            if (e.target.type !== 'checkbox') {
+                checkbox.checked = !checkbox.checked;
             }
+
+            // 根據複選框的最新狀態來更新 selectedProjects 陣列
+            if (checkbox.checked) {
+                if (!selectedProjects.includes(name)) {
+                    selectedProjects.push(name);
+                }
+            } else {
+                selectedProjects = selectedProjects.filter(p => p !== name);
+            }
+
+            // 更新顯示在輸入框上方的標籤
+            renderProjectTags();
         }
 
         function onTagRemove(e) {
@@ -336,36 +365,42 @@
             }
         }
 
+        // 【修改】渲染建議列表，加入複選框
         function renderSuggestions(names) {
             if (names.length === 0) {
-                dom.projectNameSuggestions.innerHTML = '<div class="suggestion-item text-gray-500">無相符建案</div>';
+                dom.projectNameSuggestions.innerHTML = '<div class="p-2 text-gray-500">無相符建案</div>';
             } else {
                  dom.projectNameSuggestions.innerHTML = names
-                    .map(name => `<div class="suggestion-item" data-name="${name}">${name}</div>`)
+                    .map(name => {
+                        const isChecked = selectedProjects.includes(name);
+                        return `
+                        <label class="suggestion-item" data-name="${name}">
+                            <input type="checkbox" ${isChecked ? 'checked' : ''}>
+                            <span class="flex-grow">${name}</span>
+                        </label>
+                        `;
+                    })
                     .join('');
             }
             dom.projectNameSuggestions.classList.remove('hidden');
         }
 
-        function addProject(name) {
-            if (name && !selectedProjects.includes(name)) {
-                selectedProjects.push(name);
-                renderProjectTags();
-            }
-            dom.projectNameInput.value = '';
-            dom.projectNameSuggestions.classList.add('hidden');
-            dom.projectNameInput.focus();
-        }
-
         function removeProject(name) {
             selectedProjects = selectedProjects.filter(p => p !== name);
             renderProjectTags();
+            // 當標籤被移除時，如果建議列表是開啟的，也同步更新列表中的複選框狀態
+            const openSuggestionCheckbox = dom.projectNameSuggestions.querySelector(`label[data-name="${name}"] input`);
+            if(openSuggestionCheckbox) {
+                openSuggestionCheckbox.checked = false;
+            }
         }
 
         function renderProjectTags() {
+            // 清除舊的標籤
             const tags = dom.projectNameContainer.querySelectorAll('.project-tag');
             tags.forEach(tag => tag.remove());
-
+            
+            // 根據 selectedProjects 陣列重新渲染標籤
             selectedProjects.forEach(name => {
                 const tagElement = document.createElement('span');
                 tagElement.className = 'project-tag';
@@ -380,8 +415,7 @@
                 dom.projectNameContainer.insertBefore(tagElement, dom.projectNameInput);
             });
         }
-        // --- 建案複選函式結束 ---
-
+        
         async function fetchData() {
             dom.messageArea.innerHTML = '<div class="loader mx-auto"></div><p class="mt-4">查詢中，請稍候...</p>';
             dom.messageArea.classList.remove('hidden');
@@ -397,7 +431,6 @@
             if (dom.dateEndInput.value) requestFilters.dateEnd = dom.dateEndInput.value;
             if (dom.buildingTypeSelect.value) requestFilters.buildingType = dom.buildingTypeSelect.value;
             
-            // 【修改】將 projectNames 陣列加入查詢條件
             if (selectedProjects.length > 0) {
                 requestFilters.projectNames = selectedProjects;
             }
