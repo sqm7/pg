@@ -68,7 +68,6 @@
             padding: 0.25rem 0.75rem;
             border-radius: 9999px;
             font-size: 0.875rem;
-            /* 【修正】防止標籤被壓縮 */
             flex-shrink: 0;
         }
         .project-tag-remove {
@@ -105,7 +104,6 @@
         .suggestion-item input[type="checkbox"]:focus {
             ring: #06b6d4;
         }
-        /* 【新增】美化水平捲動軸 */
         #project-name-container::-webkit-scrollbar {
             height: 4px;
         }
@@ -172,9 +170,12 @@
                     </div>
 
                     <div class="xl:col-span-2">
-                        <label for="project-name-input" class="block text-sm font-medium text-gray-300">建案名稱 (可複選)</label>
+                        <!-- 【修改】將 label 和新增的按鈕包裝起來 -->
+                        <div class="flex justify-between items-center">
+                            <label for="project-name-input" class="block text-sm font-medium text-gray-300">建案名稱 (可複選)</label>
+                            <button id="clear-projects-btn" class="text-xs text-cyan-400 hover:text-cyan-300 hidden transition-opacity">清除選取</button>
+                        </div>
                         <div class="relative mt-1">
-                            <!-- 【修正】移除 flex-wrap，加入 flex-nowrap 和 overflow-x-auto -->
                             <div id="project-name-container" class="form-input flex flex-nowrap items-center gap-2 p-1 min-h-[42px] rounded-md overflow-x-auto">
                                 <input type="text" id="project-name-input" placeholder="請先選縣市..." class="bg-transparent flex-grow outline-none text-base py-1 px-2" disabled>
                             </div>
@@ -254,6 +255,8 @@
             projectNameContainer: document.getElementById('project-name-container'),
             projectNameInput: document.getElementById('project-name-input'),
             projectNameSuggestions: document.getElementById('project-name-suggestions'),
+            // 【新增】清除按鈕的 DOM 元素
+            clearProjectsBtn: document.getElementById('clear-projects-btn'),
         };
         
         let currentPage = 1;
@@ -293,6 +296,8 @@
                     dom.projectNameSuggestions.classList.add('hidden');
                 }
             });
+            // 【新增】為清除按鈕加上事件監聽
+            dom.clearProjectsBtn.addEventListener('click', clearSelectedProjects);
         }
         
         function updateDistrictOptions() {
@@ -313,14 +318,20 @@
                 dom.projectNameInput.disabled = true;
                 dom.projectNameInput.placeholder = "請先選縣市...";
             }
-            selectedProjects = [];
-            renderProjectTags();
-            dom.projectNameInput.value = '';
-            dom.projectNameSuggestions.classList.add('hidden');
+            clearSelectedProjects();
         }
 
         // --- 建案複選相關函式 ---
         
+        // 【新增】清除所有已選建案的函式
+        function clearSelectedProjects() {
+            selectedProjects = [];
+            renderProjectTags();
+            // 同步更新建議列表中的勾選狀態
+            const suggestionCheckboxes = dom.projectNameSuggestions.querySelectorAll('input[type="checkbox"]');
+            suggestionCheckboxes.forEach(cb => cb.checked = false);
+        }
+
         function onProjectInput() {
             clearTimeout(suggestionDebounceTimer);
             suggestionDebounceTimer = setTimeout(() => {
@@ -431,6 +442,13 @@
                 tagElement.appendChild(removeBtn);
                 dom.projectNameContainer.insertBefore(tagElement, dom.projectNameInput);
             });
+
+            // 【修改】根據是否有已選項目，來決定是否顯示清除按鈕
+            if (selectedProjects.length > 0) {
+                dom.clearProjectsBtn.classList.remove('hidden');
+            } else {
+                dom.clearProjectsBtn.classList.add('hidden');
+            }
         }
         
         async function fetchData() {
