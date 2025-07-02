@@ -68,6 +68,8 @@
             padding: 0.25rem 0.75rem;
             border-radius: 9999px;
             font-size: 0.875rem;
+            /* 【修正】防止標籤被壓縮 */
+            flex-shrink: 0;
         }
         .project-tag-remove {
             margin-left: 0.5rem;
@@ -102,6 +104,17 @@
         }
         .suggestion-item input[type="checkbox"]:focus {
             ring: #06b6d4;
+        }
+        /* 【新增】美化水平捲動軸 */
+        #project-name-container::-webkit-scrollbar {
+            height: 4px;
+        }
+        #project-name-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        #project-name-container::-webkit-scrollbar-thumb {
+            background-color: #4b5563;
+            border-radius: 20px;
         }
 
     </style>
@@ -161,7 +174,8 @@
                     <div class="xl:col-span-2">
                         <label for="project-name-input" class="block text-sm font-medium text-gray-300">建案名稱 (可複選)</label>
                         <div class="relative mt-1">
-                            <div id="project-name-container" class="form-input flex flex-wrap items-center gap-2 p-1 min-h-[42px] rounded-md">
+                            <!-- 【修正】移除 flex-wrap，加入 flex-nowrap 和 overflow-x-auto -->
+                            <div id="project-name-container" class="form-input flex flex-nowrap items-center gap-2 p-1 min-h-[42px] rounded-md overflow-x-auto">
                                 <input type="text" id="project-name-input" placeholder="請先選縣市..." class="bg-transparent flex-grow outline-none text-base py-1 px-2" disabled>
                             </div>
                             <div id="project-name-suggestions" class="absolute z-20 w-full mt-1 bg-dark-card border border-gray-600 rounded-md shadow-lg hidden">
@@ -218,7 +232,6 @@
     <script type="module">
         const EDGE_FUNCTION_ENDPOINT = 'https://zxbmbbfrzbtuueysicoc.supabase.co/functions/v1/query-data';
         const SUB_DATA_ENDPOINT = 'https://zxbmbbfrzbtuueysicoc.supabase.co/functions/v1/query-sub-data';
-        // 【修正】將端點名稱更新為您指定的名稱
         const PROJECT_NAMES_ENDPOINT = 'https://zxbmbbfrzbtuueysicoc.supabase.co/functions/v1/query-names';
 
         const dom = {
