@@ -41,9 +41,10 @@
             box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.5);
             outline: none;
         }
-        select:disabled {
+        select:disabled, input:disabled {
             background-color: #374151;
             cursor: not-allowed;
+            opacity: 0.7;
         }
         option:disabled {
             color: #6b7280;
@@ -161,7 +162,8 @@
                         <label for="project-name-input" class="block text-sm font-medium text-gray-300">建案名稱 (可複選)</label>
                         <div class="relative mt-1">
                             <div id="project-name-container" class="form-input flex flex-wrap items-center gap-2 p-1 min-h-[42px] rounded-md">
-                                <input type="text" id="project-name-input" placeholder="請先選縣市，再輸入建案..." class="bg-transparent flex-grow outline-none text-base py-1 px-2">
+                                <!-- 【修改】預設禁用，直到縣市被選擇 -->
+                                <input type="text" id="project-name-input" placeholder="請先選縣市..." class="bg-transparent flex-grow outline-none text-base py-1 px-2" disabled>
                             </div>
                             <div id="project-name-suggestions" class="absolute z-20 w-full mt-1 bg-dark-card border border-gray-600 rounded-md shadow-lg hidden">
                             </div>
@@ -280,7 +282,7 @@
             });
         }
         
-        // 【優化】更換縣市時，自動清空已選建案
+        // 【修改】更換縣市時，啟用/禁用建案輸入框，並清空舊資料
         function updateDistrictOptions() {
             const selectedCounty = dom.countySelect.value;
             dom.districtSelect.innerHTML = '<option value="">全部</option>';
@@ -292,8 +294,12 @@
                     dom.districtSelect.appendChild(option);
                 });
                 dom.districtSelect.disabled = false;
+                dom.projectNameInput.disabled = false; // 啟用
+                dom.projectNameInput.placeholder = "輸入建案名稱搜尋...";
             } else {
                 dom.districtSelect.disabled = true;
+                dom.projectNameInput.disabled = true; // 禁用
+                dom.projectNameInput.placeholder = "請先選縣市...";
             }
             // 清空已選建案和相關輸入
             selectedProjects = [];
@@ -311,7 +317,6 @@
             }, 300); 
         }
 
-        // 【修正】點擊建議列表的處理函式
         function onSuggestionClick(e) {
             const target = e.target.closest('.suggestion-item');
             if (!target) return;
@@ -320,6 +325,7 @@
             const checkbox = target.querySelector('input[type="checkbox"]');
             if (!name || !checkbox) return;
 
+            // 為了避免點擊 label 時觸發兩次事件，我們使用 setTimeout
             // 等待瀏覽器完成預設的點擊行為 (切換 checkbox 狀態)
             // 然後再讀取最新的狀態來更新我們的資料
             setTimeout(() => {
@@ -358,12 +364,17 @@
                     },
                     body: JSON.stringify({ countyCode, query })
                 });
-                if (!response.ok) throw new Error('無法獲取建案建議');
+                if (!response.ok) {
+                    // 如果後端出錯 (例如 404 Not Found)，就拋出錯誤
+                    throw new Error(`伺服器錯誤: ${response.status}`);
+                }
                 const names = await response.json();
                 renderSuggestions(names);
             } catch (error) {
                 console.error("獲取建案建議失敗:", error);
-                dom.projectNameSuggestions.classList.add('hidden');
+                // 【修改】在 UI 上顯示錯誤訊息給使用者
+                dom.projectNameSuggestions.innerHTML = `<div class="p-2 text-red-400">讀取建議失敗。請確認後端功能已正確部署。</div>`;
+                dom.projectNameSuggestions.classList.remove('hidden');
             }
         }
 
