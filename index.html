@@ -6,6 +6,7 @@
     <title>不動產數據查詢平台</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- 【新增】載入 Chart.js 圖表工具 -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         tailwind.config = {
@@ -50,27 +51,17 @@
         option:disabled {
             color: #6b7280;
         }
-        .table-container { overflow-y: auto;
-        }
-        table { width: 100%; border-collapse: collapse;
-        }
-        th, td { border-bottom: 1px solid #374151; padding: 0.75rem 1rem; text-align: left;
-        font-size: 0.875rem; white-space: nowrap; }
-        thead th { background-color: #252836; position: sticky;
-        top: 0; z-index: 10; font-weight: 600; color: #9ca3af; }
-        .loader { border: 4px solid #374151;
-        border-top: 4px solid #06b6d4; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite;
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg);
-        } }
-        .modal-overlay { position: fixed; top: 0; left: 0; right: 0;
-        bottom: 0; background: rgba(0, 0, 0, 0.7); display: flex; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(5px);
-        transition: opacity 0.3s ease; }
-        .modal-container { background: #252836; padding: 2rem; border-radius: 12px;
-        width: 90%; max-width: 800px; max-height: 80vh; overflow-y: auto; border: 1px solid #4b5563; transform: scale(0.95); transition: transform 0.3s ease;
-        }
-        .modal-overlay:not(.hidden) .modal-container { transform: scale(1);
-        }
+        .table-container { overflow-y: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border-bottom: 1px solid #374151; padding: 0.75rem 1rem; text-align: left; font-size: 0.875rem; white-space: nowrap; }
+        thead th { background-color: #252836; position: sticky; top: 0; z-index: 10; font-weight: 600; color: #9ca3af; }
+        .loader { border: 4px solid #374151; border-top: 4px solid #06b6d4; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.7); display: flex; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(5px); transition: opacity 0.3s ease; }
+        .modal-container { background: #252836; padding: 2rem; border-radius: 12px; width: 90%; max-width: 800px; max-height: 80vh; overflow-y: auto; border: 1px solid #4b5563; transform: scale(0.95); transition: transform 0.3s ease; }
+        .modal-overlay:not(.hidden) .modal-container { transform: scale(1); }
+
+        /* 多選建案的樣式 */
         .project-tag {
             display: inline-flex;
             align-items: center;
@@ -104,12 +95,46 @@
         }
         .suggestion-item input[type="checkbox"] {
             margin-right: 0.75rem;
+            height: 1rem;
+            width: 1rem;
+            border-radius: 0.25rem;
+            border-color: #6b7280;
+            background-color: #374151;
+            color: #06b6d4;
+            cursor: pointer;
         }
+        .suggestion-item input[type="checkbox"]:focus {
+            ring: #06b6d4;
+        }
+        #project-name-container::-webkit-scrollbar {
+            height: 4px;
+        }
+        #project-name-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        #project-name-container::-webkit-scrollbar-thumb {
+            background-color: #4b5563;
+            border-radius: 20px;
+        }
+
         .scrollable-cell {
-            max-width: 25ch;
+            max-width: 25ch; 
             overflow-x: auto;
             white-space: nowrap;
+            padding-top: 4px;
+            padding-bottom: 4px;
         }
+        .scrollable-cell::-webkit-scrollbar {
+            height: 4px;
+        }
+        .scrollable-cell::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .scrollable-cell::-webkit-scrollbar-thumb {
+            background-color: #4b5563;
+            border-radius: 20px;
+        }
+
     </style>
 </head>
 <body class="p-4 md:p-8">
@@ -188,9 +213,9 @@
                             <input type="date" id="date-end" class="form-input mt-1 block w-full pl-3 pr-2 py-2 text-base rounded-md">
                         </div>
                     </div>
-           
+
                     <div class="sm:col-span-2 lg:col-span-4 xl:col-span-6 flex justify-end items-center gap-4">
-                        <button id="analyze-btn" class="bg-purple-600 hover:bg-purple-500 text-white font-bold py-2 px-6 rounded-lg shadow-lg hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                        <button id="analyze-btn" class="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-6 rounded-lg shadow-lg hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
                             數據分析
                         </button>
                         <button id="search-btn" class="bg-gradient-to-r from-cyan-accent to-purple-accent text-white font-bold py-2 px-6 rounded-lg shadow-lg hover:opacity-90 transition-all">
@@ -219,10 +244,11 @@
     <div id="details-modal" class="modal-overlay hidden">
         <div class="modal-container">
             <div class="flex justify-between items-center mb-6">
-                <h2 id="modal-title" class="text-2xl font-bold text-white"></h2>
+                <h2 id="modal-title" class="text-2xl font-bold text-white">附表詳細資料</h2>
                 <button id="modal-close-btn" class="text-gray-400 hover:text-white text-3xl font-bold">&times;</button>
             </div>
-            <div id="modal-content" class="text-gray-300"></div>
+            <div id="modal-content" class="text-gray-300">
+            </div>
         </div>
     </div>
     
@@ -239,14 +265,11 @@
     </div>
 
     <script type="module">
-        // ==================== API Endpoints ====================
         const EDGE_FUNCTION_ENDPOINT = 'https://zxbmbbfrzbtuueysicoc.supabase.co/functions/v1/query-data';
         const SUB_DATA_ENDPOINT = 'https://zxbmbbfrzbtuueysicoc.supabase.co/functions/v1/query-sub-data';
         const PROJECT_NAMES_ENDPOINT = 'https://zxbmbbfrzbtuueysicoc.supabase.co/functions/v1/query-names';
-        // 【修正】更新分析功能的 API 端點
-        const ANALYSIS_ENDPOINT = 'https://zxbmbbfrzbtuueysicoc.supabase.co/functions/v1/analyze-district-price';
+        const ANALYSIS_ENDPOINT = 'https://zxbmbbfrzbtuueysicoc.supabase.co/functions/v1/analyze-data';
 
-        // ==================== DOM Elements ====================
         const dom = {
             countySelect: document.getElementById('county'),
             districtSelect: document.getElementById('district'),
@@ -257,54 +280,54 @@
             searchBtn: document.getElementById('search-btn'),
             analyzeBtn: document.getElementById('analyze-btn'),
             messageArea: document.getElementById('message-area'),
-            tableWrapper: document.getElementById('table-wrapper'),
+            tableContainer: document.getElementById('table-container'),
             resultsTable: document.getElementById('results-table'),
             paginationControls: document.getElementById('pagination-controls'),
+            tableWrapper: document.getElementById('table-wrapper'),
             modal: document.getElementById('details-modal'),
             modalTitle: document.getElementById('modal-title'),
             modalContent: document.getElementById('modal-content'),
             modalCloseBtn: document.getElementById('modal-close-btn'),
-            chartModal: document.getElementById('chart-modal'),
-            chartModalTitle: document.getElementById('chart-modal-title'),
-            chartModalCloseBtn: document.getElementById('chart-modal-close-btn'),
-            chartCanvas: document.getElementById('analysis-chart'),
             projectNameContainer: document.getElementById('project-name-container'),
             projectNameInput: document.getElementById('project-name-input'),
             projectNameSuggestions: document.getElementById('project-name-suggestions'),
             clearProjectsBtn: document.getElementById('clear-projects-btn'),
+            chartModal: document.getElementById('chart-modal'),
+            chartModalTitle: document.getElementById('chart-modal-title'),
+            chartModalCloseBtn: document.getElementById('chart-modal-close-btn'),
+            chartCanvas: document.getElementById('analysis-chart'),
         };
-
-        // ==================== State & Data ====================
+        
         let currentPage = 1;
         let pageSize = 30;
         let totalRecords = 0;
         let selectedProjects = [];
         let suggestionDebounceTimer;
         let analysisChartInstance = null;
+
         const districtData = {"臺北市":["中正區","大同區","中山區","松山區","大安區","萬華區","信義區","士林區","北投區","內湖區","南港區","文山區"],"新北市":["板橋區","三重區","中和區","永和區","新莊區","新店區","樹林區","鶯歌區","三峽區","淡水區","汐止區","瑞芳區","土城區","蘆洲區","五股區","泰山區","林口區","深坑區","石碇區","坪林區","三芝區","石門區","八里區","平溪區","雙溪區","貢寮區","金山區","萬里區","烏來區"],"桃園市":["桃園區","中壢區","大溪區","楊梅區","蘆竹區","大園區","龜山區","八德區","龍潭區","平鎮區","新屋區","觀音區","復興區"],"臺中市":["中區","東區","南區","西區","北區","北屯區","西屯區","南屯區","太平區","大里區","霧峰區","烏日區","豐原區","后里區","石岡區","東勢區","和平區","新社區","潭子區","大雅區","神岡區","大肚區","沙鹿區","龍井區","梧棲區","清水區","大甲區","外埔區","大安區"],"臺南市":["中西區","東區","南區","北區","安平區","安南區","永康區","歸仁區","新化區","左鎮區","玉井區","楠西區","南化區","仁德區","關廟區","龍崎區","官田區","麻豆區","佳里區","西港區","七股區","將軍區","學甲區","北門區","新營區","後壁區","白河區","東山區","六甲區","下營區","柳營區","鹽水區","善化區","大內區","山上區","新市區","安定區"],"高雄市":["新興區","前金區","苓雅區","鹽埕區","鼓山區","旗津區","前鎮區","三民區","楠梓區","小港區","左營區","仁武區","大社區","岡山區","路竹區","阿蓮區","田寮區","燕巢區","橋頭區","梓官區","彌陀區","永安區","湖內區","鳳山區","大寮區","林園區","鳥松區","大樹區","旗山區","美濃區","六龜區","內門區","杉林區","甲仙區","桃源區","那瑪夏區","茂林區","茄萣區"],"基隆市":["仁愛區","信義區","中正區","中山區","安樂區","暖暖區","七堵區"],"新竹市":["東區","北區","香山區"],"嘉義市":["東區","西區"],"宜蘭縣":["宜蘭市","羅東鎮","蘇澳鎮","頭城鎮","礁溪鄉","壯圍鄉","員山鄉","冬山鄉","五結鄉","三星鄉","大同鄉","南澳鄉"],"新竹縣":["竹北市","竹東鎮","新埔鎮","關西鎮","湖口鄉","新豐鄉","芎林鄉","橫山鄉","北埔鄉","寶山鄉","峨眉鄉","尖石鄉","五峰鄉"],"苗栗縣":["苗栗市","苑裡鎮","通霄鎮","竹南鎮","頭份鎮","後龍鎮","卓蘭鎮","大湖鄉","公館鄉","銅鑼鄉","南庄鄉","頭屋鄉","三義鄉","西湖鄉","造橋鄉","三灣鄉","獅潭鄉","泰安鄉"],"彰化縣":["彰化市","鹿港鎮","和美鎮","線西鄉","伸港鄉","福興鄉","秀水鄉","花壇鄉","芬園鄉","員林鎮","溪湖鎮","田中鎮","大村鄉","埔鹽鄉","埔心鄉","永靖鄉","社頭鄉","二水鄉","北斗鎮","二林鎮","田尾鄉","埤頭鄉","芳苑鄉","大城鄉","竹塘鄉","溪州鄉"],"南投縣":["南投市","埔里鎮","草屯鎮","竹山鎮","集集鎮","名間鄉","鹿谷鄉","中寮鄉","魚池鄉","國姓鄉","水里鄉","信義鄉","仁愛鄉"],"雲林縣":["斗六市","斗南鎮","虎尾鎮","西螺鎮","土庫鎮","北港鎮","古坑鄉","大埤鄉","莿桐鄉","林內鄉","二崙鄉","崙背鄉","麥寮鄉","東勢鄉","褒忠鄉","台西鄉","元長鄉","四湖鄉","口湖鄉","水林鄉"],"嘉義縣":["太保市","朴子市","布袋鎮","大林鎮","民雄鄉","溪口鄉","新港鄉","六腳鄉","東石鄉","義竹鄉","鹿草鄉","水上鄉","中埔鄉","竹崎鄉","梅山鄉","番路鄉","大埔鄉","阿里山鄉"],"屏東縣":["屏東市","潮州鎮","東港鎮","恆春鎮","萬丹鄉","長治鄉","麟洛鄉","九如鄉","里港鄉","鹽埔鄉","高樹鄉","萬巒鄉","內埔鄉","竹田鄉","新埤鄉","枋寮鄉","新園鄉","崁頂鄉","林邊鄉","南州鄉","佳冬鄉","琉球鄉","車城鄉","滿州鄉","枋山鄉","霧台鄉","瑪家鄉","泰武鄉","來義鄉","春日鄉","獅子鄉","牡丹鄉","三地門鄉"],"花蓮縣":["花蓮市","鳳林鎮","玉里鎮","新城鄉","吉安鄉","壽豐鄉","光復鄉","豐濱鄉","瑞穗鄉","富里鄉","秀林鄉","萬榮鄉","卓溪鄉"],"臺東縣":["臺東市","成功鎮","關山鎮","卑南鄉","鹿野鄉","池上鄉","東河鄉","長濱鄉","太麻里鄉","大武鄉","綠島鄉","海端鄉","延平鄉","金峰鄉","達仁鄉","蘭嶼鄉"],"澎湖縣":["馬公市","湖西鄉","白沙鄉","西嶼鄉","望安鄉","七美鄉"],"金門縣":["金城鎮","金湖鎮","金沙鎮","金寧鄉","烈嶼鄉","烏坵鄉"],"連江縣":["南竿鄉","北竿鄉","莒光鄉","東引鄉"]};
         const countyCodeMap = { "臺北市": "A", "新北市": "F", "桃園市": "H", "臺中市": "B", "臺南市": "D", "高雄市": "E", "基隆市": "C", "新竹市": "O", "嘉義市": "I", "新竹縣": "J", "苗栗縣": "K", "彰化縣": "N", "南投縣": "M", "雲林縣": "P", "嘉義縣": "Q", "屏東縣": "T", "宜蘭縣": "G", "花蓮縣": "U", "臺東縣": "V", "澎湖縣": "X", "金門縣": "W", "連江縣": "Z" };
 
-        // ==================== Initialization ====================
         function initialize() {
             Object.keys(districtData).forEach(countyName => {
-                dom.countySelect.add(new Option(countyName, countyName));
+                const option = document.createElement('option');
+                option.value = countyName;
+                option.textContent = countyName;
+                dom.countySelect.appendChild(option);
             });
-
             dom.searchBtn.addEventListener('click', () => {
                 currentPage = 1;
                 fetchData();
             });
             dom.analyzeBtn.addEventListener('click', analyzeData);
             dom.countySelect.addEventListener('change', updateDistrictOptions);
-            
-            // 【修正】監聽交易類型選單的變化
-            dom.typeSelect.addEventListener('change', toggleAnalyzeButtonState);
-            
             dom.modalCloseBtn.addEventListener('click', () => dom.modal.classList.add('hidden'));
             dom.chartModalCloseBtn.addEventListener('click', () => dom.chartModal.classList.add('hidden'));
             dom.resultsTable.addEventListener('click', (e) => {
                 const target = e.target.closest('.details-btn');
-                if (target) showSubTableDetails(target);
+                if (target) {
+                    showSubTableDetails(target);
+                }
             });
 
             dom.projectNameInput.addEventListener('input', onProjectInput);
@@ -316,26 +339,17 @@
                 }
             });
             dom.clearProjectsBtn.addEventListener('click', clearSelectedProjects);
-            
-            // 初始禁用分析按鈕
-            dom.analyzeBtn.disabled = true;
         }
-
-        // ==================== UI Logic ====================
         
-        // 【修正】控制分析按鈕狀態的統一函式
-        function toggleAnalyzeButtonState() {
-            const isCountySelected = !!dom.countySelect.value;
-            const isPresaleType = dom.typeSelect.value === '預售交易';
-            dom.analyzeBtn.disabled = !(isCountySelected && isPresaleType);
-        }
-
         function updateDistrictOptions() {
             const selectedCounty = dom.countySelect.value;
             dom.districtSelect.innerHTML = '<option value="">全部</option>';
             if (selectedCounty && districtData[selectedCounty]) {
                 districtData[selectedCounty].forEach(districtName => {
-                    dom.districtSelect.add(new Option(districtName, districtName));
+                    const option = document.createElement('option');
+                    option.value = districtName;
+                    option.textContent = districtName;
+                    dom.districtSelect.appendChild(option);
                 });
                 dom.districtSelect.disabled = false;
                 dom.projectNameInput.disabled = false;
@@ -345,27 +359,148 @@
                 dom.projectNameInput.disabled = true;
                 dom.projectNameInput.placeholder = "請先選縣市...";
             }
-            // 【修正】切換縣市時，也要更新分析按鈕的狀態
-            toggleAnalyzeButtonState();
             clearSelectedProjects();
         }
 
-        // ==================== Data Fetching & Rendering ====================
+        function clearSelectedProjects() {
+            selectedProjects = [];
+            renderProjectTags();
+            const suggestionCheckboxes = dom.projectNameSuggestions.querySelectorAll('input[type="checkbox"]');
+            suggestionCheckboxes.forEach(cb => cb.checked = false);
+        }
+
+        function onProjectInput() {
+            clearTimeout(suggestionDebounceTimer);
+            suggestionDebounceTimer = setTimeout(() => {
+                fetchProjectNameSuggestions(dom.projectNameInput.value);
+            }, 300); 
+        }
+
+        function onSuggestionClick(e) {
+            const target = e.target.closest('.suggestion-item');
+            if (!target) return;
+            
+            const name = target.dataset.name;
+            const checkbox = target.querySelector('input[type="checkbox"]');
+            if (!name || !checkbox) return;
+
+            setTimeout(() => {
+                if (checkbox.checked) {
+                    if (!selectedProjects.includes(name)) {
+                        selectedProjects.push(name);
+                    }
+                } else {
+                    selectedProjects = selectedProjects.filter(p => p !== name);
+                }
+                renderProjectTags();
+            }, 0);
+        }
+
+        function onTagRemove(e) {
+            if (e.target.classList.contains('project-tag-remove')) {
+                removeProject(e.target.dataset.name);
+            }
+        }
+
+        async function fetchProjectNameSuggestions(query) {
+            const county = dom.countySelect.value;
+            const countyCode = countyCodeMap[county];
+
+            if (!query.trim() || !countyCode) {
+                dom.projectNameSuggestions.classList.add('hidden');
+                return;
+            }
+
+            try {
+                const response = await fetch(PROJECT_NAMES_ENDPOINT, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4Ym1iYmZyemJ0dXVleXNpY29jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA2ODg5ODksImV4cCI6MjA2NjI2NDk4OX0.1IUynv5eK1xF_3pb-oasqaTrPvbeAOC4Sc1oykPBy4M'
+                    },
+                    body: JSON.stringify({ countyCode, query })
+                });
+                if (!response.ok) {
+                    throw new Error(`伺服器錯誤: ${response.status}`);
+                }
+                const names = await response.json();
+                renderSuggestions(names);
+            } catch (error) {
+                console.error("獲取建案建議失敗:", error);
+                dom.projectNameSuggestions.innerHTML = `<div class="p-2 text-red-400">讀取建議失敗。請確認後端功能已正確部署。</div>`;
+                dom.projectNameSuggestions.classList.remove('hidden');
+            }
+        }
+
+        function renderSuggestions(names) {
+            if (names.length === 0) {
+                dom.projectNameSuggestions.innerHTML = '<div class="p-2 text-gray-500">無相符建案</div>';
+            } else {
+                 dom.projectNameSuggestions.innerHTML = names
+                    .map(name => {
+                        const isChecked = selectedProjects.includes(name);
+                        return `
+                        <label class="suggestion-item" data-name="${name}">
+                            <input type="checkbox" ${isChecked ? 'checked' : ''}>
+                            <span class="flex-grow">${name}</span>
+                        </label>
+                        `;
+                    })
+                    .join('');
+            }
+            dom.projectNameSuggestions.classList.remove('hidden');
+        }
+
+        function removeProject(name) {
+            selectedProjects = selectedProjects.filter(p => p !== name);
+            renderProjectTags();
+            const openSuggestionCheckbox = dom.projectNameSuggestions.querySelector(`label[data-name="${name}"] input`);
+            if(openSuggestionCheckbox) {
+                openSuggestionCheckbox.checked = false;
+            }
+        }
+
+        function renderProjectTags() {
+            const tags = dom.projectNameContainer.querySelectorAll('.project-tag');
+            tags.forEach(tag => tag.remove());
+            
+            dom.projectNameContainer.insertBefore(dom.projectNameInput, dom.projectNameContainer.firstChild);
+            
+            selectedProjects.forEach(name => {
+                const tagElement = document.createElement('span');
+                tagElement.className = 'project-tag';
+                tagElement.textContent = name;
+                
+                const removeBtn = document.createElement('span');
+                removeBtn.className = 'project-tag-remove';
+                removeBtn.textContent = '×';
+                removeBtn.dataset.name = name;
+
+                tagElement.appendChild(removeBtn);
+                dom.projectNameContainer.insertBefore(tagElement, dom.projectNameInput);
+            });
+
+            if (selectedProjects.length > 0) {
+                dom.clearProjectsBtn.classList.remove('hidden');
+            } else {
+                dom.clearProjectsBtn.classList.add('hidden');
+            }
+        }
         
         async function analyzeData() {
             const county = dom.countySelect.value;
+            if (!county) {
+                alert('請先選擇一個縣市再進行分析。');
+                return;
+            }
+
             dom.chartModal.classList.remove('hidden');
             dom.chartModalTitle.textContent = `${county} 各區平均單價分析`;
             
-            const chartContent = dom.chartModal.querySelector('#chart-modal-content');
-            chartContent.innerHTML = '<div class="loader mx-auto"></div><p class="mt-4 text-center">分析中...</p>';
-
-            const requestFilters = {
-                countyCode: countyCodeMap[county],
-                transactionType: dom.typeSelect.value,
-                buildingType: dom.buildingTypeSelect.value || null,
-                projectNames: selectedProjects.length > 0 ? selectedProjects : null,
-            };
+            const requestFilters = {};
+            requestFilters.countyCode = countyCodeMap[county];
+            if (dom.buildingTypeSelect.value) requestFilters.buildingType = dom.buildingTypeSelect.value;
+            if (selectedProjects.length > 0) requestFilters.projectNames = selectedProjects;
             
             try {
                 const response = await fetch(ANALYSIS_ENDPOINT, {
@@ -378,41 +513,26 @@
                 });
 
                 if (!response.ok) {
-                    const errorResult = await response.json().catch(() => ({ error: `分析請求失敗，狀態碼: ${response.status}` }));
-                    // 這裡捕捉 'Failed to fetch' 等網路層級錯誤
-                    if (errorResult.error === 'Failed to fetch') {
-                         throw new Error('無法連線至分析服務，請檢查網路連線或確認後端功能是否已正確部署。');
-                    }
-                    throw new Error(errorResult.error);
+                    throw new Error(`分析請求失敗: ${response.status}`);
                 }
-                
                 const analysisResult = await response.json();
-                
-                if (analysisResult.error) {
-                    throw new Error(analysisResult.error);
-                }
-
-                if (!analysisResult || analysisResult.length === 0) {
-                    chartContent.innerHTML = `<p class="text-gray-400 p-8 text-center">找不到符合條件的分析資料。</p>`;
-                } else {
-                    chartContent.innerHTML = `<canvas id="analysis-chart"></canvas>`;
-                    const newCanvas = document.getElementById('analysis-chart');
-                    renderAnalysisChart(analysisResult, newCanvas);
-                }
+                renderAnalysisChart(analysisResult);
 
             } catch(error) {
                 console.error("數據分析失敗:", error);
-                chartContent.innerHTML = `<p class="text-red-400 p-8 text-center">數據分析失敗: ${error.message}</p>`;
+                dom.chartModal.querySelector('#chart-modal-content').innerHTML = `<p class="text-red-400">數據分析失敗: ${error.message}</p>`;
             }
         }
 
-        function renderAnalysisChart(data, canvasElement) {
+        function renderAnalysisChart(data) {
             if (analysisChartInstance) {
                 analysisChartInstance.destroy();
             }
+
             const labels = data.map(item => item.行政區);
             const prices = data.map(item => item.平均單價);
-            analysisChartInstance = new Chart(canvasElement, {
+
+            analysisChartInstance = new Chart(dom.chartCanvas, {
                 type: 'bar',
                 data: {
                     labels: labels,
@@ -421,46 +541,56 @@
                         data: prices,
                         backgroundColor: 'rgba(6, 182, 212, 0.6)',
                         borderColor: 'rgba(6, 182, 212, 1)',
-                        borderWidth: 1,
-                        borderRadius: 4,
+                        borderWidth: 1
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     scales: {
-                        y: { beginAtZero: true, ticks: { color: '#9ca3af' }, grid: { color: 'rgba(255, 255, 255, 0.1)' } },
-                        x: { ticks: { color: '#9ca3af' }, grid: { display: false } }
+                        y: {
+                            beginAtZero: true,
+                            ticks: { color: '#9ca3af' },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                        },
+                        x: {
+                            ticks: { color: '#9ca3af' },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                        }
                     },
                     plugins: {
-                        legend: { position: 'top', labels: { color: '#e5e7eb' } },
-                        tooltip: { backgroundColor: '#1f2937', titleColor: '#e5e7eb', bodyColor: '#d1d5db' }
+                        legend: {
+                            labels: {
+                                color: '#e5e7eb'
+                            }
+                        }
                     }
                 }
             });
         }
-        
-        // ... 其他函式 (fetchData, renderTable, etc.) 維持不變 ...
-        // 以下貼上您原有的其他函式，確保完整性
-        
+
+
         async function fetchData() {
             dom.messageArea.innerHTML = '<div class="loader mx-auto"></div><p class="mt-4">查詢中，請稍候...</p>';
             dom.messageArea.classList.remove('hidden');
             dom.tableWrapper.classList.add('hidden');
             dom.resultsTable.innerHTML = '';
             
-            const requestFilters = {
-                countyCode: dom.countySelect.value ? countyCodeMap[dom.countySelect.value] : '',
-                district: dom.districtSelect.value || null,
-                type: dom.typeSelect.value,
-                dateStart: dom.dateStartInput.value || null,
-                dateEnd: dom.dateEndInput.value || null,
-                buildingType: dom.buildingTypeSelect.value || null,
-                projectNames: selectedProjects.length > 0 ? selectedProjects : null
-            };
+            const requestFilters = {};
+            const county = dom.countySelect.value;
+            if (county) requestFilters.countyCode = countyCodeMap[county] || '';
+            if (dom.districtSelect.value) requestFilters.district = dom.districtSelect.value;
+            if (dom.typeSelect.value) requestFilters.type = dom.typeSelect.value;
+            if (dom.dateStartInput.value) requestFilters.dateStart = dom.dateStartInput.value;
+            if (dom.dateEndInput.value) requestFilters.dateEnd = dom.dateEndInput.value;
+            if (dom.buildingTypeSelect.value) requestFilters.buildingType = dom.buildingTypeSelect.value;
+            
+            if (selectedProjects.length > 0) {
+                requestFilters.projectNames = selectedProjects;
+            }
 
             const pagination = { page: currentPage, limit: pageSize };
-
+            
             try {
                 const response = await fetch(EDGE_FUNCTION_ENDPOINT, {
                     method: 'POST',
@@ -471,12 +601,10 @@
                     body: JSON.stringify({ filters: requestFilters, pagination: pagination })
                 });
                 if (!response.ok) {
-                    const errorResult = await response.json().catch(() => ({ error: `伺服器錯誤: ${response.status}` }));
-                    throw new Error(errorResult.error);
+                    const errorResult = await response.json().catch(() => ({ error: '無法解析伺服器回應' }));
+                    throw new Error(errorResult.error || `伺服器錯誤: ${response.status}`);
                 }
                 const result = await response.json();
-                if(result.error) throw new Error(result.error);
-
                 totalRecords = result.count || 0;
                 if (!result.data || result.data.length === 0) {
                     dom.messageArea.innerHTML = '<p>找不到符合條件的資料。</p>';
@@ -497,35 +625,65 @@
         }
 
         function renderTable(data) {
-            const headers = Object.keys(data[0] || {});
-            const hiddenColumns = ['編號', '縣市代碼', '交易類型', '戶型'];
+            if (!data || data.length === 0) {
+                dom.tableWrapper.classList.add('hidden');
+                return;
+            }
+            const isPresale = data[0]['交易類型'] === '預售交易';
+            const hiddenColumns = ['編號', '縣市代碼', '交易類型', '戶型']; 
             
-            const thead = document.createElement('thead');
-            let headerRowHtml = '<tr><th>操作</th>';
-            headers.forEach(header => {
-                if (!hiddenColumns.includes(header)) {
-                    headerRowHtml += `<th>${header}</th>`;
+            const headers = Object.keys(data[0]);
+            const headerRow = document.createElement('tr');
+            const actionHeader = document.createElement('th');
+            actionHeader.textContent = '操作';
+            headerRow.appendChild(actionHeader);
+
+            headers.forEach(headerText => {
+                if (!hiddenColumns.includes(headerText)) {
+                    const th = document.createElement('th');
+                    th.textContent = headerText;
+                    headerRow.appendChild(th);
+         
+                    if (isPresale && headerText === '戶別') {
+                        const newTh = document.createElement('th');
+                        newTh.textContent = '戶型';
+                        headerRow.appendChild(newTh);
+                    }
                 }
             });
-            headerRowHtml += '</tr>';
-            thead.innerHTML = headerRowHtml;
+            const thead = document.createElement('thead');
+            thead.appendChild(headerRow);
 
             const tbody = document.createElement('tbody');
             data.forEach(row => {
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-dark-card transition-colors';
-                let rowHtml = `<td><button class="details-btn bg-cyan-600 hover:bg-cyan-500 text-white text-xs px-3 py-1 rounded-md" data-id="${row['編號']}" data-type="${row['交易類型']}" data-county="${row['縣市代碼']}">附表</button></td>`;
+                const actionCell = document.createElement('td');
+                actionCell.innerHTML = `<button class="details-btn bg-purple-600 hover:bg-purple-500 text-white text-xs px-3 py-1 rounded-md" data-id="${row['編號']}" data-type="${row['交易類型']}" data-county="${row['縣市代碼']}">附表</button>`;
+                tr.appendChild(actionCell);
+
                 headers.forEach(header => {
                     if (!hiddenColumns.includes(header)) {
-                        let value = row[header] ?? '-';
+                        const td = document.createElement('td');
+                        let value = row[header];
+                        
                         if (header === '地址' || header === '備註') {
-                            rowHtml += `<td><div class="scrollable-cell">${value}</div></td>`;
+                            td.innerHTML = `<div class="scrollable-cell">${value ?? '-'}</div>`;
                         } else {
-                            rowHtml += `<td>${value}</td>`;
+                            if (typeof value === 'number' && !Number.isInteger(value)) {
+                                value = new Intl.NumberFormat('zh-TW').format(value);
+                            }
+                            td.textContent = value ?? '-';
+                        }
+                        tr.appendChild(td);
+
+                        if (isPresale && header === '戶別') {
+                            const unitTypeTd = document.createElement('td');
+                            unitTypeTd.textContent = row['戶型'] || '-';
+                            tr.appendChild(unitTypeTd);
                         }
                     }
                 });
-                tr.innerHTML = rowHtml;
                 tbody.appendChild(tr);
             });
             dom.resultsTable.innerHTML = '';
@@ -535,164 +693,104 @@
 
         function renderPagination() {
             dom.paginationControls.innerHTML = '';
-            if (totalRecords === 0) {
+            if (totalRecords === 0 && currentPage === 1) {
                 dom.paginationControls.innerHTML = `<span>共 0 筆資料</span>`;
                 return;
             }
             const totalPages = Math.ceil(totalRecords / pageSize);
-            const countInfo = `<span>共 ${totalRecords} 筆資料</span>`;
-            const prevButton = `<button class="bg-gray-700 hover:bg-cyan-600 text-white font-bold py-2 px-4 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed" ${currentPage === 1 ? 'disabled' : ''} onclick="changePage(${currentPage - 1})">上一頁</button>`;
-            const nextButton = `<button class="bg-gray-700 hover:bg-cyan-600 text-white font-bold py-2 px-4 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed" ${currentPage >= totalPages ? 'disabled' : ''} onclick="changePage(${currentPage + 1})">下一頁</button>`;
-            const pageInfo = `<span class="px-4">第 ${currentPage} / ${totalPages} 頁</span>`;
-            dom.paginationControls.innerHTML = `${countInfo}<div class="flex items-center space-x-2">${prevButton}${pageInfo}${nextButton}</div>`;
+            const countInfo = document.createElement('div');
+            countInfo.textContent = `共 ${totalRecords} 筆資料`;
+            const buttonsContainer = document.createElement('div');
+            buttonsContainer.className = 'flex items-center space-x-2';
+            const prevButton = document.createElement('button');
+            prevButton.textContent = ' 上一頁';
+            prevButton.disabled = currentPage === 1;
+            prevButton.onclick = () => { currentPage--; fetchData(); };
+            const nextButton = document.createElement('button');
+            nextButton.textContent = '下一頁 ';
+            nextButton.disabled = currentPage >= totalPages;
+            nextButton.onclick = () => { currentPage++; fetchData(); };
+            [prevButton, nextButton].forEach(btn => {
+                btn.className = "bg-gray-700 hover:bg-cyan-600 text-white font-bold py-2 px-4 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors";
+            });
+            const pageInfo = document.createElement('span');
+            pageInfo.textContent = `第 ${currentPage} / ${totalPages > 0 ? totalPages : 1} 頁`;
+            pageInfo.className = 'px-4';
+            buttonsContainer.append(prevButton, pageInfo, nextButton);
+            dom.paginationControls.append(countInfo, buttonsContainer);
         }
         
-        // Make changePage globally accessible for onclick attribute
-        window.changePage = (page) => {
-            currentPage = page;
-            fetchData();
-        };
+        function renderSubTable(title, records) {
+            if (!records || !Array.isArray(records) || records.length === 0) {
+                return `<div class="mb-4"><h3 class="text-lg font-semibold text-cyan-400 mb-2">${title}</h3><p class="text-sm text-gray-500">無資料</p></div>`;
+            }
+            let html = `<div><h3 class="text-lg font-semibold text-cyan-400 mb-2">${title}</h3>`;
+            const headers = Object.keys(records[0]);
+            html += '<div class="overflow-x-auto"><table class="w-full text-sm text-left">';
+            html += '<thead><tr class="border-b border-gray-600">';
+            headers.forEach(header => {
+                if (header !== 'id' && header !== '編號') {
+                     html += `<th class="py-2 pr-2 font-medium text-gray-400">${header}</th>`;
+                }
+            });
+            html += '</tr></thead>';
+            html += '<tbody>';
+            records.forEach(record => {
+                html += '<tr class="border-b border-gray-700 last:border-b-0">';
+                headers.forEach(header => {
+                     if (header !== 'id' && header !== '編號') {
+                        html += `<td class="py-2 pr-2">${record[header] ?? '-'}</td>`; 
+                     }
+                });
+                html += '</tr>';
+            });
+            html += '</tbody></table></div></div>';
+            return html;
+        }
 
         async function showSubTableDetails(btn) {
-            const { id, type, county } = btn.dataset;
+            const id = btn.dataset.id;
+            const type = btn.dataset.type;
+            const county = btn.dataset.county;
             dom.modalTitle.textContent = `附表詳細資料 (編號: ${id})`;
             dom.modalContent.innerHTML = '<div class="loader mx-auto"></div>';
             dom.modal.classList.remove('hidden');
-
             try {
-                if (!id || !type || !county) throw new Error('前端參數不足，無法查詢附表。');
-                
+                if (!id || !type || !county || county === 'undefined') {
+                    throw new Error(`前端參數不足，無法查詢附表。 (編號: ${id}, 類型: ${type}, 縣市: ${county})`);
+                }
                 const response = await fetch(SUB_DATA_ENDPOINT, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id, type, county })
-                });
-                if (!response.ok) {
-                    const err = await response.json();
-                    throw new Error(err.error || '無法從伺服器獲取附表資料');
-                }
-                const result = await response.json();
-                if(result.error) throw new Error(result.error);
-                
-                let contentHTML = '<div class="space-y-6">';
-                contentHTML += renderSubTable('土地資料', result.land);
-                contentHTML += renderSubTable('建物資料', result.build);
-                contentHTML += renderSubTable('車位資料', result.park);
-                contentHTML += '</div>';
-                dom.modalContent.innerHTML = contentHTML;
-                
-            } catch (error) {
-                dom.modalContent.innerHTML = `<p class="text-red-400">查詢失敗: ${error.message}</p>`;
-            }
-        }
-
-        function renderSubTable(title, records) {
-            if (!records || records.length === 0) return '';
-            const headers = Object.keys(records[0]).filter(h => h !== '編號');
-            let table = `<h3 class="text-lg font-semibold text-cyan-400 mb-2">${title}</h3><div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="border-b border-gray-600">`;
-            table += headers.map(h => `<th class="py-2 pr-2 font-medium text-left">${h}</th>`).join('');
-            table += '</tr></thead><tbody>';
-            table += records.map(record => '<tr>' + headers.map(h => `<td class="py-2 pr-2">${record[h] ?? '-'}</td>`).join('') + '</tr>').join('');
-            table += '</tbody></table></div>';
-            return table;
-        }
-
-        // --- Project Name Multi-select Functions ---
-        function clearSelectedProjects() {
-            selectedProjects = [];
-            renderProjectTags();
-            dom.projectNameSuggestions.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
-        }
-
-        function onProjectInput() {
-            clearTimeout(suggestionDebounceTimer);
-            suggestionDebounceTimer = setTimeout(() => fetchProjectNameSuggestions(dom.projectNameInput.value), 300);
-        }
-
-        function onSuggestionClick(e) {
-            const target = e.target.closest('.suggestion-item');
-            if (!target) return;
-            const name = target.dataset.name;
-            const checkbox = target.querySelector('input[type="checkbox"]');
-            if (!name || !checkbox) return;
-            setTimeout(() => {
-                if (checkbox.checked) {
-                    if (!selectedProjects.includes(name)) selectedProjects.push(name);
-                } else {
-                    selectedProjects = selectedProjects.filter(p => p !== name);
-                }
-                renderProjectTags();
-            }, 0);
-        }
-
-        function onTagRemove(e) {
-            if (e.target.classList.contains('project-tag-remove')) {
-                removeProject(e.target.dataset.name);
-            }
-        }
-
-        async function fetchProjectNameSuggestions(query) {
-            const county = dom.countySelect.value;
-            const countyCode = countyCodeMap[county];
-            if (!query.trim() || !countyCode) {
-                dom.projectNameSuggestions.classList.add('hidden');
-                return;
-            }
-            try {
-                const response = await fetch(PROJECT_NAMES_ENDPOINT, {
                     method: 'POST',
                     headers: { 
                         'Content-Type': 'application/json',
                         'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4Ym1iYmZyemJ0dXVleXNpY29jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA2ODg5ODksImV4cCI6MjA2NjI2NDk4OX0.1IUynv5eK1xF_3pb-oasqaTrPvbeAOC4Sc1oykPBy4M'
                     },
-                    body: JSON.stringify({ countyCode, query })
+                    body: JSON.stringify({ id, type, county })
                 });
-                if (!response.ok) throw new Error(`伺服器錯誤: ${response.status}`);
-                const names = await response.json();
-                if(names.error) throw new Error(names.error);
-                renderSuggestions(names);
+                if (!response.ok) {
+                    const errorResult = await response.json().catch(() => ({ error: '無法從伺服器獲取附表資料' }));
+                    throw new Error(errorResult.error);
+                }
+                const result = await response.json();
+                let contentHTML = '<div class="space-y-6">';
+                if (type !== '預售交易') {
+                    contentHTML += renderSubTable('建物資料', result.build);
+                }
+                contentHTML += renderSubTable('土地資料', result.land);
+                contentHTML += renderSubTable('車位資料', result.park);
+                if (contentHTML === '<div class="space-y-6">') {
+                    contentHTML = '<p>此筆紀錄沒有對應的附表資料。</p>';
+                } else {
+                    contentHTML += '</div>';
+                }
+                dom.modalContent.innerHTML = contentHTML;
             } catch (error) {
-                console.error("獲取建案建議失敗:", error);
-                dom.projectNameSuggestions.innerHTML = `<div class="p-2 text-red-400">讀取建議失敗。</div>`;
-                dom.projectNameSuggestions.classList.remove('hidden');
+                dom.modalContent.innerHTML = `<p class="text-red-400">查詢失敗: ${error.message}</p>`;
             }
-        }
-
-        function renderSuggestions(names) {
-            if (names.length === 0) {
-                dom.projectNameSuggestions.innerHTML = '<div class="p-2 text-gray-500">無相符建案</div>';
-            } else {
-                dom.projectNameSuggestions.innerHTML = names.map(name => {
-                    const isChecked = selectedProjects.includes(name);
-                    return `<label class="suggestion-item" data-name="${name}">
-                                <input type="checkbox" class="h-4 w-4 rounded border-gray-600 bg-gray-700 text-cyan-500 focus:ring-cyan-600" ${isChecked ? 'checked' : ''}>
-                                <span class="ml-3">${name}</span>
-                            </label>`;
-                }).join('');
-            }
-            dom.projectNameSuggestions.classList.remove('hidden');
-        }
-
-        function removeProject(name) {
-            selectedProjects = selectedProjects.filter(p => p !== name);
-            renderProjectTags();
-            const checkbox = dom.projectNameSuggestions.querySelector(`label[data-name="${name}"] input`);
-            if (checkbox) checkbox.checked = false;
-        }
-
-        function renderProjectTags() {
-            dom.projectNameContainer.querySelectorAll('.project-tag').forEach(tag => tag.remove());
-            selectedProjects.forEach(name => {
-                const tagElement = document.createElement('span');
-                tagElement.className = 'project-tag';
-                tagElement.innerHTML = `${name} <span class="project-tag-remove" data-name="${name}">&times;</span>`;
-                dom.projectNameContainer.insertBefore(tagElement, dom.projectNameInput);
-            });
-            dom.clearProjectsBtn.classList.toggle('hidden', selectedProjects.length === 0);
         }
         
-        // Initialize the application
         initialize();
     </script>
 </body>
 </html>
+
