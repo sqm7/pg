@@ -6,7 +6,7 @@
     <title>不動產數據查詢平台</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
-    <!-- 【新增】載入 Chart.js 圖表工具 -->
+    <!-- 載入 Chart.js 圖表工具 -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         tailwind.config = {
@@ -241,6 +241,7 @@
         </main>
     </div>
 
+    <!-- 詳細資料 Modal -->
     <div id="details-modal" class="modal-overlay hidden">
         <div class="modal-container">
             <div class="flex justify-between items-center mb-6">
@@ -252,6 +253,7 @@
         </div>
     </div>
     
+    <!-- 圖表 Modal -->
     <div id="chart-modal" class="modal-overlay hidden">
         <div class="modal-container">
             <div class="flex justify-between items-center mb-6">
@@ -265,11 +267,13 @@
     </div>
 
     <script type="module">
+        // API Endpoints
         const EDGE_FUNCTION_ENDPOINT = 'https://zxbmbbfrzbtuueysicoc.supabase.co/functions/v1/query-data';
         const SUB_DATA_ENDPOINT = 'https://zxbmbbfrzbtuueysicoc.supabase.co/functions/v1/query-sub-data';
         const PROJECT_NAMES_ENDPOINT = 'https://zxbmbbfrzbtuueysicoc.supabase.co/functions/v1/query-names';
         const ANALYSIS_ENDPOINT = 'https://zxbmbbfrzbtuueysicoc.supabase.co/functions/v1/analyze-data';
 
+        // DOM Elements
         const dom = {
             countySelect: document.getElementById('county'),
             districtSelect: document.getElementById('district'),
@@ -298,6 +302,7 @@
             chartCanvas: document.getElementById('analysis-chart'),
         };
         
+        // State variables
         let currentPage = 1;
         let pageSize = 30;
         let totalRecords = 0;
@@ -305,16 +310,19 @@
         let suggestionDebounceTimer;
         let analysisChartInstance = null;
 
+        // Data
         const districtData = {"臺北市":["中正區","大同區","中山區","松山區","大安區","萬華區","信義區","士林區","北投區","內湖區","南港區","文山區"],"新北市":["板橋區","三重區","中和區","永和區","新莊區","新店區","樹林區","鶯歌區","三峽區","淡水區","汐止區","瑞芳區","土城區","蘆洲區","五股區","泰山區","林口區","深坑區","石碇區","坪林區","三芝區","石門區","八里區","平溪區","雙溪區","貢寮區","金山區","萬里區","烏來區"],"桃園市":["桃園區","中壢區","大溪區","楊梅區","蘆竹區","大園區","龜山區","八德區","龍潭區","平鎮區","新屋區","觀音區","復興區"],"臺中市":["中區","東區","南區","西區","北區","北屯區","西屯區","南屯區","太平區","大里區","霧峰區","烏日區","豐原區","后里區","石岡區","東勢區","和平區","新社區","潭子區","大雅區","神岡區","大肚區","沙鹿區","龍井區","梧棲區","清水區","大甲區","外埔區","大安區"],"臺南市":["中西區","東區","南區","北區","安平區","安南區","永康區","歸仁區","新化區","左鎮區","玉井區","楠西區","南化區","仁德區","關廟區","龍崎區","官田區","麻豆區","佳里區","西港區","七股區","將軍區","學甲區","北門區","新營區","後壁區","白河區","東山區","六甲區","下營區","柳營區","鹽水區","善化區","大內區","山上區","新市區","安定區"],"高雄市":["新興區","前金區","苓雅區","鹽埕區","鼓山區","旗津區","前鎮區","三民區","楠梓區","小港區","左營區","仁武區","大社區","岡山區","路竹區","阿蓮區","田寮區","燕巢區","橋頭區","梓官區","彌陀區","永安區","湖內區","鳳山區","大寮區","林園區","鳥松區","大樹區","旗山區","美濃區","六龜區","內門區","杉林區","甲仙區","桃源區","那瑪夏區","茂林區","茄萣區"],"基隆市":["仁愛區","信義區","中正區","中山區","安樂區","暖暖區","七堵區"],"新竹市":["東區","北區","香山區"],"嘉義市":["東區","西區"],"宜蘭縣":["宜蘭市","羅東鎮","蘇澳鎮","頭城鎮","礁溪鄉","壯圍鄉","員山鄉","冬山鄉","五結鄉","三星鄉","大同鄉","南澳鄉"],"新竹縣":["竹北市","竹東鎮","新埔鎮","關西鎮","湖口鄉","新豐鄉","芎林鄉","橫山鄉","北埔鄉","寶山鄉","峨眉鄉","尖石鄉","五峰鄉"],"苗栗縣":["苗栗市","苑裡鎮","通霄鎮","竹南鎮","頭份鎮","後龍鎮","卓蘭鎮","大湖鄉","公館鄉","銅鑼鄉","南庄鄉","頭屋鄉","三義鄉","西湖鄉","造橋鄉","三灣鄉","獅潭鄉","泰安鄉"],"彰化縣":["彰化市","鹿港鎮","和美鎮","線西鄉","伸港鄉","福興鄉","秀水鄉","花壇鄉","芬園鄉","員林鎮","溪湖鎮","田中鎮","大村鄉","埔鹽鄉","埔心鄉","永靖鄉","社頭鄉","二水鄉","北斗鎮","二林鎮","田尾鄉","埤頭鄉","芳苑鄉","大城鄉","竹塘鄉","溪州鄉"],"南投縣":["南投市","埔里鎮","草屯鎮","竹山鎮","集集鎮","名間鄉","鹿谷鄉","中寮鄉","魚池鄉","國姓鄉","水里鄉","信義鄉","仁愛鄉"],"雲林縣":["斗六市","斗南鎮","虎尾鎮","西螺鎮","土庫鎮","北港鎮","古坑鄉","大埤鄉","莿桐鄉","林內鄉","二崙鄉","崙背鄉","麥寮鄉","東勢鄉","褒忠鄉","台西鄉","元長鄉","四湖鄉","口湖鄉","水林鄉"],"嘉義縣":["太保市","朴子市","布袋鎮","大林鎮","民雄鄉","溪口鄉","新港鄉","六腳鄉","東石鄉","義竹鄉","鹿草鄉","水上鄉","中埔鄉","竹崎鄉","梅山鄉","番路鄉","大埔鄉","阿里山鄉"],"屏東縣":["屏東市","潮州鎮","東港鎮","恆春鎮","萬丹鄉","長治鄉","麟洛鄉","九如鄉","里港鄉","鹽埔鄉","高樹鄉","萬巒鄉","內埔鄉","竹田鄉","新埤鄉","枋寮鄉","新園鄉","崁頂鄉","林邊鄉","南州鄉","佳冬鄉","琉球鄉","車城鄉","滿州鄉","枋山鄉","霧台鄉","瑪家鄉","泰武鄉","來義鄉","春日鄉","獅子鄉","牡丹鄉","三地門鄉"],"花蓮縣":["花蓮市","鳳林鎮","玉里鎮","新城鄉","吉安鄉","壽豐鄉","光復鄉","豐濱鄉","瑞穗鄉","富里鄉","秀林鄉","萬榮鄉","卓溪鄉"],"臺東縣":["臺東市","成功鎮","關山鎮","卑南鄉","鹿野鄉","池上鄉","東河鄉","長濱鄉","太麻里鄉","大武鄉","綠島鄉","海端鄉","延平鄉","金峰鄉","達仁鄉","蘭嶼鄉"],"澎湖縣":["馬公市","湖西鄉","白沙鄉","西嶼鄉","望安鄉","七美鄉"],"金門縣":["金城鎮","金湖鎮","金沙鎮","金寧鄉","烈嶼鄉","烏坵鄉"],"連江縣":["南竿鄉","北竿鄉","莒光鄉","東引鄉"]};
         const countyCodeMap = { "臺北市": "A", "新北市": "F", "桃園市": "H", "臺中市": "B", "臺南市": "D", "高雄市": "E", "基隆市": "C", "新竹市": "O", "嘉義市": "I", "新竹縣": "J", "苗栗縣": "K", "彰化縣": "N", "南投縣": "M", "雲林縣": "P", "嘉義縣": "Q", "屏東縣": "T", "宜蘭縣": "G", "花蓮縣": "U", "臺東縣": "V", "澎湖縣": "X", "金門縣": "W", "連江縣": "Z" };
 
         function initialize() {
+            // Populate county dropdown
             Object.keys(districtData).forEach(countyName => {
                 const option = document.createElement('option');
                 option.value = countyName;
                 option.textContent = countyName;
                 dom.countySelect.appendChild(option);
             });
+            // Add event listeners
             dom.searchBtn.addEventListener('click', () => {
                 currentPage = 1;
                 fetchData();
@@ -330,6 +338,7 @@
                 }
             });
 
+            // Project name multi-select listeners
             dom.projectNameInput.addEventListener('input', onProjectInput);
             dom.projectNameSuggestions.addEventListener('click', onSuggestionClick);
             dom.projectNameContainer.addEventListener('click', onTagRemove);
@@ -354,10 +363,12 @@
                 dom.districtSelect.disabled = false;
                 dom.projectNameInput.disabled = false;
                 dom.projectNameInput.placeholder = "輸入建案名稱搜尋...";
+                dom.analyzeBtn.disabled = false; // Enable analyze button
             } else {
                 dom.districtSelect.disabled = true;
                 dom.projectNameInput.disabled = true;
                 dom.projectNameInput.placeholder = "請先選縣市...";
+                dom.analyzeBtn.disabled = true; // Disable analyze button
             }
             clearSelectedProjects();
         }
@@ -384,6 +395,7 @@
             const checkbox = target.querySelector('input[type="checkbox"]');
             if (!name || !checkbox) return;
 
+            // Use setTimeout to allow the checkbox's checked state to update before we read it
             setTimeout(() => {
                 if (checkbox.checked) {
                     if (!selectedProjects.includes(name)) {
@@ -461,11 +473,14 @@
         }
 
         function renderProjectTags() {
+            // Clear existing tags
             const tags = dom.projectNameContainer.querySelectorAll('.project-tag');
             tags.forEach(tag => tag.remove());
             
+            // Ensure input is the first child for layout purposes
             dom.projectNameContainer.insertBefore(dom.projectNameInput, dom.projectNameContainer.firstChild);
             
+            // Add new tags
             selectedProjects.forEach(name => {
                 const tagElement = document.createElement('span');
                 tagElement.className = 'project-tag';
@@ -473,13 +488,15 @@
                 
                 const removeBtn = document.createElement('span');
                 removeBtn.className = 'project-tag-remove';
-                removeBtn.textContent = '×';
+                removeBtn.innerHTML = '&times;'; // Use a multiplication sign for the 'x'
                 removeBtn.dataset.name = name;
 
                 tagElement.appendChild(removeBtn);
+                // Insert tag before the input element
                 dom.projectNameContainer.insertBefore(tagElement, dom.projectNameInput);
             });
 
+            // Toggle clear button visibility
             if (selectedProjects.length > 0) {
                 dom.clearProjectsBtn.classList.remove('hidden');
             } else {
@@ -490,15 +507,20 @@
         async function analyzeData() {
             const county = dom.countySelect.value;
             if (!county) {
-                alert('請先選擇一個縣市再進行分析。');
+                // Using a custom modal/message instead of alert()
+                dom.messageArea.innerHTML = '<p class="text-yellow-400">請先選擇一個縣市再進行分析。</p>';
+                dom.messageArea.classList.remove('hidden');
                 return;
             }
 
+            // Show modal and set title
             dom.chartModal.classList.remove('hidden');
             dom.chartModalTitle.textContent = `${county} 各區平均單價分析`;
             
+            // 【修正】建立請求篩選條件，並加入交易類型
             const requestFilters = {};
             requestFilters.countyCode = countyCodeMap[county];
+            requestFilters.transactionType = dom.typeSelect.value; // <-- 這行是關鍵修正
             if (dom.buildingTypeSelect.value) requestFilters.buildingType = dom.buildingTypeSelect.value;
             if (selectedProjects.length > 0) requestFilters.projectNames = selectedProjects;
             
@@ -513,18 +535,28 @@
                 });
 
                 if (!response.ok) {
-                    throw new Error(`分析請求失敗: ${response.status}`);
+                    const errorResult = await response.json().catch(() => ({ error: '無法解析伺服器回應' }));
+                    throw new Error(errorResult.error || `分析請求失敗: ${response.status}`);
                 }
                 const analysisResult = await response.json();
-                renderAnalysisChart(analysisResult);
+
+                // Check if analysis result is empty
+                if (!analysisResult || analysisResult.length === 0) {
+                    dom.chartModal.querySelector('#chart-modal-content').innerHTML = `<p class="text-gray-400 p-8 text-center">找不到符合條件的分析資料。</p>`;
+                } else {
+                    // Ensure canvas is there before rendering
+                    dom.chartModal.querySelector('#chart-modal-content').innerHTML = `<canvas id="analysis-chart"></canvas>`;
+                    const newCanvas = document.getElementById('analysis-chart');
+                    renderAnalysisChart(analysisResult, newCanvas);
+                }
 
             } catch(error) {
                 console.error("數據分析失敗:", error);
-                dom.chartModal.querySelector('#chart-modal-content').innerHTML = `<p class="text-red-400">數據分析失敗: ${error.message}</p>`;
+                dom.chartModal.querySelector('#chart-modal-content').innerHTML = `<p class="text-red-400 p-8 text-center">數據分析失敗: ${error.message}</p>`;
             }
         }
 
-        function renderAnalysisChart(data) {
+        function renderAnalysisChart(data, canvasElement) {
             if (analysisChartInstance) {
                 analysisChartInstance.destroy();
             }
@@ -532,7 +564,7 @@
             const labels = data.map(item => item.行政區);
             const prices = data.map(item => item.平均單價);
 
-            analysisChartInstance = new Chart(dom.chartCanvas, {
+            analysisChartInstance = new Chart(canvasElement, {
                 type: 'bar',
                 data: {
                     labels: labels,
@@ -541,7 +573,8 @@
                         data: prices,
                         backgroundColor: 'rgba(6, 182, 212, 0.6)',
                         borderColor: 'rgba(6, 182, 212, 1)',
-                        borderWidth: 1
+                        borderWidth: 1,
+                        borderRadius: 4,
                     }]
                 },
                 options: {
@@ -550,19 +583,28 @@
                     scales: {
                         y: {
                             beginAtZero: true,
-                            ticks: { color: '#9ca3af' },
+                            ticks: { color: '#9ca3af', font: { size: 12 } },
                             grid: { color: 'rgba(255, 255, 255, 0.1)' }
                         },
                         x: {
-                            ticks: { color: '#9ca3af' },
-                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                            ticks: { color: '#9ca3af', font: { size: 12 } },
+                            grid: { display: false }
                         }
                     },
                     plugins: {
                         legend: {
+                            position: 'top',
                             labels: {
-                                color: '#e5e7eb'
+                                color: '#e5e7eb',
+                                font: { size: 14 }
                             }
+                        },
+                        tooltip: {
+                            backgroundColor: '#1f2937',
+                            titleColor: '#e5e7eb',
+                            bodyColor: '#d1d5db',
+                            padding: 10,
+                            cornerRadius: 6,
                         }
                     }
                 }
@@ -789,7 +831,9 @@
             }
         }
         
+        // Initialize the application
         initialize();
+        dom.analyzeBtn.disabled = true; // Initially disable analyze button
     </script>
 </body>
 </html>
