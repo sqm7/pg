@@ -60,6 +60,7 @@ thead th { background-color: #252836; position: sticky; top: 0; z-index: 10; fon
 .sortable-th .sort-icon { display: inline-block; margin-left: 0.5rem; color: #6b7280; transition: all 0.2s; }
 .sortable-th.asc .sort-icon { transform: rotate(180deg); color: #06b6d4; }
 .sortable-th.desc .sort-icon { color: #06b6d4; }
+.report-section-title { font-size: 1.25rem; font-weight: 600; color: #e5e7eb; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid #374151;}
 </style>
 </head>
 <body class="p-4 md:p-8">
@@ -102,6 +103,7 @@ thead th { background-color: #252836; position: sticky; top: 0; z-index: 10; fon
         <nav class="flex -mb-px">
           <button data-tab="ranking-report" class="tab-button active">核心指標與排名</button>
           <button data-tab="price-band-report" class="tab-button">總價帶分析</button>
+          <button data-tab="unit-price-report" class="tab-button">房屋單價分析</button>
           <button data-tab="data-list" class="tab-button">資料列表</button>
         </nav>
       </div>
@@ -111,8 +113,21 @@ thead th { background-color: #252836; position: sticky; top: 0; z-index: 10; fon
       <!-- 核心指標與排名報表 -->
       <div id="ranking-report-content" class="tab-content"><div id="metric-cards-container" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-8"></div><div class="overflow-x-auto"><table id="ranking-table" class="min-w-full divide-y divide-gray-800"></table></div></div>
       
-      <!-- 【新增】總價帶分析報表 -->
+      <!-- 總價帶分析報表 -->
       <div id="price-band-report-content" class="tab-content"><div class="overflow-x-auto"><table id="price-band-table" class="min-w-full divide-y divide-gray-800"></table></div></div>
+
+      <!-- 【新增】房屋單價分析報表 -->
+      <div id="unit-price-report-content" class="tab-content">
+        <div class="mb-8">
+            <h3 class="report-section-title">住宅單價統計 (住宅大樓/華廈)</h3>
+            <div id="residential-stats-table-container" class="overflow-x-auto"></div>
+            <div id="residential-stats-extra-info" class="text-sm text-gray-400 mt-4 space-y-1"></div>
+        </div>
+        <div>
+            <h3 class="report-section-title">建案類型比較 (店舖/事務所 vs. 住宅)</h3>
+            <div id="type-comparison-table-container" class="overflow-x-auto"></div>
+        </div>
+      </div>
 
       <!-- 資料列表 -->
       <div id="data-list-content" class="tab-content"><div id="table-container" class="table-container overflow-x-auto"><table id="results-table" class="min-w-full divide-y divide-gray-800"></table></div><div id="pagination-controls" class="flex justify-between items-center mt-4 text-sm text-gray-400"></div></div>
@@ -147,8 +162,12 @@ const dom = {
   rankingReportContent: document.getElementById('ranking-report-content'),
   metricCardsContainer: document.getElementById('metric-cards-container'),
   rankingTable: document.getElementById('ranking-table'),
-  priceBandReportContent: document.getElementById('price-band-report-content'), // 新增
-  priceBandTable: document.getElementById('price-band-table'), // 新增
+  priceBandReportContent: document.getElementById('price-band-report-content'),
+  priceBandTable: document.getElementById('price-band-table'),
+  unitPriceReportContent: document.getElementById('unit-price-report-content'),
+  residentialStatsTableContainer: document.getElementById('residential-stats-table-container'),
+  residentialStatsExtraInfo: document.getElementById('residential-stats-extra-info'),
+  typeComparisonTableContainer: document.getElementById('type-comparison-table-container'),
   // 資料列表
   dataListContent: document.getElementById('data-list-content'),
   resultsTable: document.getElementById('results-table'),
@@ -168,7 +187,7 @@ const dom = {
 // State variables
 let currentPage = 1, pageSize = 30, totalRecords = 0;
 let selectedProjects = [], suggestionDebounceTimer;
-let analysisDataCache = null; // 【變更】通用分析資料快取
+let analysisDataCache = null;
 let currentSort = { key: 'saleAmountSum', order: 'desc' };
 
 // Data
@@ -232,7 +251,7 @@ function showLoading(message) {
     dom.messageArea.innerHTML = `<div class="loader mx-auto"></div><p class="mt-4">${message}</p>`;
     dom.messageArea.classList.remove('hidden');
     dom.tabsContainer.classList.add('hidden');
-    ['ranking-report-content', 'price-band-report-content', 'data-list-content'].forEach(id => document.getElementById(id).classList.remove('active'));
+    ['ranking-report-content', 'price-band-report-content', 'unit-price-report-content', 'data-list-content'].forEach(id => document.getElementById(id).classList.remove('active'));
 }
 
 function showMessage(message, isError = false) {
@@ -289,7 +308,8 @@ async function analyzeData() {
     currentSort = { key: 'saleAmountSum', order: 'desc' };
     
     renderRankingReport();
-    renderPriceBandReport(); // 【新增】渲染總價帶報表
+    renderPriceBandReport();
+    renderUnitPriceReport(); // 【新增】
     
     switchTab('ranking-report');
   } catch(error) {
@@ -369,42 +389,78 @@ function renderRankingReport() {
     dom.rankingTable.innerHTML = headerHtml + bodyHtml + footerHtml;
 }
 
-// 【新增】總價帶報表渲染函式
 function renderPriceBandReport() {
     if (!analysisDataCache || !analysisDataCache.priceBandAnalysis) return;
     const { priceBandAnalysis } = analysisDataCache;
-
-    // 依房數、衛浴數排序
     priceBandAnalysis.sort((a, b) => {
         if (a.rooms !== b.rooms) return a.rooms - b.rooms;
         return a.bathrooms - b.bathrooms;
     });
-
     const tableHeaders = ['房數', '衛浴數', '筆數', '平均房屋總價', '最低房屋總價', '1/4分位房屋總價', '中位數房屋總價', '3/4分位房屋總價', '最高房屋總價'];
-    let headerHtml = '<thead><tr>';
-    tableHeaders.forEach(h => headerHtml += `<th>${h}</th>`);
-    headerHtml += '</tr></thead>';
-
+    let headerHtml = '<thead><tr>' + tableHeaders.map(h => `<th>${h}</th>`).join('') + '</tr></thead>';
     let bodyHtml = '<tbody>';
     priceBandAnalysis.forEach(item => {
         bodyHtml += `<tr class="hover:bg-dark-card transition-colors">
-            <td>${item.rooms}</td>
-            <td>${item.bathrooms}</td>
-            <td>${item.count.toLocaleString()}</td>
-            <td>${formatNumber(item.avgPrice, 0)}</td>
-            <td>${formatNumber(item.minPrice, 0)}</td>
-            <td>${formatNumber(item.q1Price, 0)}</td>
-            <td>${formatNumber(item.medianPrice, 0)}</td>
-            <td>${formatNumber(item.q3Price, 0)}</td>
-            <td>${formatNumber(item.maxPrice, 0)}</td>
+            <td>${item.rooms}</td><td>${item.bathrooms}</td><td>${item.count.toLocaleString()}</td>
+            <td>${formatNumber(item.avgPrice, 0)}</td><td>${formatNumber(item.minPrice, 0)}</td>
+            <td>${formatNumber(item.q1Price, 0)}</td><td>${formatNumber(item.medianPrice, 0)}</td>
+            <td>${formatNumber(item.q3Price, 0)}</td><td>${formatNumber(item.maxPrice, 0)}</td>
         </tr>`;
     });
     bodyHtml += '</tbody>';
-
     dom.priceBandTable.innerHTML = headerHtml + bodyHtml;
 }
 
-// ... 此處省略其他未修改的函式 (renderTable, renderPagination, showSubTableDetails, etc.)
+// 【新增】房屋單價分析渲染函式
+function renderUnitPriceReport() {
+    if (!analysisDataCache || !analysisDataCache.unitPriceAnalysis) return;
+    const { residentialStats, typeComparison } = analysisDataCache.unitPriceAnalysis;
+
+    // 渲染住宅單價統計表格
+    const statsContainer = dom.residentialStatsTableContainer;
+    if (residentialStats) {
+        statsContainer.innerHTML = `<table class="min-w-full divide-y divide-gray-800">
+            <thead><tr><th class="w-1/2">統計項目</th><th class="w-1/2">房屋單價 (萬/坪)</th></tr></thead>
+            <tbody>
+                <tr class="hover:bg-dark-card"><td class="font-medium text-gray-300">平均單價</td><td>${formatNumber(residentialStats.avgPrice)}</td></tr>
+                <tr class="hover:bg-dark-card"><td class="font-medium text-gray-300">最低單價</td><td>${formatNumber(residentialStats.minPrice)}</td></tr>
+                <tr class="hover:bg-dark-card"><td class="font-medium text-gray-300">1/4分位數單價</td><td>${formatNumber(residentialStats.q1Price)}</td></tr>
+                <tr class="hover:bg-dark-card"><td class="font-medium text-gray-300">中位數單價</td><td>${formatNumber(residentialStats.medianPrice)}</td></tr>
+                <tr class="hover:bg-dark-card"><td class="font-medium text-gray-300">3/4分位數單價</td><td>${formatNumber(residentialStats.q3Price)}</td></tr>
+                <tr class="hover:bg-dark-card"><td class="font-medium text-gray-300">最高單價</td><td>${formatNumber(residentialStats.maxPrice)}</td></tr>
+            </tbody></table>`;
+        dom.residentialStatsExtraInfo.innerHTML = `
+            <p><span class="font-semibold text-cyan-400">最低房屋單價建案：</span>${residentialStats.minPriceProject || 'N/A'}</p>
+            <p><span class="font-semibold text-purple-400">最高房屋單價建案：</span>${residentialStats.maxPriceProject || 'N/A'}</p>`;
+    } else {
+        statsContainer.innerHTML = '<p class="text-gray-500">無符合條件的住宅交易資料可供分析。</p>';
+        dom.residentialStatsExtraInfo.innerHTML = '';
+    }
+
+    // 渲染建案類型比較表格
+    const comparisonContainer = dom.typeComparisonTableContainer;
+    if (typeComparison && typeComparison.length > 0) {
+        let comparisonHtml = `<table class="min-w-full divide-y divide-gray-800">
+            <thead><tr><th>建案名稱</th><th>住宅均價(萬/坪)</th><th>店舖均價(萬/坪)</th><th>店舖對住宅倍數</th><th>事務所均價(萬/坪)</th><th>事務所對住宅倍數</th></tr></thead>
+            <tbody>`;
+        typeComparison.forEach(item => {
+            comparisonHtml += `<tr class="hover:bg-dark-card">
+                <td>${item.projectName}</td>
+                <td>${formatNumber(item.residentialAvg)}</td>
+                <td>${item.shopAvg > 0 ? formatNumber(item.shopAvg) : '-'}</td>
+                <td>${item.shopMultiple > 0 ? `${formatNumber(item.shopMultiple)} 倍` : '-'}</td>
+                <td>${item.officeAvg > 0 ? formatNumber(item.officeAvg) : '-'}</td>
+                <td>${item.officeMultiple > 0 ? `${formatNumber(item.officeMultiple)} 倍` : '-'}</td>
+            </tr>`;
+        });
+        comparisonHtml += `</tbody></table>`;
+        comparisonContainer.innerHTML = comparisonHtml;
+    } else {
+        comparisonContainer.innerHTML = '<p class="text-gray-500">無符合條件的建案可進行類型比較。</p>';
+    }
+}
+
+// ... 此處省略其他未修改的函式 ...
 function renderTable(data){if(!data||data.length===0)return;const isPresale=data[0]['交易類型']==='預售交易';const hiddenColumns=['編號','縣市代碼','交易類型','戶型'];const headers=Object.keys(data[0]);const headerRow=document.createElement('tr');headerRow.innerHTML='<th>操作</th>';headers.forEach(headerText=>{if(!hiddenColumns.includes(headerText)){const th=document.createElement('th');th.textContent=headerText;headerRow.appendChild(th);if(isPresale&&headerText==='戶別'){const newTh=document.createElement('th');newTh.textContent='戶型';headerRow.appendChild(newTh)}}});const thead=document.createElement('thead');thead.appendChild(headerRow);const tbody=document.createElement('tbody');data.forEach(row=>{const tr=document.createElement('tr');tr.className='hover:bg-dark-card transition-colors';tr.innerHTML=`<td><button class="details-btn bg-purple-600 hover:bg-purple-500 text-white text-xs px-3 py-1 rounded-md" data-id="${row['編號']}" data-type="${row['交易類型']}" data-county="${row['縣市代碼']}">附表</button></td>`;headers.forEach(header=>{if(!hiddenColumns.includes(header)){const td=document.createElement('td');let value=row[header];if(header==='地址'||header==='備註'){td.innerHTML=`<div class="scrollable-cell">${value??"-"}</div>`}else{td.textContent=(typeof value==='number'&&!Number.isInteger(value))?formatNumber(value):(value??"-")}tr.appendChild(td);if(isPresale&&header==='戶別'){const unitTypeTd=document.createElement('td');unitTypeTd.textContent=row['戶型']||'-';tr.appendChild(unitTypeTd)}}});tbody.appendChild(tr)});dom.resultsTable.innerHTML='';dom.resultsTable.append(thead,tbody)}
 function renderPagination(){dom.paginationControls.innerHTML='';if(totalRecords===0&&currentPage===1){dom.paginationControls.innerHTML=`<span>共 0 筆資料</span>`;return}const totalPages=Math.ceil(totalRecords/pageSize);dom.paginationControls.innerHTML=`<div>共 ${totalRecords} 筆資料</div><div class="flex items-center space-x-2"><button id="prev-page" class="bg-gray-700 hover:bg-cyan-600 text-white font-bold py-2 px-4 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors">上一頁</button><span class="px-4">第 ${currentPage} / ${totalPages>0?totalPages:1} 頁</span><button id="next-page" class="bg-gray-700 hover:bg-cyan-600 text-white font-bold py-2 px-4 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors">下一頁</button></div>`;const prevBtn=document.getElementById('prev-page');const nextBtn=document.getElementById('next-page');prevBtn.disabled=currentPage===1;nextBtn.disabled=currentPage>=totalPages;prevBtn.onclick=()=>{currentPage--;fetchData()};nextBtn.onclick=()=>{currentPage++;fetchData()}}
 async function showSubTableDetails(btn){const{id,type,county}=btn.dataset;dom.modalTitle.textContent=`附表詳細資料 (編號: ${id})`;dom.modalContent.innerHTML='<div class="loader mx-auto"></div>';dom.modal.classList.remove('hidden');try{if(!id||!type||!county||county==='undefined'){throw new Error(`前端參數不足，無法查詢附表。 (編號: ${id}, 類型: ${type}, 縣市: ${county})`)}const response=await fetch(SUB_DATA_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4Ym1iYmZyemJ0dXVleXNpY29jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA2ODg5ODksImV4cCI6MjA2NjI2NDk4OX0.1IUynv5eK1xF_3pb-oasqaTrPvbeAOC4Sc1oykPBy4M'},body:JSON.stringify({id,type,county})});if(!response.ok){const errorResult=await response.json().catch(()=>({error:'無法從伺服器獲取附表資料'}));throw new Error(errorResult.error)}const result=await response.json();let contentHTML='<div class="space-y-6">';if(type!=='預售交易')contentHTML+=renderSubTable('建物資料',result.build);contentHTML+=renderSubTable('土地資料',result.land);contentHTML+=renderSubTable('車位資料',result.park);contentHTML=(contentHTML==='<div class="space-y-6">')?'<p>此筆紀錄沒有對應的附表資料。</p>':contentHTML+'</div>';dom.modalContent.innerHTML=contentHTML}catch(error){dom.modalContent.innerHTML=`<p class="text-red-400">查詢失敗: ${error.message}</p>`}}
