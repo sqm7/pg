@@ -61,8 +61,6 @@ thead th { background-color: #252836; position: sticky; top: 0; z-index: 10; fon
 .sortable-th.asc .sort-icon { transform: rotate(180deg); color: #06b6d4; }
 .sortable-th.desc .sort-icon { color: #06b6d4; }
 .report-section-title { font-size: 1.25rem; font-weight: 600; color: #e5e7eb; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid #374151;}
-.avg-type-btn { color: #9ca3af; }
-.avg-type-btn.active { background-color: #06b6d4; color: #ffffff; }
 </style>
 </head>
 <body class="p-4 md:p-8">
@@ -75,6 +73,7 @@ thead th { background-color: #252836; position: sticky; top: 0; z-index: 10; fon
 
   <main>
     <div class="glass-card p-6 rounded-xl shadow-lg mb-8">
+      <!-- 篩選表單 -->
       <div id="filter-form" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4 items-end">
         <div><label for="county" class="block text-sm font-medium text-gray-300">縣市</label><select id="county" class="form-select mt-1 block w-full pl-3 pr-10 py-2 text-base rounded-md"><option value="">請選擇縣市</option></select></div>
         <div><label for="district" class="block text-sm font-medium text-gray-300">行政區</label><select id="district" class="form-select mt-1 block w-full pl-3 pr-10 py-2 text-base rounded-md" disabled><option value="">請先選縣市</option></select></div>
@@ -99,6 +98,7 @@ thead th { background-color: #252836; position: sticky; top: 0; z-index: 10; fon
     </div>
     
     <div id="results-container" class="glass-card p-6 rounded-xl shadow-lg">
+      <!-- 【變更】頁籤導覽 -->
       <div id="tabs-container" class="border-b border-gray-700 mb-6 hidden">
         <nav class="flex -mb-px">
           <button data-tab="ranking-report" class="tab-button active">核心指標與排名</button>
@@ -110,20 +110,14 @@ thead th { background-color: #252836; position: sticky; top: 0; z-index: 10; fon
 
       <div id="message-area" class="text-center p-8 text-gray-400">請設定篩選條件後點擊查詢或分析。</div>
 
+      <!-- 核心指標與排名報表 -->
       <div id="ranking-report-content" class="tab-content"><div id="metric-cards-container" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-8"></div><div class="overflow-x-auto"><table id="ranking-table" class="min-w-full divide-y divide-gray-800"></table></div></div>
       
+      <!-- 總價帶分析報表 -->
       <div id="price-band-report-content" class="tab-content"><div class="overflow-x-auto"><table id="price-band-table" class="min-w-full divide-y divide-gray-800"></table></div></div>
 
+      <!-- 【新增】房屋單價分析報表 -->
       <div id="unit-price-report-content" class="tab-content">
-        
-        <div class="flex justify-end items-center mb-4">
-            <label class="text-sm font-medium text-gray-400 mr-3">平均數類型:</label>
-            <div id="avg-type-toggle" class="inline-flex bg-dark-card p-1 rounded-lg">
-                <button data-type="arithmetic" class="avg-type-btn active px-4 py-1 text-sm font-semibold rounded-md transition-colors">算術平均數</button>
-                <button data-type="weighted" class="avg-type-btn px-4 py-1 text-sm font-semibold rounded-md transition-colors">加權平均數</button>
-            </div>
-        </div>
-
         <div class="mb-8">
             <h3 class="report-section-title">住宅單價統計 (住宅大樓/華廈)</h3>
             <div id="residential-stats-table-container" class="overflow-x-auto"></div>
@@ -133,19 +127,15 @@ thead th { background-color: #252836; position: sticky; top: 0; z-index: 10; fon
             <h3 class="report-section-title">建案類型比較 (店舖/事務所 vs. 住宅)</h3>
             <div id="type-comparison-table-container" class="overflow-x-auto"></div>
         </div>
-        
-        <div id="average-type-explanation" class="mt-8 p-4 bg-dark-card border border-gray-700 rounded-lg text-sm text-gray-400 space-y-3">
-            <h4 class="font-bold text-gray-200">名詞解釋</h4>
-            <p><strong class="text-cyan-400">算術平均數 (Arithmetic Mean):</strong> 將每一筆交易的單價直接相加後，除以總筆數。它能反映「一筆典型交易」的單價，不受房屋坪數大小影響，適合了解普遍行情。</p>
-            <p><strong class="text-purple-400">加權平均數 (Weighted Average):</strong> 以「總房屋總價 ÷ 總房屋面積」計算。坪數越大的交易，對平均價格的影響力就越大。它更能反映市場的「整體價值」與資金結構。</p>
-        </div>
       </div>
 
+      <!-- 資料列表 -->
       <div id="data-list-content" class="tab-content"><div id="table-container" class="table-container overflow-x-auto"><table id="results-table" class="min-w-full divide-y divide-gray-800"></table></div><div id="pagination-controls" class="flex justify-between items-center mt-4 text-sm text-gray-400"></div></div>
     </div>
   </main>
 </div>
 
+<!-- 詳細資料 Modal -->
 <div id="details-modal" class="modal-overlay hidden"><div class="modal-container"><div class="flex justify-between items-center mb-6"><h2 id="modal-title" class="text-2xl font-bold text-white">附表詳細資料</h2><button id="modal-close-btn" class="text-gray-400 hover:text-white text-3xl font-bold">&times;</button></div><div id="modal-content" class="text-gray-300"></div></div></div>
 
 <script type="module">
@@ -154,6 +144,7 @@ const EDGE_FUNCTION_ENDPOINT = 'https://zxbmbbfrzbtuueysicoc.supabase.co/functio
 const SUB_DATA_ENDPOINT = 'https://zxbmbbfrzbtuueysicoc.supabase.co/functions/v1/query-sub-data';
 const PROJECT_NAMES_ENDPOINT = 'https://zxbmbbfrzbtuueysicoc.supabase.co/functions/v1/query-names';
 const RANKING_ANALYSIS_ENDPOINT = 'https://zxbmbbfrzbtuueysicoc.supabase.co/functions/v1/analyze-project-ranking';
+
 // DOM Elements
 const dom = {
   countySelect: document.getElementById('county'),
@@ -191,15 +182,17 @@ const dom = {
   projectNameInput: document.getElementById('project-name-input'),
   projectNameSuggestions: document.getElementById('project-name-suggestions'),
   clearProjectsBtn: document.getElementById('clear-projects-btn'),
-  // 平均數切換
-  avgTypeToggle: document.getElementById('avg-type-toggle'),
 };
+
 // State variables
 let currentPage = 1, pageSize = 30, totalRecords = 0;
 let selectedProjects = [], suggestionDebounceTimer;
 let analysisDataCache = null;
 let currentSort = { key: 'saleAmountSum', order: 'desc' };
-let currentAverageType = 'arithmetic';
+
+// Data
+const districtData = {"臺北市":["中正區","大同區","中山區","松山區","大安區","萬華區","信義區","士林區","北投區","內湖區","南港區","文山區"],"新北市":["板橋區","三重區","中和區","永和區","新莊區","新店區","樹林區","鶯歌區","三峽區","淡水區","汐止區","瑞芳區","土城區","蘆洲區","五股區","泰山區","林口區","深坑區","石碇區","坪林區","三芝區","石門區","八里區","平溪區","雙溪區","貢寮區","金山區","萬里區","烏來區"],"桃園市":["桃園區","中壢區","大溪區","楊梅區","蘆竹區","大園區","龜山區","八德區","龍潭區","平鎮區","新屋區","觀音區","復興區"],"臺中市":["中區","東區","南區","西區","北區","北屯區","西屯區","南屯區","太平區","大里區","霧峰區","烏日區","豐原區","后里區","石岡區","東勢區","和平區","新社區","潭子區","大雅區","神岡區","大肚區","沙鹿區","龍井區","梧棲區","清水區","大甲區","外埔區","大安區"],"臺南市":["中西區","東區","南區","北區","安平區","安南區","永康區","歸仁區","新化區","左鎮區","玉井區","楠西區","南化區","仁德區","關廟區","龍崎區","官田區","麻豆區","佳里區","西港區","七股區","將軍區","學甲區","北門區","新營區","後壁區","白河區","東山區","六甲區","下營區","柳營區","鹽水區","善化區","大內區","山上區","新市區","安定區"],"高雄市":["新興區","前金區","苓雅區","鹽埕區","鼓山區","旗津區","前鎮區","三民區","楠梓區","小港區","左營區","仁武區","大社區","岡山區","路竹區","阿蓮區","田寮區","燕巢區","橋頭區","梓官區","彌陀區","永安區","湖內區","鳳山區","大寮區","林園區","鳥松區","大樹區","旗山區","美濃區","六龜區","內門區","杉林區","甲仙區","桃源區","那瑪夏區","茂林區","茄萣區"],"基隆市":["仁愛區","信義區","中正區","中山區","安樂區","暖暖區","七堵區"],"新竹市":["東區","北區","香山區"],"嘉義市":["東區","西區"],"宜蘭縣":["宜蘭市","羅東鎮","蘇澳鎮","頭城鎮","礁溪鄉","壯圍鄉","員山鄉","冬山鄉","五結鄉","三星鄉","大同鄉","南澳鄉"],"新竹縣":["竹北市","竹東鎮","新埔鎮","關西鎮","湖口鄉","新豐鄉","芎林鄉","橫山鄉","北埔鄉","寶山鄉","峨眉鄉","尖石鄉","五峰鄉"],"苗栗縣":["苗栗市","苑裡鎮","通霄鎮","竹南鎮","頭份鎮","後龍鎮","卓蘭鎮","大湖鄉","公館鄉","銅鑼鄉","南庄鄉","頭屋鄉","三義鄉","西湖鄉","造橋鄉","三灣鄉","獅潭鄉","泰安鄉"],"彰化縣":["彰化市","鹿港鎮","和美鎮","線西鄉","伸港鄉","福興鄉","秀水鄉","花壇鄉","芬園鄉","員林鎮","溪湖鎮","田中鎮","大村鄉","埔鹽鄉","埔心鄉","永靖鄉","社頭鄉","二水鄉","北斗鎮","二林鎮","田尾鄉","埤頭鄉","芳苑鄉","大城鄉","竹塘鄉","溪州鄉"],"南投縣":["南投市","埔里鎮","草屯鎮","竹山鎮","集集鎮","名間鄉","鹿谷鄉","中寮鄉","魚池鄉","國姓鄉","水里鄉","信義鄉","仁愛鄉"],"雲林縣":["斗六市","斗南鎮","虎尾鎮","西螺鎮","土庫鎮","北港鎮","古坑鄉","大埤鄉","莿桐鄉","林內鄉","二崙鄉","崙背鄉","麥寮鄉","東勢鄉","褒忠鄉","台西鄉","元長鄉","四湖鄉","口湖鄉","水林鄉"],"嘉義縣":["太保市","朴子市","布袋鎮","大林鎮","民雄鄉","溪口鄉","新港鄉","六腳鄉","東石鄉","義竹鄉","鹿草鄉","水上鄉","中埔鄉","竹崎鄉","梅山鄉","番路鄉","大埔鄉","阿里山鄉"],"屏東縣":["屏東市","潮州鎮","東港鎮","恆春鎮","萬丹鄉","長治鄉","麟洛鄉","九如鄉","里港鄉","鹽埔鄉","高樹鄉","萬巒鄉","內埔鄉","竹田鄉","新埤鄉","枋寮鄉","新園鄉","崁頂鄉","林邊鄉","南州鄉","佳冬鄉","琉球鄉","車城鄉","滿州鄉","枋山鄉","霧台鄉","瑪家鄉","泰武鄉","來義鄉","春日鄉","獅子鄉","牡丹鄉","三地門鄉"],"花蓮縣":["花蓮市","鳳林鎮","玉里鎮","新城鄉","吉安鄉","壽豐鄉","光復鄉","豐濱鄉","瑞穗鄉","富里鄉","秀林鄉","萬榮鄉","卓溪鄉"],"臺東縣":["臺東市","成功鎮","關山鎮","卑南鄉","鹿野鄉","池上鄉","東河鄉","長濱鄉","太麻里鄉","大武鄉","綠島鄉","海端鄉","延平鄉","金峰鄉","達仁鄉","蘭嶼鄉"],"澎-湖縣":["馬公市","湖西鄉","白沙鄉","西嶼鄉","望安鄉","七美鄉"],"金門縣":["金城鎮","金湖鎮","金沙鎮","金寧鄉","烈嶼鄉","烏坵鄉"],"連江縣":["南竿鄉","北竿鄉","莒光鄉","東引鄉"]};
+const countyCodeMap = { "臺北市": "A", "新北市": "F", "桃園市": "H", "臺中市": "B", "臺南市": "D", "高雄市": "E", "基隆市": "C", "新竹市": "O", "嘉義市": "I", "新竹縣": "J", "苗栗縣": "K", "彰化縣": "N", "南投縣": "M", "雲林縣": "P", "嘉義縣": "Q", "屏東縣": "T", "宜蘭縣": "G", "花蓮縣": "U", "臺東縣": "V", "澎湖縣": "X", "金門縣": "W", "連江縣": "Z" };
 
 // --- Event Listeners & Initializers ---
 function initialize() {
@@ -219,7 +212,6 @@ function initialize() {
   document.addEventListener('click', e => { if (!dom.projectNameContainer.parentElement.contains(e.target)) dom.projectNameSuggestions.classList.add('hidden'); });
   dom.clearProjectsBtn.addEventListener('click', clearSelectedProjects);
   dom.tabsContainer.addEventListener('click', e => { if (e.target.matches('.tab-button')) switchTab(e.target.dataset.tab); });
-  
   dom.rankingTable.addEventListener('click', e => {
     const header = e.target.closest('.sortable-th');
     if (!header) return;
@@ -232,27 +224,7 @@ function initialize() {
     }
     renderRankingReport();
   });
-
-  dom.avgTypeToggle.addEventListener('click', (e) => {
-    if (e.target.matches('.avg-type-btn')) {
-      const type = e.target.dataset.type;
-      switchAverageType(type);
-    }
-  });
-
   toggleAnalyzeButtonState();
-}
-
-function switchAverageType(type) {
-    if (currentAverageType === type || !type) return;
-    currentAverageType = type;
-    
-    dom.avgTypeToggle.querySelector('.avg-type-btn.active').classList.remove('active');
-    dom.avgTypeToggle.querySelector(`.avg-type-btn[data-type="${type}"]`).classList.add('active');
-
-    if (analysisDataCache) {
-        renderUnitPriceReport();
-    }
 }
 
 // --- UI & State Management ---
@@ -337,7 +309,7 @@ async function analyzeData() {
     
     renderRankingReport();
     renderPriceBandReport();
-    renderUnitPriceReport();
+    renderUnitPriceReport(); // 【新增】
     
     switchTab('ranking-report');
   } catch(error) {
@@ -439,27 +411,24 @@ function renderPriceBandReport() {
     dom.priceBandTable.innerHTML = headerHtml + bodyHtml;
 }
 
-// 【修正】房屋單價分析渲染函式
+// 【新增】房屋單價分析渲染函式
 function renderUnitPriceReport() {
     if (!analysisDataCache || !analysisDataCache.unitPriceAnalysis) return;
     const { residentialStats, typeComparison } = analysisDataCache.unitPriceAnalysis;
 
     // 渲染住宅單價統計表格
     const statsContainer = dom.residentialStatsTableContainer;
-    if (residentialStats && residentialStats.avgPrice) {
-        const avgPriceToShow = residentialStats.avgPrice[currentAverageType];
-        
+    if (residentialStats) {
         statsContainer.innerHTML = `<table class="min-w-full divide-y divide-gray-800">
             <thead><tr><th class="w-1/2">統計項目</th><th class="w-1/2">房屋單價 (萬/坪)</th></tr></thead>
             <tbody>
-                <tr class="hover:bg-dark-card"><td class="font-medium text-gray-300">平均單價</td><td>${formatNumber(avgPriceToShow)}</td></tr>
+                <tr class="hover:bg-dark-card"><td class="font-medium text-gray-300">平均單價</td><td>${formatNumber(residentialStats.avgPrice)}</td></tr>
                 <tr class="hover:bg-dark-card"><td class="font-medium text-gray-300">最低單價</td><td>${formatNumber(residentialStats.minPrice)}</td></tr>
                 <tr class="hover:bg-dark-card"><td class="font-medium text-gray-300">1/4分位數單價</td><td>${formatNumber(residentialStats.q1Price)}</td></tr>
                 <tr class="hover:bg-dark-card"><td class="font-medium text-gray-300">中位數單價</td><td>${formatNumber(residentialStats.medianPrice)}</td></tr>
                 <tr class="hover:bg-dark-card"><td class="font-medium text-gray-300">3/4分位數單價</td><td>${formatNumber(residentialStats.q3Price)}</td></tr>
                 <tr class="hover:bg-dark-card"><td class="font-medium text-gray-300">最高單價</td><td>${formatNumber(residentialStats.maxPrice)}</td></tr>
             </tbody></table>`;
-        
         dom.residentialStatsExtraInfo.innerHTML = `
             <p><span class="font-semibold text-cyan-400">最低房屋單價建案：</span>${residentialStats.minPriceProject || 'N/A'}</p>
             <p><span class="font-semibold text-purple-400">最高房屋單價建案：</span>${residentialStats.maxPriceProject || 'N/A'}</p>`;
@@ -475,17 +444,13 @@ function renderUnitPriceReport() {
             <thead><tr><th>建案名稱</th><th>住宅均價(萬/坪)</th><th>店舖均價(萬/坪)</th><th>店舖對住宅倍數</th><th>事務所均價(萬/坪)</th><th>事務所對住宅倍數</th></tr></thead>
             <tbody>`;
         typeComparison.forEach(item => {
-            const residentialAvgToShow = (item.residentialAvg && typeof item.residentialAvg === 'object') ? item.residentialAvg[currentAverageType] : 0;
-            const shopAvgToShow = (item.shopAvg && typeof item.shopAvg === 'object') ? item.shopAvg[currentAverageType] : 0;
-            const officeAvgToShow = (item.officeAvg && typeof item.officeAvg === 'object') ? item.officeAvg[currentAverageType] : 0;
-
             comparisonHtml += `<tr class="hover:bg-dark-card">
                 <td>${item.projectName}</td>
-                <td>${residentialAvgToShow > 0 ? formatNumber(residentialAvgToShow) : '-'}</td>
-                <td>${shopAvgToShow > 0 ? formatNumber(shopAvgToShow) : '-'}</td>
-                <td>${item.shopMultiple > 0 ? formatNumber(item.shopMultiple) + ' 倍' : '-'}</td>
-                <td>${officeAvgToShow > 0 ? formatNumber(officeAvgToShow) : '-'}</td>
-                <td>${item.officeMultiple > 0 ? formatNumber(item.officeMultiple) + ' 倍' : '-'}</td>
+                <td>${formatNumber(item.residentialAvg)}</td>
+                <td>${item.shopAvg > 0 ? formatNumber(item.shopAvg) : '-'}</td>
+                <td>${item.shopMultiple > 0 ? `${formatNumber(item.shopMultiple)} 倍` : '-'}</td>
+                <td>${item.officeAvg > 0 ? formatNumber(item.officeAvg) : '-'}</td>
+                <td>${item.officeMultiple > 0 ? `${formatNumber(item.officeMultiple)} 倍` : '-'}</td>
             </tr>`;
         });
         comparisonHtml += `</tbody></table>`;
@@ -495,6 +460,7 @@ function renderUnitPriceReport() {
     }
 }
 
+// ... 此處省略其他未修改的函式 ...
 function renderTable(data){if(!data||data.length===0)return;const isPresale=data[0]['交易類型']==='預售交易';const hiddenColumns=['編號','縣市代碼','交易類型','戶型'];const headers=Object.keys(data[0]);const headerRow=document.createElement('tr');headerRow.innerHTML='<th>操作</th>';headers.forEach(headerText=>{if(!hiddenColumns.includes(headerText)){const th=document.createElement('th');th.textContent=headerText;headerRow.appendChild(th);if(isPresale&&headerText==='戶別'){const newTh=document.createElement('th');newTh.textContent='戶型';headerRow.appendChild(newTh)}}});const thead=document.createElement('thead');thead.appendChild(headerRow);const tbody=document.createElement('tbody');data.forEach(row=>{const tr=document.createElement('tr');tr.className='hover:bg-dark-card transition-colors';tr.innerHTML=`<td><button class="details-btn bg-purple-600 hover:bg-purple-500 text-white text-xs px-3 py-1 rounded-md" data-id="${row['編號']}" data-type="${row['交易類型']}" data-county="${row['縣市代碼']}">附表</button></td>`;headers.forEach(header=>{if(!hiddenColumns.includes(header)){const td=document.createElement('td');let value=row[header];if(header==='地址'||header==='備註'){td.innerHTML=`<div class="scrollable-cell">${value??"-"}</div>`}else{td.textContent=(typeof value==='number'&&!Number.isInteger(value))?formatNumber(value):(value??"-")}tr.appendChild(td);if(isPresale&&header==='戶別'){const unitTypeTd=document.createElement('td');unitTypeTd.textContent=row['戶型']||'-';tr.appendChild(unitTypeTd)}}});tbody.appendChild(tr)});dom.resultsTable.innerHTML='';dom.resultsTable.append(thead,tbody)}
 function renderPagination(){dom.paginationControls.innerHTML='';if(totalRecords===0&&currentPage===1){dom.paginationControls.innerHTML=`<span>共 0 筆資料</span>`;return}const totalPages=Math.ceil(totalRecords/pageSize);dom.paginationControls.innerHTML=`<div>共 ${totalRecords} 筆資料</div><div class="flex items-center space-x-2"><button id="prev-page" class="bg-gray-700 hover:bg-cyan-600 text-white font-bold py-2 px-4 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors">上一頁</button><span class="px-4">第 ${currentPage} / ${totalPages>0?totalPages:1} 頁</span><button id="next-page" class="bg-gray-700 hover:bg-cyan-600 text-white font-bold py-2 px-4 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors">下一頁</button></div>`;const prevBtn=document.getElementById('prev-page');const nextBtn=document.getElementById('next-page');prevBtn.disabled=currentPage===1;nextBtn.disabled=currentPage>=totalPages;prevBtn.onclick=()=>{currentPage--;fetchData()};nextBtn.onclick=()=>{currentPage++;fetchData()}}
 async function showSubTableDetails(btn){const{id,type,county}=btn.dataset;dom.modalTitle.textContent=`附表詳細資料 (編號: ${id})`;dom.modalContent.innerHTML='<div class="loader mx-auto"></div>';dom.modal.classList.remove('hidden');try{if(!id||!type||!county||county==='undefined'){throw new Error(`前端參數不足，無法查詢附表。 (編號: ${id}, 類型: ${type}, 縣市: ${county})`)}const response=await fetch(SUB_DATA_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4Ym1iYmZyemJ0dXVleXNpY29jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA2ODg5ODksImV4cCI6MjA2NjI2NDk4OX0.1IUynv5eK1xF_3pb-oasqaTrPvbeAOC4Sc1oykPBy4M'},body:JSON.stringify({id,type,county})});if(!response.ok){const errorResult=await response.json().catch(()=>({error:'無法從伺服器獲取附表資料'}));throw new Error(errorResult.error)}const result=await response.json();let contentHTML='<div class="space-y-6">';if(type!=='預售交易')contentHTML+=renderSubTable('建物資料',result.build);contentHTML+=renderSubTable('土地資料',result.land);contentHTML+=renderSubTable('車位資料',result.park);contentHTML=(contentHTML==='<div class="space-y-6">')?'<p>此筆紀錄沒有對應的附表資料。</p>':contentHTML+'</div>';dom.modalContent.innerHTML=contentHTML}catch(error){dom.modalContent.innerHTML=`<p class="text-red-400">查詢失敗: ${error.message}</p>`}}
@@ -514,3 +480,4 @@ initialize();
 </script>
 </body>
 </html>
+
