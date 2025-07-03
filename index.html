@@ -233,7 +233,6 @@ function initialize() {
     renderRankingReport();
   });
 
-  // 【修正】更穩健的事件監聽
   dom.avgTypeToggle.addEventListener('click', (e) => {
     if (e.target.matches('.avg-type-btn')) {
       const type = e.target.dataset.type;
@@ -244,7 +243,6 @@ function initialize() {
   toggleAnalyzeButtonState();
 }
 
-// 【修正】更穩健的切換函式
 function switchAverageType(type) {
     if (currentAverageType === type || !type) return;
     currentAverageType = type;
@@ -485,9 +483,9 @@ function renderUnitPriceReport() {
                 <td>${item.projectName}</td>
                 <td>${residentialAvgToShow > 0 ? formatNumber(residentialAvgToShow) : '-'}</td>
                 <td>${shopAvgToShow > 0 ? formatNumber(shopAvgToShow) : '-'}</td>
-                <td>${item.shopMultiple > 0 ? `${formatNumber(item.shopMultiple)} 倍` : '-'}</td>
+                <td>${item.shopMultiple > 0 ? formatNumber(item.shopMultiple) + ' 倍' : '-'}</td>
                 <td>${officeAvgToShow > 0 ? formatNumber(officeAvgToShow) : '-'}</td>
-                <td>${item.officeMultiple > 0 ? `${formatNumber(item.officeMultiple)} 倍` : '-'}</td>
+                <td>${item.officeMultiple > 0 ? formatNumber(item.officeMultiple) + ' 倍' : '-'}</td>
             </tr>`;
         });
         comparisonHtml += `</tbody></table>`;
