@@ -1,520 +1,684 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>不動產數據查詢平台</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
-<script>
-tailwind.config = {
-  theme: {
-    extend: {
-      colors: {
-        'dark-bg': '#1a1d29',
-        'dark-card': '#252836',
-        'cyan-accent': '#06b6d4',
-        'purple-accent': '#8b5cf6',
-      }
-    }
-  }
-}
-</script>
-<style>
-body { font-family: 'Inter', 'Noto Sans TC', sans-serif; background: #1a1d29; color: #e5e7eb; }
-.glass-card { background: rgba(37, 40, 54, 0.8); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
-.form-input, .form-select { background-color: #1f2937; border: 1px solid #4b5563; color: #d1d5db; }
-.form-input:focus, .form-select:focus, .form-input:has(input:focus) { border-color: #06b6d4; box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.5); outline: none; }
-select:disabled, input:disabled { background-color: #374151; cursor: not-allowed; opacity: 0.7; }
-.table-container { overflow-y: auto; }
-table { width: 100%; border-collapse: collapse; }
-th, td { border-bottom: 1px solid #374151; padding: 0.75rem 1rem; text-align: left; font-size: 0.875rem; white-space: nowrap; }
-thead th { background-color: #252836; position: sticky; top: 0; z-index: 10; font-weight: 600; color: #9ca3af; }
-.loader { border: 4px solid #374151; border-top: 4px solid #06b6d4; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
-@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.7); display: flex; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(5px); transition: opacity 0.3s ease; }
-.modal-container { background: #252836; padding: 2rem; border-radius: 12px; width: 90%; max-width: 1200px; max-height: 85vh; overflow-y: auto; border: 1px solid #4b5563; transform: scale(0.95); transition: transform 0.3s ease; }
-.modal-overlay:not(.hidden) .modal-container { transform: scale(1); }
-.project-tag { display: inline-flex; align-items: center; background-color: #4b5563; color: #d1d5db; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.875rem; flex-shrink: 0; }
-.project-tag-remove { margin-left: 0.5rem; cursor: pointer; font-weight: bold; }
-.project-tag-remove:hover { color: #f87171; }
-#project-name-suggestions { max-height: 200px; overflow-y: auto; }
-.suggestion-item { display: flex; align-items: center; padding: 0.5rem 1rem; cursor: pointer; }
-.suggestion-item:hover, .suggestion-item.active { background-color: #374151; }
-.suggestion-item input[type="checkbox"] { margin-right: 0.75rem; height: 1rem; width: 1rem; border-radius: 0.25rem; border-color: #6b7280; background-color: #374151; color: #06b6d4; cursor: pointer; }
-.suggestion-item input[type="checkbox"]:focus { ring: #06b6d4; }
-.scrollable-cell { max-width: 25ch; overflow-x: auto; white-space: nowrap; padding-top: 4px; padding-bottom: 4px; }
-.scrollable-cell::-webkit-scrollbar, #project-name-container::-webkit-scrollbar { height: 4px; }
-.scrollable-cell::-webkit-scrollbar-track, #project-name-container::-webkit-scrollbar-track { background: transparent; }
-.scrollable-cell::-webkit-scrollbar-thumb, #project-name-container::-webkit-scrollbar-thumb { background-color: #4b5563; border-radius: 20px; }
-.tab-button { padding: 0.75rem 1.5rem; font-medium; border-bottom: 3px solid transparent; transition: all 0.3s ease; color: #9ca3af; }
-.tab-button.active { color: #06b6d4; border-bottom-color: #06b6d4; }
-.tab-content { display: none; }
-.tab-content.active { display: block; }
-.metric-card { background-color: #1f2937; padding: 1.5rem; border-radius: 0.75rem; border: 1px solid #374151; }
-.metric-card-title { font-size: 0.875rem; color: #9ca3af; margin-bottom: 0.5rem; }
-.metric-card-value { font-size: 2rem; font-weight: 700; color: #e5e7eb; }
-.metric-card-unit { font-size: 1rem; color: #6b7280; margin-left: 0.5rem; }
-.sortable-th { cursor: pointer; user-select: none; }
-.sortable-th:hover { color: #e5e7eb; }
-.sortable-th .sort-icon { display: inline-block; margin-left: 0.5rem; color: #6b7280; transition: all 0.2s; }
-.sortable-th.asc .sort-icon { transform: rotate(180deg); color: #06b6d4; }
-.sortable-th.desc .sort-icon { color: #06b6d4; }
-.report-section-title { font-size: 1.25rem; font-weight: 600; color: #e5e7eb; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid #374151;}
-.avg-type-btn { color: #9ca3af; }
-.avg-type-btn.active { background-color: #06b6d4; color: #ffffff; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>不動產批次上傳工具 v5.0 (含總結報告)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'dark-bg': '#1a1d29',
+                        'dark-card': '#252836',
+                        'dark-sidebar': '#1f2937',
+                        'cyan-accent': '#06b6d4',
+                        'cyan-light': '#67e8f9',
+                        'purple-accent': '#8b5cf6',
+                        'orange-accent': '#f59e0b'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #1a1d29 0%, #252836 100%); min-height: 100vh; }
+        .glass-card { background: rgba(37, 40, 54, 0.8); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .progress-ring { transform: rotate(-90deg); }
+        .progress-ring-circle { stroke-dasharray: 251.2; stroke-dashoffset: 251.2; transition: stroke-dashoffset 0.5s ease-in-out; }
+        .terminal { background: #0f172a; border: 1px solid #334155; font-family: 'Courier New', monospace; color: #64748b; }
+        .terminal-success { color: #10b981; }
+        .terminal-error { color: #ef4444; }
+        .terminal-warning { color: #f59e0b; }
+        .terminal-info { color: #06b6d4; }
+        .status-indicator { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 8px; }
+        .status-online { background: #10b981; }
+        .status-offline { background: #ef4444; }
+    </style>
 </head>
-<body class="p-4 md:p-8">
-
-<div class="max-w-screen-2xl mx-auto">
-  <header class="mb-8 text-center">
-    <h1 class="text-4xl font-extrabold text-white tracking-tight">不動產數據查詢平台</h1>
-    <p class="mt-2 text-lg text-gray-400">您的專屬數據查詢與分析工具。</p>
-  </header>
-
-  <main>
-    <div class="glass-card p-6 rounded-xl shadow-lg mb-8">
-      <div id="filter-form" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4 items-end">
-        <div><label for="county" class="block text-sm font-medium text-gray-300">縣市</label><select id="county" class="form-select mt-1 block w-full pl-3 pr-10 py-2 text-base rounded-md"><option value="">請選擇縣市</option></select></div>
-        <div><label for="district" class="block text-sm font-medium text-gray-300">行政區</label><select id="district" class="form-select mt-1 block w-full pl-3 pr-10 py-2 text-base rounded-md" disabled><option value="">請先選縣市</option></select></div>
-        <div><label for="type" class="block text-sm font-medium text-gray-300">交易類型</label><select id="type" class="form-select mt-1 block w-full pl-3 pr-10 py-2 text-base rounded-md"><option value="預售交易" selected>預售交易</option><option value="中古交易">中古交易</option><option value="租賃交易" disabled>租賃交易 (開發中)</option></select></div>
-        <div><label for="building-type" class="block text-sm font-medium text-gray-300">建物型態</label><select id="building-type" class="form-select mt-1 block w-full pl-3 pr-10 py-2 text-base rounded-md"><option value="">全部</option><option value="住宅大樓(11層含以上有電梯)">住宅大樓</option><option value="華廈(10層含以下有電梯)">華廈</option><option value="公寓(5層含以下無電梯)">公寓</option><option value="套房(1房(1廳)1衛)">套房</option><option value="透天厝">透天厝</option><option value="店面(店鋪)">店面</option><option value="辦公商業大樓">辦公商業大樓</option><option value="工廠">工廠</option><option value="倉庫">倉庫</option><option value="其他">其他</option></select></div>
-        <div class="xl:col-span-2"><div class="flex justify-between items-center"><label for="project-name-input" class="block text-sm font-medium text-gray-300">建案名稱 (可複選)</label><button id="clear-projects-btn" class="text-xs text-cyan-400 hover:text-cyan-300 hidden transition-opacity">清除選取</button></div><div class="relative mt-1"><div id="project-name-container" class="form-input flex flex-nowrap items-center gap-2 p-1 min-h-[42px] rounded-md overflow-x-auto"><input type="text" id="project-name-input" placeholder="請先選縣市..." class="bg-transparent flex-grow outline-none text-base py-1 px-2" disabled></div><div id="project-name-suggestions" class="absolute z-20 w-full mt-1 bg-dark-card border border-gray-600 rounded-md shadow-lg hidden"></div></div></div>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:col-span-2 lg:col-span-4 xl:col-span-4">
-            <div>
-                <label for="date-range" class="block text-sm font-medium text-gray-300">快捷時間</label>
-                <select id="date-range" class="form-select mt-1 block w-full pl-3 pr-10 py-2 text-base rounded-md">
-                    <option value="custom">自訂範圍</option><option value="7d">近7天</option><option value="14d">近14天</option><option value="30d">近30天</option><option value="1q">近一季 (3個月)</option><option value="2q">近兩季 (6個月)</option><option value="3q">近三季 (9個月)</option><option value="1y">近一年 (12個月)</option><option value="this_year">今年以來</option><option value="last_2_years">去年＋今年</option><option value="last_3_years">前年＋去年＋今年</option>
-                </select>
+<body class="bg-dark-bg text-white">
+    <div class="bg-dark-sidebar border-b border-gray-700 px-6 py-4">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <div class="w-10 h-10 bg-gradient-to-r from-cyan-accent to-purple-accent rounded-lg flex items-center justify-center">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-white">不動產批次上傳工具</h1>
+                    <p class="text-sm text-gray-400">Real Estate Batch Upload Dashboard v5.0 (Summary)</p>
+                </div>
             </div>
-            <div><label for="date-start" class="block text-sm font-medium text-gray-300">起始日期</label><input type="date" id="date-start" class="form-input mt-1 block w-full pl-3 pr-2 py-2 text-base rounded-md"></div>
-            <div><label for="date-end" class="block text-sm font-medium text-gray-300">結束日期</label><input type="date" id="date-end" class="form-input mt-1 block w-full pl-3 pr-2 py-2 text-base rounded-md"></div>
-        </div>
-        <div class="sm:col-span-2 lg:col-span-4 xl:col-span-6 flex justify-end items-center gap-4">
-          <button id="analyze-btn" class="bg-purple-600 hover:bg-purple-500 text-white font-bold py-2 px-6 rounded-lg shadow-lg hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed">分析報表</button>
-          <button id="search-btn" class="bg-gradient-to-r from-cyan-accent to-purple-accent text-white font-bold py-2 px-6 rounded-lg shadow-lg hover:opacity-90 transition-all">查詢資料列表</button>
-        </div>
-      </div>
-    </div>
-    
-    <div id="results-container" class="glass-card p-6 rounded-xl shadow-lg">
-      <div id="tabs-container" class="border-b border-gray-700 mb-6 hidden">
-        <nav class="flex -mb-px">
-          <button data-tab="ranking-report" class="tab-button active">核心指標與排名</button>
-          <button data-tab="price-band-report" class="tab-button">總價帶分析</button>
-          <button data-tab="unit-price-report" class="tab-button">房屋單價分析</button>
-          <button data-tab="data-list" class="tab-button">資料列表</button>
-        </nav>
-      </div>
-
-      <div id="message-area" class="text-center p-8 text-gray-400">請設定篩選條件後點擊查詢或分析。</div>
-
-      <div id="ranking-report-content" class="tab-content"><div id="metric-cards-container" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-8"></div><div class="overflow-x-auto"><table id="ranking-table" class="min-w-full divide-y divide-gray-800"></table></div></div>
-      
-      <div id="price-band-report-content" class="tab-content"><div class="overflow-x-auto"><table id="price-band-table" class="min-w-full divide-y divide-gray-800"></table></div></div>
-
-      <div id="unit-price-report-content" class="tab-content">
-        
-        <div class="flex justify-end items-center mb-4">
-            <label class="text-sm font-medium text-gray-400 mr-3">平均數類型:</label>
-            <div id="avg-type-toggle" class="inline-flex bg-dark-card p-1 rounded-lg">
-                <button data-type="arithmetic" class="avg-type-btn active px-4 py-1 text-sm font-semibold rounded-md transition-colors">算術平均數</button>
-                <button data-type="weighted" class="avg-type-btn px-4 py-1 text-sm font-semibold rounded-md transition-colors">加權平均數</button>
+            <div class="flex items-center space-x-4">
+                <div class="flex items-center space-x-2">
+                    <span class="status-indicator" id="connectionStatus"></span>
+                    <span class="text-sm text-gray-400" id="connectionText">未連線</span>
+                </div>
+                <div class="text-right">
+                    <div class="text-sm font-medium text-white" id="currentTime"></div>
+                    <div class="text-xs text-gray-400">系統時間</div>
+                </div>
             </div>
         </div>
-
-        <div class="mb-8">
-            <h3 class="report-section-title">住宅單價統計 (住宅大樓/華廈)</h3>
-            <div id="residential-stats-table-container" class="overflow-x-auto"></div>
-            <div id="residential-stats-extra-info" class="text-sm text-gray-400 mt-4 space-y-1"></div>
-        </div>
-        <div>
-            <h3 class="report-section-title">建案類型比較 (店舖/事務所 vs. 住宅)</h3>
-            <div id="type-comparison-table-container" class="overflow-x-auto"></div>
-        </div>
-        
-        <div id="average-type-explanation" class="mt-8 p-4 bg-dark-card border border-gray-700 rounded-lg text-sm text-gray-400 space-y-3">
-            <h4 class="font-bold text-gray-200">名詞解釋</h4>
-            <p><strong class="text-cyan-400">算術平均數 (Arithmetic Mean):</strong> 將每一筆交易的單價直接相加後，除以總筆數。它能反映「一筆典型交易」的單價，不受房屋坪數大小影響，適合了解普遍行情。</p>
-            <p><strong class="text-purple-400">加權平均數 (Weighted Average):</strong> 以「總房屋總價 ÷ 總房屋面積」計算。坪數越大的交易，對平均價格的影響力就越大。它更能反映市場的「整體價值」與資金結構。</p>
-        </div>
-      </div>
-
-      <div id="data-list-content" class="tab-content"><div id="table-container" class="table-container overflow-x-auto"><table id="results-table" class="min-w-full divide-y divide-gray-800"></table></div><div id="pagination-controls" class="flex justify-between items-center mt-4 text-sm text-gray-400"></div></div>
     </div>
-  </main>
-</div>
 
-<div id="details-modal" class="modal-overlay hidden"><div class="modal-container"><div class="flex justify-between items-center mb-6"><h2 id="modal-title" class="text-2xl font-bold text-white">附表詳細資料</h2><button id="modal-close-btn" class="text-gray-400 hover:text-white text-3xl font-bold">&times;</button></div><div id="modal-content" class="text-gray-300"></div></div></div>
+    <div class="flex">
+        <div class="w-64 bg-dark-sidebar border-r border-gray-700 min-h-screen p-4">
+            <nav class="space-y-2">
+                <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">主要功能</div>
+                <a href="#" class="flex items-center space-x-3 px-3 py-2 rounded-lg bg-cyan-accent/10 text-cyan-accent border border-cyan-accent/20">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 1.79 4 4 4h8c0-2.21-1.79-4-4-4H8c-2.21 0-4-1.79-4-4zm0 0V4c0-2.21 1.79-4 4-4h4c2.21 0 4 1.79 4 4v3M4 7h16"></path></svg>
+                    <span>資料庫連線</span>
+                </a>
+                <a href="#" class="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-400 hover:text-white hover:bg-gray-700/50">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                    <span>檔案上傳</span>
+                </a>
+            </nav>
+        </div>
 
-<script type="module">
-// API Endpoints
-const EDGE_FUNCTION_ENDPOINT = 'https://zxbmbbfrzbtuueysicoc.supabase.co/functions/v1/query-data';
-const SUB_DATA_ENDPOINT = 'https://zxbmbbfrzbtuueysicoc.supabase.co/functions/v1/query-sub-data';
-const PROJECT_NAMES_ENDPOINT = 'https://zxbmbbfrzbtuueysicoc.supabase.co/functions/v1/query-names';
-const RANKING_ANALYSIS_ENDPOINT = 'https://zxbmbbfrzbtuueysicoc.supabase.co/functions/v1/analyze-project-ranking';
-// DOM Elements
-const dom = {
-  countySelect: document.getElementById('county'),
-  districtSelect: document.getElementById('district'),
-  typeSelect: document.getElementById('type'),
-  buildingTypeSelect: document.getElementById('building-type'),
-  dateRangeSelect: document.getElementById('date-range'),
-  dateStartInput: document.getElementById('date-start'),
-  dateEndInput: document.getElementById('date-end'),
-  searchBtn: document.getElementById('search-btn'),
-  analyzeBtn: document.getElementById('analyze-btn'),
-  messageArea: document.getElementById('message-area'),
-  tabsContainer: document.getElementById('tabs-container'),
-  // 報表
-  rankingReportContent: document.getElementById('ranking-report-content'),
-  metricCardsContainer: document.getElementById('metric-cards-container'),
-  rankingTable: document.getElementById('ranking-table'),
-  priceBandReportContent: document.getElementById('price-band-report-content'),
-  priceBandTable: document.getElementById('price-band-table'),
-  unitPriceReportContent: document.getElementById('unit-price-report-content'),
-  residentialStatsTableContainer: document.getElementById('residential-stats-table-container'),
-  residentialStatsExtraInfo: document.getElementById('residential-stats-extra-info'),
-  typeComparisonTableContainer: document.getElementById('type-comparison-table-container'),
-  // 資料列表
-  dataListContent: document.getElementById('data-list-content'),
-  resultsTable: document.getElementById('results-table'),
-  paginationControls: document.getElementById('pagination-controls'),
-  // Modal
-  modal: document.getElementById('details-modal'),
-  modalTitle: document.getElementById('modal-title'),
-  modalContent: document.getElementById('modal-content'),
-  modalCloseBtn: document.getElementById('modal-close-btn'),
-  // 建案複選
-  projectNameContainer: document.getElementById('project-name-container'),
-  projectNameInput: document.getElementById('project-name-input'),
-  projectNameSuggestions: document.getElementById('project-name-suggestions'),
-  clearProjectsBtn: document.getElementById('clear-projects-btn'),
-  // 平均數切換
-  avgTypeToggle: document.getElementById('avg-type-toggle'),
-};
-// State variables
-let currentPage = 1, pageSize = 30, totalRecords = 0;
-let selectedProjects = [], suggestionDebounceTimer;
-let analysisDataCache = null;
-let currentSort = { key: 'saleAmountSum', order: 'desc' };
-let currentAverageType = 'arithmetic';
+        <div class="flex-1 p-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2">
+                    <div class="glass-card rounded-xl p-6 mb-6">
+                        <h2 class="text-lg font-semibold text-white flex items-center mb-6">
+                            <svg class="w-5 h-5 text-cyan-accent mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 1.79 4 4 4h8c0-2.21-1.79-4-4-4H8c-2.21 0-4-1.79-4-4zm0 0V4c0-2.21 1.79-4 4-4h4c2.21 0 4 1.79 4 4v3M4 7h16"></path></svg>
+                            Supabase 資料庫連線
+                        </h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">Supabase URL</label>
+                                <input type="text" id="supabaseUrl" class="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-cyan-accent focus:ring-1 focus:ring-cyan-accent transition-colors" placeholder="https://your-project-ref.supabase.co">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">Service Role Key</label>
+                                <input type="password" id="supabaseKey" class="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-cyan-accent focus:ring-1 focus:ring-cyan-accent transition-colors" placeholder="your-service-role-key">
+                            </div>
+                        </div>
+                        <button id="testConnectionButton" class="bg-gradient-to-r from-cyan-accent to-purple-accent text-white px-6 py-3 rounded-lg font-medium hover:shadow-lg hover:shadow-cyan-accent/25 transition-all duration-300">
+                            <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                            測試連線
+                        </button>
+                    </div>
 
-// Data
-const districtData = {"臺北市":["中正區","大同區","中山區","松山區","大安區","萬華區","信義區","士林區","北投區","內湖區","南港區","文山區"],"新北市":["板橋區","三重區","中和區","永和區","新莊區","新店區","樹林區","鶯歌區","三峽區","淡水區","汐止區","瑞芳區","土城區","蘆洲區","五股區","泰山區","林口區","深坑區","石碇區","坪林區","三芝區","石門區","八里區","平溪區","雙溪區","貢寮區","金山區","萬里區","烏來區"],"桃園市":["桃園區","中壢區","大溪區","楊梅區","蘆竹區","大園區","龜山區","八德區","龍潭區","平鎮區","新屋區","觀音區","復興區"],"臺中市":["中區","東區","南區","西區","北區","北屯區","西屯區","南屯區","太平區","大里區","霧峰區","烏日區","豐原區","后里區","石岡區","東勢區","和平區","新社區","潭子區","大雅區","神岡區","大肚區","沙鹿區","龍井區","梧棲區","清水區","大甲區","外埔區","大安區"],"臺南市":["中西區","東區","南區","北區","安平區","安南區","永康區","歸仁區","新化區","左鎮區","玉井區","楠西區","南化區","仁德區","關廟區","龍崎區","官田區","麻豆區","佳里區","西港區","七股區","將軍區","學甲區","北門區","新營區","後壁區","白河區","東山區","六甲區","下營區","柳營區","鹽水區","善化區","大內區","山上區","新市區","安定區"],"高雄市":["新興區","前金區","苓雅區","鹽埕區","鼓山區","旗津區","前鎮區","三民區","楠梓區","小港區","左營區","仁武區","大社區","岡山區","路竹區","阿蓮區","田寮區","燕巢區","橋頭區","梓官區","彌陀區","永安區","湖內區","鳳山區","大寮區","林園區","鳥松區","大樹區","旗山區","美濃區","六龜區","內門區","杉林區","甲仙區","桃源區","那瑪夏區","茂林區","茄萣區"],"基隆市":["仁愛區","信義區","中正區","中山區","安樂區","暖暖區","七堵區"],"新竹市":["東區","北區","香山區"],"嘉義市":["東區","西區"],"宜蘭縣":["宜蘭市","羅東鎮","蘇澳鎮","頭城鎮","礁溪鄉","壯圍鄉","員山鄉","冬山鄉","五結鄉","三星鄉","大同鄉","南澳鄉"],"新竹縣":["竹北市","竹東鎮","新埔鎮","關西鎮","湖口鄉","新豐鄉","芎林鄉","橫山鄉","北埔鄉","寶山鄉","峨眉鄉","尖石鄉","五峰鄉"],"苗栗縣":["苗栗市","苑裡鎮","通霄鎮","竹南鎮","頭份鎮","後龍鎮","卓蘭鎮","大湖鄉","公館鄉","銅鑼鄉","南庄鄉","頭屋鄉","三義鄉","西湖鄉","造橋鄉","三灣鄉","獅潭鄉","泰安鄉"],"彰化縣":["彰化市","鹿港鎮","和美鎮","線西鄉","伸港鄉","福興鄉","秀水鄉","花壇鄉","芬園鄉","員林鎮","溪湖鎮","田中鎮","大村鄉","埔鹽鄉","埔心鄉","永靖鄉","社頭鄉","二水鄉","北斗鎮","二林鎮","田尾鄉","埤頭鄉","芳苑鄉","大城鄉","竹塘鄉","溪州鄉"],"南投縣":["南投市","埔里鎮","草屯鎮","竹山鎮","集集鎮","名間鄉","鹿谷鄉","中寮鄉","魚池鄉","國姓鄉","水里鄉","信義鄉","仁愛鄉"],"雲林縣":["斗六市","斗南鎮","虎尾鎮","西螺鎮","土庫鎮","北港鎮","古坑鄉","大埤鄉","莿桐鄉","林內鄉","二崙鄉","崙背鄉","麥寮鄉","東勢鄉","褒忠鄉","台西鄉","元長鄉","四湖鄉","口湖鄉","水林鄉"],"嘉義縣":["太保市","朴子市","布袋鎮","大林鎮","民雄鄉","溪口鄉","新港鄉","六腳鄉","東石鄉","義竹鄉","鹿草鄉","水上鄉","中埔鄉","竹崎鄉","梅山鄉","番路鄉","大埔鄉","阿里山鄉"],"屏東縣":["屏東市","潮州鎮","東港鎮","恆春鎮","萬丹鄉","長治鄉","麟洛鄉","九如鄉","里港鄉","鹽埔鄉","高樹鄉","萬巒鄉","內埔鄉","竹田鄉","新埤鄉","枋寮鄉","新園鄉","崁頂鄉","林邊鄉","南州鄉","佳冬鄉","琉球鄉","車城鄉","滿州鄉","枋山鄉","霧台鄉","瑪家鄉","泰武鄉","來義鄉","春日鄉","獅子鄉","牡丹鄉","三地門鄉"],"花蓮縣":["花蓮市","鳳林鎮","玉里鎮","新城鄉","吉安鄉","壽豐鄉","光復鄉","豐濱鄉","瑞穗鄉","富里鄉","秀林鄉","萬榮鄉","卓溪鄉"],"臺東縣":["臺東市","成功鎮","關山鎮","卑南鄉","鹿野鄉","池上鄉","東河鄉","長濱鄉","太麻里鄉","大武鄉","綠島鄉","海端鄉","延平鄉","金峰鄉","達仁鄉","蘭嶼鄉"],"澎湖縣":["馬公市","湖西鄉","白沙鄉","西嶼鄉","望安鄉","七美鄉"],"金門縣":["金城鎮","金湖鎮","金沙鎮","金寧鄉","烈嶼鄉","烏坵鄉"],
-"連江縣":["南竿鄉","北竿鄉","莒光鄉","東引鄉"]};
-const countyCodeMap = { "臺北市": "A", "新北市": "F", "桃園市": "H", "臺中市": "B", "臺南市": "D", "高雄市": "E", "基隆市": "C", "新竹市": "O", "嘉義市": "I", "新竹縣": "J", "苗栗縣": "K", "彰化縣": "N", "南投縣": "M", "雲林縣": "P", "嘉義縣": "Q", "屏東縣": "T", "宜蘭縣": "G", "花蓮縣": "U", "臺東縣": "V", "澎湖縣": "X", "金門縣": "W", "連江縣": "Z" };
+                    <div class="glass-card rounded-xl p-6">
+                        <h2 class="text-lg font-semibold text-white mb-6 flex items-center">
+                            <svg class="w-5 h-5 text-cyan-accent mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                           檔案批次上傳
+                        </h2>
+                        <div class="border-2 border-dashed border-gray-600 rounded-lg p-8 text-center mb-6 hover:border-cyan-accent transition-colors">
+                            <svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                            <p class="text-gray-300 mb-2">選擇包含所有資料的總資料夾</p>
+                            <p class="text-sm text-gray-400 mb-4">系統將自動掃描並排序所有檔案</p>
+                            <button id="selectFoldersButton" class="bg-gradient-to-r from-cyan-accent to-blue-500 text-white px-8 py-3 rounded-lg font-medium hover:shadow-lg hover:shadow-cyan-accent/25 transition-all duration-300">
+                                選擇資料夾
+                            </button>
+                        </div>
+                        
+                        <div id="fileListContainer" class="hidden">
+                            <div class="bg-gray-800 rounded-lg p-4 mb-4">
+                                <h3 class="text-sm font-medium text-gray-300 mb-3">偵測到的檔案</h3>
+                                <div id="fileList" class="space-y-2 max-h-40 overflow-y-auto"></div>
+                            </div>
+                            
+                            <div id="uploadTypeSelector" class="bg-gray-800 rounded-lg p-4 mb-4">
+                                <h3 class="text-sm font-medium text-gray-300 mb-3">選擇上傳類型</h3>
+                                <div class="flex items-center space-x-6 text-sm">
+                                    
+                                    <label class="flex items-center space-x-2 cursor-pointer">
+                                        <input type="radio" id="uploadTypeAll" name="uploadType" value="all" class="form-radio h-4 w-4 text-cyan-accent bg-gray-700 border-gray-600 focus:ring-cyan-accent" checked>
+                                        <span>全選</span>
+                                    </label>
+                                    
+                                    <label class="flex items-center space-x-2 peer-disabled:cursor-not-allowed">
+                                        <input type="radio" id="uploadTypeA" name="uploadType" value="a" class="peer form-radio h-4 w-4 text-cyan-accent bg-gray-700 border-gray-600 focus:ring-cyan-accent" disabled>
+                                        <span class="peer-disabled:text-gray-500">中古 (a) (開發中)</span>
+                                    </label>
+                                    
+                                    <label class="flex items-center space-x-2 cursor-pointer">
+                                        <input type="radio" id="uploadTypeB" name="uploadType" value="b" class="form-radio h-4 w-4 text-cyan-accent bg-gray-700 border-gray-600 focus:ring-cyan-accent">
+                                        <span>預售 (b)</span>
+                                    </label>
+                                    
+                                    <label class="flex items-center space-x-2 peer-disabled:cursor-not-allowed">
+                                        <input type="radio" id="uploadTypeC" name="uploadType" value="c" class="peer form-radio h-4 w-4 text-cyan-accent bg-gray-700 border-gray-600 focus:ring-cyan-accent" disabled>
+                                        <span class="peer-disabled:text-gray-500">租賃 (c) (開發中)</span>
+                                    </label>
 
-// --- Event Listeners & Initializers ---
-function initialize() {
-  Object.keys(districtData).forEach(name => dom.countySelect.add(new Option(name, name)));
-  dom.searchBtn.addEventListener('click', () => { currentPage = 1; fetchData(); });
-  dom.analyzeBtn.addEventListener('click', analyzeData);
-  dom.countySelect.addEventListener('change', updateDistrictOptions);
-  dom.typeSelect.addEventListener('change', toggleAnalyzeButtonState);
-  dom.dateRangeSelect.addEventListener('change', handleDateRangeChange);
-  dom.dateStartInput.addEventListener('input', () => { if (document.activeElement === dom.dateStartInput) dom.dateRangeSelect.value = 'custom'; });
-  dom.dateEndInput.addEventListener('input', () => { if (document.activeElement === dom.dateEndInput) dom.dateRangeSelect.value = 'custom'; });
-  dom.modalCloseBtn.addEventListener('click', () => dom.modal.classList.add('hidden'));
-  dom.resultsTable.addEventListener('click', e => { if (e.target.closest('.details-btn')) showSubTableDetails(e.target.closest('.details-btn')); });
-  dom.projectNameInput.addEventListener('input', onProjectInput);
-  dom.projectNameSuggestions.addEventListener('click', onSuggestionClick);
-  dom.projectNameContainer.addEventListener('click', onTagRemove);
-  document.addEventListener('click', e => { if (!dom.projectNameContainer.parentElement.contains(e.target)) dom.projectNameSuggestions.classList.add('hidden'); });
-  dom.clearProjectsBtn.addEventListener('click', clearSelectedProjects);
-  dom.tabsContainer.addEventListener('click', e => { if (e.target.matches('.tab-button')) switchTab(e.target.dataset.tab); });
-  
-  dom.rankingTable.addEventListener('click', e => {
-    const header = e.target.closest('.sortable-th');
-    if (!header) return;
-    const sortKey = header.dataset.sortKey;
-    if (currentSort.key === sortKey) {
-      currentSort.order = currentSort.order === 'desc' ? 'asc' : 'desc';
-    } else {
-      currentSort.key = sortKey;
-      currentSort.order = 'desc';
-    }
-    renderRankingReport();
-  });
+                                </div>
+                            </div>
+                            <button id="startUploadButton" class="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-4 rounded-lg font-semibold hover:shadow-lg hover:shadow-green-500/25 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
+                                <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                                開始上傳
+                            </button>
+                        </div>
+                    </div>
+                </div>
 
-  dom.avgTypeToggle.addEventListener('click', (e) => {
-    if (e.target.matches('.avg-type-btn')) {
-      const type = e.target.dataset.type;
-      switchAverageType(type);
-    }
-  });
+                <div class="space-y-6">
+                    <div class="glass-card rounded-xl p-6">
+                        <h3 class="text-lg font-semibold text-white mb-4">上傳進度</h3>
+                        <div class="flex items-center justify-center">
+                            <div class="relative w-32 h-32">
+                                <svg class="w-32 h-32 progress-ring" viewBox="0 0 84 84">
+                                     <circle cx="42" cy="42" r="40" stroke="#374151" stroke-width="4" fill="none"/>
+                                     <circle cx="42" cy="42" r="40" stroke="#06b6d4" stroke-width="4" fill="none" class="progress-ring-circle" id="progressCircle"/>
+                                </svg>
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <div class="text-center">
+                                        <div class="text-2xl font-bold text-white" id="progressPercent">0%</div>
+                                        <div class="text-xs text-gray-400">完成度</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-4 text-center">
+                            <p class="text-sm text-gray-400" id="progressStatus">等待開始...</p>
+                            <p class="text-xs text-gray-500 mt-1" id="currentFileName"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-  toggleAnalyzeButtonState();
-}
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+                <div class="glass-card rounded-xl p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-white flex items-center">
+                           <svg class="w-5 h-5 text-cyan-accent mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                           執行日誌
+                        </h3>
+                        <button class="text-xs text-gray-400 hover:text-white" onclick="clearLogs('status')">清除</button>
+                    </div>
+                    <div id="statusContainer" class="terminal rounded-lg p-4 h-80 overflow-y-auto">
+                        <div class="text-gray-400">等待操作...</div>
+                    </div>
+                </div>
 
-function switchAverageType(type) {
-    if (currentAverageType === type || !type) return;
-    currentAverageType = type;
-    
-    dom.avgTypeToggle.querySelector('.avg-type-btn.active').classList.remove('active');
-    dom.avgTypeToggle.querySelector(`.avg-type-btn[data-type="${type}"]`).classList.add('active');
+                <div class="glass-card rounded-xl p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-white flex items-center">
+                            <svg class="w-5 h-5 text-red-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            錯誤日誌
+                        </h3>
+                        <button class="text-xs text-gray-400 hover:text-white" onclick="clearLogs('error')">清除</button>
+                    </div>
+                    <div id="errorLogContainer" class="terminal rounded-lg p-4 h-80 overflow-y-auto">
+                        <div class="text-gray-400">無錯誤記錄</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    if (analysisDataCache) {
-        renderUnitPriceReport();
-    }
-}
+    <script>
+        // --- 設定與常數 ---
+        const counties = { 'A': '臺北市', 'B': '臺中市', 'C': '基隆市', 'D': '臺南市', 'E': '高雄市', 'F': '新北市', 'G': '宜蘭縣', 'H': '桃園市', 'I': '嘉義市', 'J': '新竹縣', 'K': '苗栗縣', 'M': '南投縣', 'N': '彰化縣', 'O': '新竹市', 'P': '雲林縣', 'Q': '嘉義縣', 'T': '屏東縣', 'U': '花蓮縣', 'V': '臺東縣', 'W': '金門縣', 'X': '澎湖縣', 'Z': '連江縣' };
+        const columnMappings = {
+            'a': { '編號': '編號', '鄉鎮市區': '行政區', '交易標的': '交易標的', '土地位置建物門牌': '地址', '交易年月日': '交易日', '交易筆棟數': '交易筆棟數', '移轉層次': '樓層', '建物型態': '建物型態', '主要用途': '主要用途', '建物移轉總面積平方公尺': '產權面積_房車', '建物現況格局-房': '房數', '建物現況格局-廳': '廳數', '建物現況格局-衛': '衛浴數', '總價元': '交易總價', '車位類別': '車位類別', '車位移轉總面積平方公尺': '車位總面積', '車位總價元': '車位總價', '備註': '備註', '主建物面積': '主建物面積', '附屬建物面積': '附屬建物面積', '陽台面積': '陽台面積'},
+            'a_build': { '編號': '編號', '屋齡': '交易屋齡', '主要建材': '結構', '建築完成年月日': '完工日', '建築完成日期': '完工日', '總層數': '總樓層', '移轉情形': '移轉情形' },
+            'a_land': { '編號': '編號', '土地位置': '地號_段', '地號': '地號', '土地移轉面積平方公尺': '土地持分面積', '使用分區或編定': '使用分區', '非都市土地使用分區': '使用分區', '權利人持分分母': '持分分母', '權利人持分分子': '持分分子' },
+            'a_park': { '編號': '編號', '車位類別': '車位類別', '車位價格': '車位價格', '車位面積平方公尺': '車位面積', '車位所在樓層': '車位樓層' },
+            'b': { '編號': '編號', '鄉鎮市區': '行政區', '交易標的': '交易標的', '土地位置建物門牌': '地址', '交易年月日': '交易日', '交易筆棟數': '交易筆棟數', '移轉層次': '樓層', '總層數': '總樓層', '總樓層數': '總樓層', '建物型態': '建物型態', '主要用途': '主要用途', '建物移轉總面積平方公尺': '產權面積_房車', '建物現況格局-房': '房數', '建物現況格局-廳': '廳數', '建物現況格局-衛': '衛浴數', '總價元': '交易總價', '車位類別': '車位類別', '車位移轉總面積平方公尺': '車位總面積', '車位總價元': '車位總價', '備註': '備註', '建案名稱': '建案名稱', '棟及號': '戶別', '解約情形': '解約情形' },
+            'b_land': { '編號': '編號', '土地位置': '地號_段', '地號': '地號', '土地移轉面積平方公尺': '土地持分面積', '使用分區或編定': '使用分區', '非都市土地使用分區': '使用分區', '權利人持分分母': '持分分母', '權利人持分分子': '持分分子' },
+            'b_park': { '編號': '編號', '車位類別': '車位類別', '車位價格': '車位價格', '車位面積平方公尺': '車位面積', '車位所在樓層': '車位樓層' },
+            'c': { '編號': '編號', '鄉鎮市區': '行政區', '交易標的': '交易標的', '土地位置建物門牌': '地址', '租賃年月日': '交易日', '租賃筆棟數': '交易筆棟數', '租賃層次': '樓層', '建物型態': '建物型態', '主要用途': '主要用途', '建物總面積平方公尺': '租賃面積', '建物現況格局-房': '房數', '建物現況格局-廳': '廳數', '建物現況格局-衛': '衛浴數', '總額元': '交易總價', '車位類別': '車位類別', '車位面積平方公尺': '車位總面積', '車位總額元': '車位總價', '備註': '備註', '出租型態': '出租型態', '租賃期間': '租賃期間', '附屬設備': '附屬設備', '租賃住宅服務': '租賃住宅服務' },
+            'c_build': { '編號': '編號', '屋齡': '交易屋齡', '主要建材': '結構', '建築完成年月日': '完工日', '建築完成日期': '完工日', '總層數': '總樓層', '移轉情形': '移轉情形' },
+            'c_land': { '編號': '編號', '土地位置': '地號_段', '地號': '地號', '土地移轉面積平方公尺': '土地租賃面積', '使用分區或編定': '使用分區', '非都市土地使用分區': '使用分區' },
+            'c_park': { '編號': '編號', '車位類別': '車位類別', '車位價格': '車位價格', '車位面積平方公尺': '車位面積', '車位所在樓層': '車位樓層' }
+        };
 
-// --- UI & State Management ---
-function switchTab(targetTab) {
-  document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-  document.querySelectorAll('.tab-button').forEach(button => button.classList.remove('active'));
-  document.getElementById(`${targetTab}-content`).classList.add('active');
-  document.querySelector(`button[data-tab="${targetTab}"]`).classList.add('active');
-}
+        let supabase = null;
+        let allFiles = [];
+        let processedMainIds = new Set();
+        let summary = { new: 0, updated: 0, identical: 0, subAdded: 0, errors: 0, warnings: 0 };
+        let isUploading = false;
 
-function getFilters() {
-    const filters = {};
-    if (dom.countySelect.value) filters.countyCode = countyCodeMap[dom.countySelect.value] || '';
-    if (dom.districtSelect.value) filters.district = dom.districtSelect.value;
-    if (dom.typeSelect.value) filters.type = dom.typeSelect.value;
-    if (dom.dateStartInput.value) filters.dateStart = dom.dateStartInput.value;
-    if (dom.dateEndInput.value) filters.dateEnd = dom.dateEndInput.value;
-    if (dom.buildingTypeSelect.value) filters.buildingType = dom.buildingTypeSelect.value;
-    if (selectedProjects.length > 0) filters.projectNames = selectedProjects;
-    return filters;
-}
+        const DOM = {
+            selectFoldersButton: document.getElementById('selectFoldersButton'),
+            startUploadButton: document.getElementById('startUploadButton'),
+            testConnectionButton: document.getElementById('testConnectionButton'),
+            statusContainer: document.getElementById('statusContainer'),
+            errorLogContainer: document.getElementById('errorLogContainer'),
+            fileListContainer: document.getElementById('fileListContainer'),
+            fileList: document.getElementById('fileList'),
+            progressCircle: document.getElementById('progressCircle'),
+            progressPercent: document.getElementById('progressPercent'),
+            progressStatus: document.getElementById('progressStatus'),
+            currentFileName: document.getElementById('currentFileName'),
+            connectionStatus: document.getElementById('connectionStatus'),
+            connectionText: document.getElementById('connectionText'),
+            currentTime: document.getElementById('currentTime')
+        };
+        // --- 核心函式 ---
 
-function showLoading(message) {
-    dom.messageArea.innerHTML = `<div class="loader mx-auto"></div><p class="mt-4">${message}</p>`;
-    dom.messageArea.classList.remove('hidden');
-    dom.tabsContainer.classList.add('hidden');
-    ['ranking-report-content', 'price-band-report-content', 'unit-price-report-content', 'data-list-content'].forEach(id => document.getElementById(id).classList.remove('active'));
-}
+        /**
+         * @MODIFIED
+         * 調整日誌函式以更好地支援多行和 HTML 內容
+         */
+        function addLog(message, type = 'info', container = 'status') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logContainer = container === 'status' ? DOM.statusContainer : DOM.errorLogContainer;
+            const typeClass = `terminal-${type}`;
+            const logEntry = document.createElement('div');
+            // 使用 flex佈局來確保時間戳和訊息內容對齊
+            logEntry.className = 'flex items-start';
+            logEntry.innerHTML = `
+                <span class="text-gray-500 mr-2">[${timestamp}]</span>
+                <div class="flex-1 ${typeClass}">${message}</div>
+            `;
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
 
-function showMessage(message, isError = false) {
-    const messageClass = isError ? 'bg-red-900/50 border border-red-700 text-red-200 p-4 rounded-lg' : '';
-    dom.messageArea.innerHTML = `<div class="${messageClass}">${message}</div>`;
-    dom.messageArea.classList.remove('hidden');
-    dom.tabsContainer.classList.add('hidden');
-}
+        async function scanDirectory(dirHandle, path = '') {
+            let files = [];
+            for await (const entry of dirHandle.values()) {
+                const currentPath = path ? `${path}/${entry.name}` : entry.name;
+                if (entry.kind === 'file' && entry.name.toLowerCase().endsWith('.csv')) {
+                    files.push({ handle: entry, path: currentPath });
+                } else if (entry.kind === 'directory') {
+                    files.push(...await scanDirectory(entry, currentPath));
+                }
+            }
+            return files;
+        }
 
-function formatDate(date) {
-    return date.toISOString().split('T')[0];
-}
+        async function selectFolders() {
+            resetUI();
+            if (!window.showDirectoryPicker) {
+                addLog('您的瀏覽器不支援資料夾選擇功能，請使用最新版本的 Chrome 或 Edge 瀏覽器。', 'error', 'error');
+                return;
+            }
+            try {
+                addLog('正在掃描資料夾...', 'info');
+                const dirHandle = await window.showDirectoryPicker();
+                const fileInfoList = await scanDirectory(dirHandle);
+                const fileRegex = /^([a-z])_lvr_land_([a-c](?:_build|_land|_park)?)\.csv$/i;
+                allFiles = fileInfoList.map(item => {
+                    const match = item.handle.name.match(fileRegex);
+                    return match ? { 
+                        fileHandle: item.handle, 
+                        name: item.handle.name,
+                        fullPath: item.path,
+                        countyCode: match[1].toLowerCase(), 
+                        tableType: match[2].toLowerCase(), 
+                        isMain: !match[2].includes('_') 
+                    } : null;
+                }).filter(Boolean);
+                if (allFiles.length === 0) {
+                    addLog('在選擇的資料夾中沒有找到符合命名規則的檔案。', 'warning', 'status');
+                    return;
+                }
+                
+                DOM.fileList.innerHTML = '';
+                allFiles.forEach(file => {
+                    const fileItem = document.createElement('div');
+                    fileItem.className = 'flex items-center justify-between p-2 bg-gray-700 rounded text-sm';
+                    fileItem.innerHTML = `<span class="font-mono">${file.fullPath}</span><span class="px-2 py-1 bg-cyan-accent/20 text-cyan-accent rounded text-xs">${file.isMain ? '主表' : '附表'}</span>`;
+                    DOM.fileList.appendChild(fileItem);
+                });
+                DOM.fileListContainer.classList.remove('hidden');
+                addLog(`掃描完成！找到 ${allFiles.length} 個有效檔案。`, 'success');
+                
+            } catch (err) {
+                if (err.name !== 'AbortError') {
+                    addLog(`選擇資料夾時發生錯誤: ${err.message}`, 'error', 'error');
+                }
+            }
+        }
 
-function handleDateRangeChange() {
-    const value = dom.dateRangeSelect.value;
-    if (value === 'custom') return;
-    const endDate = new Date();
-    let startDate = new Date();
-    switch (value) {
-        case '7d': startDate.setDate(endDate.getDate() - 7); break;
-        case '14d': startDate.setDate(endDate.getDate() - 14); break;
-        case '30d': startDate.setDate(endDate.getDate() - 30); break;
-        case '1q': startDate.setMonth(endDate.getMonth() - 3); break;
-        case '2q': startDate.setMonth(endDate.getMonth() - 6); break;
-        case '3q': startDate.setMonth(endDate.getMonth() - 9); break;
-        case '1y': startDate.setFullYear(endDate.getFullYear() - 1); break;
-        case 'this_year': startDate = new Date(endDate.getFullYear(), 0, 1); break;
-        case 'last_2_years': startDate = new Date(endDate.getFullYear() - 1, 0, 1); break;
-        case 'last_3_years': startDate = new Date(endDate.getFullYear() - 2, 0, 1); break;
-    }
-    dom.dateStartInput.value = formatDate(startDate);
-    dom.dateEndInput.value = formatDate(endDate);
-}
+        async function parseFile(fileInfo) {
+            const file = await fileInfo.fileHandle.getFile();
+            const parseResult = await new Promise((resolve) => {
+                Papa.parse(file, { header: true, skipEmptyLines: true, trimHeaders: true, complete: resolve });
+            });
+            if (parseResult.errors && parseResult.errors.length > 0) {
+                const nonCriticalErrorCodes = ['TooManyFields', 'TooFewFields', 'MissingQuotes'];
+                const criticalErrors = parseResult.errors.filter(e => !nonCriticalErrorCodes.includes(e.code));
+                
+                if (criticalErrors.length > 0) {
+                    throw new Error(`CSV 嚴重解析錯誤: ${criticalErrors[0].message}`);
+                }
 
-// --- Data Fetching & Analysis ---
-async function analyzeData() {
-  if (!dom.countySelect.value) return showMessage('請先選擇一個縣市再進行分析。');
-  showLoading('分析中，請稍候...');
-  try {
-    const response = await fetch(RANKING_ANALYSIS_ENDPOINT, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4Ym1iYmZyemJ0dXVleXNpY29jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA2ODg5ODksImV4cCI6MjA2NjI2NDk4OX0.1IUynv5eK1xF_3pb-oasqaTrPvbeAOC4Sc1oykPBy4M' },
-      body: JSON.stringify({ filters: getFilters() })
-    });
-    if (!response.ok) {
-      const err = await response.json().catch(() => ({ error: `分析請求失敗: ${response.status}` }));
-      throw new Error(err.error);
-    }
-    analysisDataCache = await response.json();
-    if (!analysisDataCache.coreMetrics) return showMessage('找不到符合條件的分析資料。');
-    
-    dom.messageArea.classList.add('hidden');
-    dom.tabsContainer.classList.remove('hidden');
-    currentSort = { key: 'saleAmountSum', order: 'desc' };
-    
-    renderRankingReport();
-    renderPriceBandReport();
-    renderUnitPriceReport();
-    
-    switchTab('ranking-report');
-  } catch(error) {
-    console.error("數據分析失敗:", error);
-    showMessage(`數據分析失敗: ${error.message}`, true);
-    analysisDataCache = null;
-  }
-}
+                // **修改點 2: 發現警告時，增加 summary.warnings 的計數**
+                parseResult.errors.forEach(warning => {
+                    addLog(`檔案 ${fileInfo.fullPath} 有解析警告 (已忽略): ${warning.message} (行: ${warning.row + 2})`, 'warning', 'status');
+                    summary.warnings++;
+                });
+            }
 
-async function fetchData() {
-  showLoading('查詢中，請稍候...');
-  try {
-    const response = await fetch(EDGE_FUNCTION_ENDPOINT, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4Ym1iYmZyemJ0dXVleXNpY29jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA2ODg5ODksImV4cCI6MjA2NjI2NDk4OX0.1IUynv5eK1xF_3pb-oasqaTrPvbeAOC4Sc1oykPBy4M' },
-      body: JSON.stringify({ filters: getFilters(), pagination: { page: currentPage, limit: pageSize } })
-    });
-    if (!response.ok) {
-      const err = await response.json().catch(() => ({ error: '無法解析伺服器回應' }));
-      throw new Error(err.error);
-    }
-    const result = await response.json();
-    totalRecords = result.count || 0;
-    if (!result.data || result.data.length === 0) {
-      showMessage('找不到符合條件的資料。');
-      renderPagination();
-      return;
-    }
-    renderTable(result.data);
-    renderPagination();
-    dom.messageArea.classList.add('hidden');
-    dom.tabsContainer.classList.remove('hidden');
-    switchTab('data-list');
-  } catch (error) {
-    console.error('查詢錯誤:', error);
-    showMessage(`查詢錯誤: ${error.message}`, true);
-    totalRecords = 0;
-    renderPagination();
-  }
-}
+            if (!parseResult.data || parseResult.data.length === 0) { return []; }
 
-// --- Rendering Functions ---
-function formatNumber(num, decimals = 2) {
-    if (typeof num !== 'number' || isNaN(num)) return '-';
-    return num.toLocaleString('zh-TW', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
-}
+            let dataRows = parseResult.data;
+            if (dataRows[0]['編號']?.toLowerCase().includes('serial number')) { dataRows.shift(); }
+            const mapping = columnMappings[fileInfo.tableType];
+            if (!mapping) { throw new Error(`檔案 ${fileInfo.name} 找不到對應規則。`); }
+            return dataRows.map(row => processRow(row, mapping));
+        }
 
-function renderRankingReport() {
-    if (!analysisDataCache || !analysisDataCache.coreMetrics) return;
-    const { coreMetrics, projectRanking } = analysisDataCache;
-    dom.metricCardsContainer.innerHTML = `
-        <div class="metric-card"><div class="metric-card-title">市場去化總銷售金額</div><div><span class="metric-card-value">${formatNumber(coreMetrics.totalSaleAmount, 0)}</span><span class="metric-card-unit">萬</span></div></div>
-        <div class="metric-card"><div class="metric-card-title">總銷去化房屋坪數</div><div><span class="metric-card-value">${formatNumber(coreMetrics.totalHouseArea, 2)}</span><span class="metric-card-unit">坪</span></div></div>
-        <div class="metric-card"><div class="metric-card-title">總平均單價</div><div><span class="metric-card-value">${formatNumber(coreMetrics.overallAveragePrice, 2)}</span><span class="metric-card-unit">萬/坪</span></div></div>
-        <div class="metric-card"><div class="metric-card-title">總交易筆數</div><div><span class="metric-card-value">${coreMetrics.transactionCount.toLocaleString()}</span><span class="metric-card-unit">筆</span></div></div>
-    `;
-    projectRanking.sort((a, b) => {
-        const valA = a[currentSort.key];
-        const valB = b[currentSort.key];
-        return currentSort.order === 'desc' ? valB - valA : valA - valB;
-    });
-    const tableHeaders = [{ key: 'rank', label: '排名', sortable: false },{ key: 'projectName', label: '建案名稱', sortable: false },{ key: 'saleAmountSum', label: '交易總價(萬)', sortable: true },{ key: 'houseAreaSum', label: '房屋面積(坪)', sortable: true },{ key: 'transactionCount', label: '資料筆數', sortable: true },{ key: 'marketShare', label: '市場佔比(%)', sortable: true },{ key: 'averagePrice', label: '平均單價(萬)', sortable: true },{ key: 'minPrice', label: '最低單價(萬)', sortable: true },{ key: 'maxPrice', label: '最高單價(萬)', sortable: true },{ key: 'medianPrice', label: '單價中位數(萬)', sortable: true },{ key: 'avgParkingPrice', label: '車位平均單價', sortable: true }];
-    let headerHtml = '<thead><tr>';
-    tableHeaders.forEach(h => {
-        if (h.sortable) {
-            const sortClass = currentSort.key === h.key ? currentSort.order : '';
-            headerHtml += `<th class="sortable-th ${sortClass}" data-sort-key="${h.key}">${h.label}<span class="sort-icon">▼</span></th>`;
-        } else { headerHtml += `<th>${h.label}</th>`; }
-    });
-    headerHtml += '</tr></thead>';
-    let bodyHtml = '<tbody>';
-    projectRanking.slice(0, 15).forEach((proj, index) => {
-        bodyHtml += `<tr class="hover:bg-dark-card transition-colors"><td>${index + 1}</td><td>${proj.projectName}</td><td>${formatNumber(proj.saleAmountSum, 0)}</td><td>${formatNumber(proj.houseAreaSum)}</td><td>${proj.transactionCount.toLocaleString()}</td><td>${formatNumber(proj.marketShare)}%</td><td>${formatNumber(proj.averagePrice)}</td><td>${formatNumber(proj.minPrice)}</td><td>${formatNumber(proj.maxPrice)}</td><td>${formatNumber(proj.medianPrice)}</td><td>${formatNumber(proj.avgParkingPrice, 0)}</td></tr>`;
-    });
-    bodyHtml += '</tbody>';
-    let footerHtml = `<tfoot class="bg-dark-card font-bold"><tr class="border-t-2 border-gray-600"><td colspan="2">總計</td><td>${formatNumber(coreMetrics.totalSaleAmount, 0)}</td><td>${formatNumber(coreMetrics.totalHouseArea)}</td><td>${coreMetrics.transactionCount.toLocaleString()}</td><td colspan="6"></td></tr></tfoot>`;
-    dom.rankingTable.innerHTML = headerHtml + bodyHtml + footerHtml;
-}
+        async function uploadMainFileWithSmartUpdate(fileInfo) {
+            try {
+                const tableName = `${fileInfo.countyCode}_lvr_land_${fileInfo.tableType}`;
+                const processedData = await parseFile(fileInfo);
+                if (!processedData || processedData.length === 0) {
+                    addLog(`${fileInfo.fullPath}: 檔案為空或無有效資料，已跳過`, 'warning', 'status');
+                    return;
+                }
+                const chunkSize = 500;
+                for (let i = 0; i < processedData.length; i += chunkSize) {
+                    const chunk = processedData.slice(i, i + chunkSize);
+                    const idsToCheck = chunk.map(row => row['編號']);
+                    const { data: existingData, error: fetchError } = await supabase.from(tableName).select('*').in('編號', idsToCheck);
+                    if (fetchError) throw fetchError;
+                    const existingDataMap = new Map(existingData.map(item => [item['編號'], item]));
+                    const newData = [];
+                    const updatedData = [];
+                    const idsToDelete = [];
+                    let identicalCount = 0;
+                    for (const newRecord of chunk) {
+                        const existingRecord = existingDataMap.get(newRecord['編號']);
+                        if (!existingRecord) {
+                            newData.push(newRecord);
+                        } else if (!isEqual(newRecord, existingRecord, fileInfo.tableType)) {
+                            idsToDelete.push(newRecord['編號']);
+                            updatedData.push(newRecord);
+                        } else {
+                            identicalCount++;
+                        }
+                    }
+                    addLog(`${fileInfo.fullPath} (區塊 ${Math.floor(i/chunkSize) + 1}): 新增 ${newData.length}, 更新 ${updatedData.length}, 跳過 ${identicalCount}`, 'info');
+                    summary.new += newData.length;
+                    summary.updated += updatedData.length;
+                    summary.identical += identicalCount;
+                    const idsToProcess = [...newData.map(r => r['編號']), ...updatedData.map(r => r['編號'])];
+                    idsToProcess.forEach(id => processedMainIds.add(id));
+                    if (idsToDelete.length > 0) {
+                        const { error: deleteError } = await supabase.from(tableName).delete().in('編號', idsToDelete);
+                        if (deleteError) throw deleteError;
+                    }
+                    const dataToUpload = [...newData, ...updatedData];
+                    if (dataToUpload.length > 0) {
+                        const { error: insertError } = await supabase.from(tableName).insert(dataToUpload);
+                        if (insertError) throw insertError;
+                    }
+                }
+            } catch (error) {
+                addLog(`${fileInfo.fullPath} 上傳失敗: ${error.message}`, 'error', 'error');
+                summary.errors++;
+            }
+        }
 
-function renderPriceBandReport() {
-    if (!analysisDataCache || !analysisDataCache.priceBandAnalysis) return;
-    const { priceBandAnalysis } = analysisDataCache;
-    priceBandAnalysis.sort((a, b) => {
-        if (a.rooms !== b.rooms) return a.rooms - b.rooms;
-        return a.bathrooms - b.bathrooms;
-    });
-    const tableHeaders = ['房數', '衛浴數', '筆數', '平均房屋總價', '最低房屋總價', '1/4分位房屋總價', '中位數房屋總價', '3/4分位房屋總價', '最高房屋總價'];
-    let headerHtml = '<thead><tr>' + tableHeaders.map(h => `<th>${h}</th>`).join('') + '</tr></thead>';
-    let bodyHtml = '<tbody>';
-    priceBandAnalysis.forEach(item => {
-        bodyHtml += `<tr class="hover:bg-dark-card transition-colors">
-            <td>${item.rooms}</td><td>${item.bathrooms}</td><td>${item.count.toLocaleString()}</td>
-            <td>${formatNumber(item.avgPrice, 0)}</td><td>${formatNumber(item.minPrice, 0)}</td>
-            <td>${formatNumber(item.q1Price, 0)}</td><td>${formatNumber(item.medianPrice, 0)}</td>
-            <td>${formatNumber(item.q3Price, 0)}</td><td>${formatNumber(item.maxPrice, 0)}</td>
-        </tr>`;
-    });
-    bodyHtml += '</tbody>';
-    dom.priceBandTable.innerHTML = headerHtml + bodyHtml;
-}
+        async function uploadSubFile(fileInfo) {
+            try {
+                const tableName = `${fileInfo.countyCode}_lvr_land_${fileInfo.tableType}`;
+                const allSubData = await parseFile(fileInfo);
+                if (!allSubData || allSubData.length === 0) {
+                    addLog(`${fileInfo.fullPath}: 檔案為空或無有效資料，已跳過`, 'warning', 'status');
+                    return;
+                }
+                const dataToUpload = allSubData.filter(row => processedMainIds.has(row['編號']));
+                if (dataToUpload.length > 0) {
+                    const { error } = await supabase.from(tableName).insert(dataToUpload);
+                    if (error) throw error;
+                    summary.subAdded += dataToUpload.length;
+                    addLog(`${fileInfo.fullPath}: 成功新增 ${dataToUpload.length} 筆關聯的附表紀錄`, 'success');
+                } else {
+                    addLog(`${fileInfo.fullPath}: 無對應的主表變更，已跳過`, 'info');
+                }
+            } catch (error) {
+                addLog(`${fileInfo.fullPath} 上傳失敗: ${error.message}`, 'error', 'error');
+                summary.errors++;
+            }
+        }
 
-function renderUnitPriceReport() {
-    if (!analysisDataCache || !analysisDataCache.unitPriceAnalysis) return;
-    const { residentialStats, typeComparison } = analysisDataCache.unitPriceAnalysis;
 
-    // 渲染住宅單價統計表格
-    const statsContainer = dom.residentialStatsTableContainer;
-    if (residentialStats && residentialStats.avgPrice) {
-        const avgPriceToShow = residentialStats.avgPrice[currentAverageType];
-        
-        statsContainer.innerHTML = `<table class="min-w-full divide-y divide-gray-800">
-            <thead><tr><th class="w-1/2">統計項目</th><th class="w-1/2">房屋單價 (萬/坪)</th></tr></thead>
-            <tbody>
-                <tr class="hover:bg-dark-card"><td class="font-medium text-gray-300">平均單價</td><td>${formatNumber(avgPriceToShow)}</td></tr>
-                <tr class="hover:bg-dark-card"><td class="font-medium text-gray-300">最低單價</td><td>${formatNumber(residentialStats.minPrice)}</td></tr>
-                <tr class="hover:bg-dark-card"><td class="font-medium text-gray-300">1/4分位數單價</td><td>${formatNumber(residentialStats.q1Price)}</td></tr>
-                <tr class="hover:bg-dark-card"><td class="font-medium text-gray-300">中位數單價</td><td>${formatNumber(residentialStats.medianPrice)}</td></tr>
-                <tr class="hover:bg-dark-card"><td class="font-medium text-gray-300">3/4分位數單價</td><td>${formatNumber(residentialStats.q3Price)}</td></tr>
-                <tr class="hover:bg-dark-card"><td class="font-medium text-gray-300">最高單價</td><td>${formatNumber(residentialStats.maxPrice)}</td></tr>
-            </tbody></table>`;
-        
-        dom.residentialStatsExtraInfo.innerHTML = `
-            <p><span class="font-semibold text-cyan-400">最低房屋單價建案：</span>${residentialStats.minPriceProject || 'N/A'}</p>
-            <p><span class="font-semibold text-purple-400">最高房屋單價建案：</span>${residentialStats.maxPriceProject || 'N/A'}</p>`;
-    } else {
-        statsContainer.innerHTML = '<p class="text-gray-500">無符合條件的住宅交易資料可供分析。</p>';
-        dom.residentialStatsExtraInfo.innerHTML = '';
-    }
+        // --- 其他輔助函式 ---
+        function cleanNumber(value) {
+            if (typeof value !== 'string' && typeof value !== 'number') return null;
+            const cleaned = String(value).replace(/,/g, '');
+            const num = parseFloat(cleaned);
+            return isNaN(num) ? null : num;
+        }
+        function rocToDate(rocDateStr) {
+            if (!rocDateStr || typeof rocDateStr !== 'string') return null;
+            const match = String(rocDateStr).match(/(\d{2,3})[^\d]*(\d{1,2})[^\d]*(\d{1,2})/);
+            if (!match) return null;
+            try {
+                const rocYear = parseInt(match[1], 10);
+                const month = parseInt(match[2], 10);
+                const day = parseInt(match[3], 10);
+                if (isNaN(rocYear) || isNaN(month) || isNaN(day)) return null;
+                const adYear = rocYear + 1911;
+                const monthStr = String(month).padStart(2, '0');
+                const dayStr = String(day).padStart(2, '0');
+                const date = new Date(`${adYear}-${monthStr}-${dayStr}`);
+                if (isNaN(date.getTime()) || date.getDate() !== day) return null;
+                return `${adYear}-${monthStr}-${dayStr}`;
+            } catch (e) { return null; }
+        }
+        function chineseFloorToNumber(floorStr) {
+            if (!floorStr || typeof floorStr !== 'string') return null;
+            const s = String(floorStr).replace(/層|樓/g, '');
+            const charMap = { '一': 1, '二': 2, '三': 3, '四': 4, '五': 5, '六': 6, '七': 7, '八': 8, '九': 9 };
+            if (!isNaN(s)) return parseInt(s, 10);
+            if (s === '地下') return -1;
+            let total = 0;
+            const parts = s.split('十');
+            if (parts.length === 2) {
+                const part0 = parts[0] ? (charMap[parts[0]] || 1) : 1;
+                const part1 = parts[1] ? (charMap[parts[1]] || 0) : 0;
+                total = part0 * 10 + part1;
+            } else if (s.includes('十')) {
+                total = 10;
+            } else {
+                total = charMap[s] || null;
+            }
+            return total > 0 ? total : null;
+        }
+        function processRow(row, mapping) {
+            const newRow = {};
+            const targetDbColumns = [...new Set(Object.values(mapping))];
+            targetDbColumns.forEach(col => newRow[col] = null);
+            for (const csvHeader in row) {
+                const dbColumn = mapping[csvHeader];
+                if (dbColumn) {
+                    let value = row[csvHeader];
+                    if (value === undefined || value === '') continue;
+                    if (dbColumn === '樓層' || dbColumn === '總樓層') {
+                        newRow[dbColumn] = chineseFloorToNumber(value);
+                    } else if (dbColumn.includes('日')) {
+                        newRow[dbColumn] = rocToDate(String(value));
+                    } else if (['交易總價', '車位總價', '房數', '廳數', '衛浴數', '持分分母', '持分分子', '交易屋齡', '車位價格'].includes(dbColumn)) {
+                        newRow[dbColumn] = parseInt(cleanNumber(value), 10);
+                        if(isNaN(newRow[dbColumn])) newRow[dbColumn] = null;
+                    } else if (dbColumn.includes('面積')) {
+                        newRow[dbColumn] = cleanNumber(value);
+                    } else {
+                        newRow[dbColumn] = String(value);
+                    }
+                }
+            }
+            return newRow;
+        }
+        function isEqual(objA, objB, tableType) {
+            const keysToCheck = Object.values(columnMappings[tableType]);
+            for (const key of keysToCheck) {
+                if (key === 'id') continue;
+                const valA = objA[key] ?? '';
+                const valB = objB[key] ?? '';
+                if (key.includes('面積')) {
+                    if (Math.abs(cleanNumber(valA) - cleanNumber(valB)) > 0.001) return false;
+                } else {
+                     if (String(valA) !== String(valB)) return false;
+                }
+            }
+            return true;
+        }
+        function updateConnectionStatus(isConnected) {
+            const statusClass = isConnected ? 'status-online' : 'status-offline';
+            const statusText = isConnected ? '已連線' : '未連線';
+            DOM.connectionStatus.className = `status-indicator ${statusClass}`;
+            DOM.connectionText.textContent = statusText;
+        }
+        function clearLogs(type) {
+            if (type === 'status') {
+                DOM.statusContainer.innerHTML = '<div class="text-gray-400">日誌已清除</div>';
+            } else {
+                DOM.errorLogContainer.innerHTML = '<div class="text-gray-400">無錯誤記錄</div>';
+            }
+        }
+        function resetUI() {
+            DOM.fileListContainer.classList.add('hidden');
+            DOM.statusContainer.innerHTML = '<div class="text-gray-400">等待操作...</div>';
+            DOM.errorLogContainer.innerHTML = '<div class="text-gray-400">無錯誤記錄</div>';
+            DOM.fileList.innerHTML = '';
+            DOM.startUploadButton.disabled = false;
+            DOM.selectFoldersButton.disabled = false;
+            allFiles = [];
+            processedMainIds.clear();
+            summary = { new: 0, updated: 0, identical: 0, subAdded: 0, errors: 0, warnings: 0 };
+            updateProgress(0, 0);
+        }
+        function updateProgress(current, total, phase = '') {
+            const percentage = total > 0 ? (current / total) * 100 : 0;
+            const circumference = 2 * Math.PI * 40;
+            const offset = circumference - (percentage / 100) * circumference;
+            DOM.progressCircle.style.strokeDashoffset = offset;
+            DOM.progressPercent.textContent = `${Math.round(percentage)}%`;
+            DOM.progressStatus.textContent = phase || `${current} / ${total}`;
+        }
+        async function testConnection() {
+            const supabaseUrl = document.getElementById('supabaseUrl').value;
+            const supabaseKey = document.getElementById('supabaseKey').value;
+            if (!supabaseUrl || !supabaseKey) {
+                addLog('請填寫完整的 Supabase URL 和 Service Role Key。', 'error', 'error');
+                return;
+            }
+            addLog('正在測試連線...', 'info');
+            try {
+                const testSupabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+                const { error } = await testSupabase.from('county_codes').select('code', { count: 'exact', head: true });
+                if (error && error.code !== '42P01') throw error;
+                addLog('連線成功！', 'success');
+                updateConnectionStatus(true);
+                supabase = testSupabase;
+            } catch (error) {
+                addLog(`連線失敗: ${error.message}`, 'error', 'error');
+                updateConnectionStatus(false);
+            }
+        }
 
-    // 渲染建案類型比較表格
-    const comparisonContainer = dom.typeComparisonTableContainer;
-    if (typeComparison && typeComparison.length > 0) {
-        let comparisonHtml = `<table class="min-w-full divide-y divide-gray-800">
-            <thead><tr><th>建案名稱</th><th>住宅均價(萬/坪)</th><th>店舖均價(萬/坪)</th><th>店舖對住宅倍數</th><th>事務所均價(萬/坪)</th><th>事務所對住宅倍數</th></tr></thead>
-            <tbody>`;
-        typeComparison.forEach(item => {
-            const residentialAvgToShow = (item.residentialAvg && typeof item.residentialAvg === 'object') ? item.residentialAvg[currentAverageType] : 0;
-            const shopAvgToShow = (item.shopAvg && typeof item.shopAvg === 'object') ? item.shopAvg[currentAverageType] : 0;
-            const officeAvgToShow = (item.officeAvg && typeof item.officeAvg === 'object') ? item.officeAvg[currentAverageType] : 0;
+        /**
+         * @NEW
+         * 顯示最終的統計總結報告
+         */
+        function displayFinalSummary() {
+            const summaryContent = `
+                <div class="space-y-1 text-sm font-mono p-2 border border-gray-700 rounded-md">
+                    <div><strong class="text-white">主表處理結果:</strong>
+                        <ul class="list-disc list-inside pl-4">
+                            <li>新增紀錄: <span class="font-bold text-green-400">${summary.new}</span> 筆</li>
+                            <li>更新紀錄: <span class="font-bold text-yellow-400">${summary.updated}</span> 筆</li>
+                            <li>內容相同跳過: <span class="font-bold text-gray-400">${summary.identical}</span> 筆</li>
+                        </ul>
+                    </div>
+                    <div><strong class="text-white">附表處理結果:</strong>
+                        <ul class="list-disc list-inside pl-4">
+                            <li>新增關聯紀錄: <span class="font-bold text-green-400">${summary.subAdded}</span> 筆</li>
+                        </ul>
+                    </div>
+                    <div class="pt-1 mt-1 border-t border-gray-700"><strong class="text-white">整體狀況:</strong>
+                        <ul class="list-disc list-inside pl-4">
+                            <li>解析警告 (已忽略): <span class="font-bold text-yellow-400">${summary.warnings}</span> 次</li>
+                            <li>上傳失敗檔案: <span class="font-bold text-red-400">${summary.errors}</span> 個</li>
+                        </ul>
+                    </div>
+                </div>
+            `;
+            addLog('--- <strong>上傳結果總結</strong> ---', 'success');
+            addLog(summaryContent, 'info');
+        }
 
-            comparisonHtml += `<tr class="hover:bg-dark-card">
-                <td>${item.projectName}</td>
-                <td>${residentialAvgToShow > 0 ? formatNumber(residentialAvgToShow) : '-'}</td>
-                <td>${shopAvgToShow > 0 ? formatNumber(shopAvgToShow) : '-'}</td>
-                <td>${item.shopMultiple > 0 ? formatNumber(item.shopMultiple) + ' 倍' : '-'}</td>
-                <td>${officeAvgToShow > 0 ? formatNumber(officeAvgToShow) : '-'}</td>
-                <td>${item.officeMultiple > 0 ? formatNumber(item.officeMultiple) + ' 倍' : '-'}</td>
-            </tr>`;
-        });
-        comparisonHtml += `</tbody></table>`;
-        comparisonContainer.innerHTML = comparisonHtml;
-    } else {
-        comparisonContainer.innerHTML = '<p class="text-gray-500">無符合條件的建案可進行類型比較。</p>';
-    }
-}
+        async function startUpload() {
+            if (!supabase) {
+                addLog('請先測試 Supabase 連線', 'error', 'error');
+                return;
+            }
+            if (allFiles.length === 0) {
+                addLog('請先選擇要上傳的檔案', 'error', 'error');
+                return;
+            }
 
-function renderTable(data){if(!data||data.length===0)return;const isPresale=data[0]['交易類型']==='預售交易';const hiddenColumns=['編號','縣市代碼','交易類型','戶型'];const headers=Object.keys(data[0]);const headerRow=document.createElement('tr');headerRow.innerHTML='<th>操作</th>';headers.forEach(headerText=>{if(!hiddenColumns.includes(headerText)){const th=document.createElement('th');th.textContent=headerText;headerRow.appendChild(th);if(isPresale&&headerText==='戶別'){const newTh=document.createElement('th');newTh.textContent='戶型';headerRow.appendChild(newTh)}}});const thead=document.createElement('thead');thead.appendChild(headerRow);const tbody=document.createElement('tbody');data.forEach(row=>{const tr=document.createElement('tr');tr.className='hover:bg-dark-card transition-colors';tr.innerHTML=`<td><button class="details-btn bg-purple-600 hover:bg-purple-500 text-white text-xs px-3 py-1 rounded-md" data-id="${row['編號']}" data-type="${row['交易類型']}" data-county="${row['縣市代碼']}">附表</button></td>`;headers.forEach(header=>{if(!hiddenColumns.includes(header)){const td=document.createElement('td');let value=row[header];if(header==='地址'||header==='備註'){td.innerHTML=`<div class="scrollable-cell">${value??"-"}</div>`}else{td.textContent=(typeof value==='number'&&!Number.isInteger(value))?formatNumber(value):(value??"-")}tr.appendChild(td);if(isPresale&&header==='戶別'){const unitTypeTd=document.createElement('td');unitTypeTd.textContent=row['戶型']||'-';tr.appendChild(unitTypeTd)}}});tbody.appendChild(tr)});dom.resultsTable.innerHTML='';dom.resultsTable.append(thead,tbody)}
-function renderPagination(){dom.paginationControls.innerHTML='';if(totalRecords===0&&currentPage===1){dom.paginationControls.innerHTML=`<span>共 0 筆資料</span>`;return}const totalPages=Math.ceil(totalRecords/pageSize);dom.paginationControls.innerHTML=`<div>共 ${totalRecords} 筆資料</div><div class="flex items-center space-x-2"><button id="prev-page" class="bg-gray-700 hover:bg-cyan-600 text-white font-bold py-2 px-4 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors">上一頁</button><span class="px-4">第 ${currentPage} / ${totalPages>0?totalPages:1} 頁</span><button id="next-page" class="bg-gray-700 hover:bg-cyan-600 text-white font-bold py-2 px-4 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors">下一頁</button></div>`;const prevBtn=document.getElementById('prev-page');const nextBtn=document.getElementById('next-page');prevBtn.disabled=currentPage===1;nextBtn.disabled=currentPage>=totalPages;prevBtn.onclick=()=>{currentPage--;fetchData()};nextBtn.onclick=()=>{currentPage++;fetchData()}}
-async function showSubTableDetails(btn){const{id,type,county}=btn.dataset;dom.modalTitle.textContent=`附表詳細資料 (編號: ${id})`;dom.modalContent.innerHTML='<div class="loader mx-auto"></div>';dom.modal.classList.remove('hidden');try{if(!id||!type||!county||county==='undefined'){throw new Error(`前端參數不足，無法查詢附表。 (編號: ${id}, 類型: ${type}, 縣市: ${county})`)}const response=await fetch(SUB_DATA_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4Ym1iYmZyemJ0dXVleXNpY29jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA2ODg5ODksImV4cCI6MjA2NjI2NDk4OX0.1IUynv5eK1xF_3pb-oasqaTrPvbeAOC4Sc1oykPBy4M'},body:JSON.stringify({id,type,county})});if(!response.ok){const errorResult=await response.json().catch(()=>({error:'無法從伺服器獲取附表資料'}));throw new Error(errorResult.error)}const result=await response.json();let contentHTML='<div class="space-y-6">';if(type!=='預售交易')contentHTML+=renderSubTable('建物資料',result.build);contentHTML+=renderSubTable('土地資料',result.land);contentHTML+=renderSubTable('車位資料',result.park);contentHTML=(contentHTML==='<div class="space-y-6">')?'<p>此筆紀錄沒有對應的附表資料。</p>':contentHTML+'</div>';dom.modalContent.innerHTML=contentHTML}catch(error){dom.modalContent.innerHTML=`<p class="text-red-400">查詢失敗: ${error.message}</p>`}}
-function renderSubTable(title,records){if(!records||!Array.isArray(records)||records.length===0){return`<div class="mb-4"><h3 class="text-lg font-semibold text-cyan-400 mb-2">${title}</h3><p class="text-sm text-gray-500">無資料</p></div>`}const headers=Object.keys(records[0]).filter(h=>h!=='id'&&h!=='編號');let html=`<div><h3 class="text-lg font-semibold text-cyan-400 mb-2">${title}</h3><div class="overflow-x-auto"><table class="w-full text-sm text-left"><thead><tr class="border-b border-gray-600">`;headers.forEach(header=>{html+=`<th class="py-2 pr-2 font-medium text-gray-400">${header}</th>`});html+='</tr></thead><tbody>';records.forEach(record=>{html+='<tr class="border-b border-gray-700 last:border-b-0">';headers.forEach(header=>{html+=`<td class="py-2 pr-2">${record[header]??"-"}</td>`});html+='</tr>'});html+='</tbody></table></div></div>';return html}
-function toggleAnalyzeButtonState(){const isCountySelected=!!dom.countySelect.value;const isValidType=dom.typeSelect.value==='預售交易'||dom.typeSelect.value==='中古交易';dom.analyzeBtn.disabled=!(isCountySelected&&isValidType)}
-function updateDistrictOptions(){const selectedCounty=dom.countySelect.value;dom.districtSelect.innerHTML='<option value="">全部</option>';if(selectedCounty&&districtData[selectedCounty]){districtData[selectedCounty].forEach(districtName=>{const option=document.createElement('option');option.value=districtName;option.textContent=districtName;dom.districtSelect.appendChild(option)});dom.districtSelect.disabled=false;dom.projectNameInput.disabled=false;dom.projectNameInput.placeholder="輸入建案名稱搜尋..."}else{dom.districtSelect.disabled=true;dom.projectNameInput.disabled=true;dom.projectNameInput.placeholder="請先選縣市..."}toggleAnalyzeButtonState();clearSelectedProjects()}
-function clearSelectedProjects(){selectedProjects=[];renderProjectTags();const suggestionCheckboxes=dom.projectNameSuggestions.querySelectorAll('input[type="checkbox"]');suggestionCheckboxes.forEach(cb=>cb.checked=false)}
-function onProjectInput(){clearTimeout(suggestionDebounceTimer);suggestionDebounceTimer=setTimeout(()=>{fetchProjectNameSuggestions(dom.projectNameInput.value)},300)}
-async function fetchProjectNameSuggestions(query){const county=dom.countySelect.value;const countyCode=countyCodeMap[county];if(!query.trim()||!countyCode){dom.projectNameSuggestions.classList.add('hidden');return}try{const response=await fetch(PROJECT_NAMES_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4Ym1iYmZyemJ0dXVleXNpY29jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA2ODg5ODksImV4cCI6MjA2NjI2NDk4OX0.1IUynv5eK1xF_3pb-oasqaTrPvbeAOC4Sc1oykPBy4M'},body:JSON.stringify({countyCode,query})});if(!response.ok)throw new Error(`伺服器錯誤: ${response.status}`);const names=await response.json();renderSuggestions(names)}catch(error){console.error("獲取建案建議失敗:",error);dom.projectNameSuggestions.innerHTML=`<div class="p-2 text-red-400">讀取建議失敗。</div>`;dom.projectNameSuggestions.classList.remove('hidden')}}
-function renderSuggestions(names){if(names.length===0){dom.projectNameSuggestions.innerHTML='<div class="p-2 text-gray-500">無相符建案</div>'}else{dom.projectNameSuggestions.innerHTML=names.map(name=>{const isChecked=selectedProjects.includes(name);return`<label class="suggestion-item" data-name="${name}"><input type="checkbox" ${isChecked?'checked':''}><span class="flex-grow">${name}</span></label>`}).join('')}dom.projectNameSuggestions.classList.remove('hidden')}
-function onSuggestionClick(e){const target=e.target.closest('.suggestion-item');if(!target)return;const name=target.dataset.name;const checkbox=target.querySelector('input[type="checkbox"]');if(!name||!checkbox)return;setTimeout(()=>{if(checkbox.checked){if(!selectedProjects.includes(name))selectedProjects.push(name)}else{selectedProjects=selectedProjects.filter(p=>p!==name)}renderProjectTags()},0)}
-function onTagRemove(e){if(e.target.classList.contains('project-tag-remove')){removeProject(e.target.dataset.name)}}
-function removeProject(name){selectedProjects=selectedProjects.filter(p=>p!==name);renderProjectTags();const openSuggestionCheckbox=dom.projectNameSuggestions.querySelector(`label[data-name="${name}"] input`);if(openSuggestionCheckbox)openSuggestionCheckbox.checked=false}
-function renderProjectTags(){const tags=dom.projectNameContainer.querySelectorAll('.project-tag');tags.forEach(tag=>tag.remove());dom.projectNameContainer.insertBefore(dom.projectNameInput,dom.projectNameContainer.firstChild);selectedProjects.forEach(name=>{const tagElement=document.createElement('span');tagElement.className='project-tag';tagElement.textContent=name;const removeBtn=document.createElement('span');removeBtn.className='project-tag-remove';removeBtn.innerHTML='&times;';removeBtn.dataset.name=name;tagElement.appendChild(removeBtn);dom.projectNameContainer.insertBefore(tagElement,dom.projectNameInput)});dom.clearProjectsBtn.classList.toggle('hidden',selectedProjects.length===0)}
+            isUploading = true;
+            DOM.startUploadButton.disabled = true;
+            DOM.selectFoldersButton.disabled = true;
+            // **修改點 1 (重複): 重置 summary 物件**
+            summary = { new: 0, updated: 0, identical: 0, subAdded: 0, errors: 0, warnings: 0 };
+            const selectedType = document.querySelector('input[name="uploadType"]:checked').value;
+            const typeNameMap = { 'all': '全選', 'a': '中古', 'b': '預售', 'c': '租賃' };
+            let filesToUpload = allFiles;
+            if (selectedType !== 'all') {
+                filesToUpload = allFiles.filter(file => file.tableType.startsWith(selectedType));
+            }
 
-initialize();
-</script>
+            if (filesToUpload.length === 0) {
+                addLog(`找不到符合「${typeNameMap[selectedType]}」類型的檔案，已中止上傳。`, 'warning', 'status');
+                DOM.startUploadButton.disabled = false;
+                DOM.selectFoldersButton.disabled = false;
+                isUploading = false;
+                return;
+            }
+            
+            addLog(`已選擇上傳類型: ${typeNameMap[selectedType]}。共 ${filesToUpload.length} 個檔案待處理。`, 'info');
+            const mainTables = filesToUpload.filter(f => f.isMain);
+            const subTables = filesToUpload.filter(f => !f.isMain);
+            
+            await processPhase(mainTables, '階段 1: 主表 (智慧更新)', true);
+            await processPhase(subTables, '階段 2: 附表 (智慧連動)', false);
+            
+            addLog('所有檔案處理完成！', 'success');
+            
+            // **修改點 3: 在所有任務結束後呼叫 displayFinalSummary**
+            displayFinalSummary();
+            DOM.selectFoldersButton.disabled = false;
+            isUploading = false;
+        }
+
+        async function processPhase(files, phaseName, isSmartUpdate) {
+            if (files.length === 0) {
+                addLog(`在 ${phaseName} 中沒有需要上傳的檔案，跳過此階段。`, 'info');
+                return;
+            }
+            addLog(`--- ${phaseName} ---`, 'info');
+            for (let i = 0; i < files.length; i++) {
+                const fileInfo = files[i];
+                updateProgress(i, files.length, phaseName);
+                DOM.currentFileName.textContent = fileInfo.fullPath;
+                if (isSmartUpdate) {
+                    await uploadMainFileWithSmartUpdate(fileInfo);
+                } else {
+                    await uploadSubFile(fileInfo);
+                }
+                updateProgress(i + 1, files.length, phaseName);
+            }
+            DOM.currentFileName.textContent = '';
+        }
+
+        function updateTime() {
+            DOM.currentTime.textContent = new Date().toLocaleTimeString();
+        }
+
+        // --- 事件監聽器與初始化 ---
+        DOM.selectFoldersButton.addEventListener('click', selectFolders);
+        DOM.startUploadButton.addEventListener('click', startUpload);
+        DOM.testConnectionButton.addEventListener('click', testConnection);
+
+        updateTime();
+        setInterval(updateTime, 1000);
+        updateConnectionStatus(false);
+    </script>
 </body>
 </html>
