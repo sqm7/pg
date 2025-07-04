@@ -61,7 +61,7 @@ overflow-y: auto; }
 .suggestion-item input[type="checkbox"]:focus { ring: #06b6d4; }
 .scrollable-cell { max-width: 25ch; overflow-x: auto; white-space: nowrap; padding-top: 4px; padding-bottom: 4px;
 }
-.scrollable-filter-container { padding-bottom: 8px; } /* 增加底部空間給卷軸 */
+.scrollable-filter-container { padding-bottom: 8px; }
 .scrollable-cell::-webkit-scrollbar, #project-name-container::-webkit-scrollbar, .scrollable-filter-container::-webkit-scrollbar { height: 4px; }
 .scrollable-cell::-webkit-scrollbar-track, #project-name-container::-webkit-scrollbar-track, .scrollable-filter-container::-webkit-scrollbar-track { background: transparent; }
 .scrollable-cell::-webkit-scrollbar-thumb, #project-name-container::-webkit-scrollbar-thumb, .scrollable-filter-container::-webkit-scrollbar-thumb { background-color: #4b5563; border-radius: 20px;
@@ -302,7 +302,7 @@ class="block text-sm font-medium text-gray-300">結束日期</label><input type=
       </div>
 
       <div id="price-grid-report-content" class="tab-content">
-        <div class="mb-4">
+        <div class="my-4">
             <label class="block text-sm font-medium text-gray-300 mb-2">建案篩選器</label>
             <div id="price-grid-project-filter-container" class="flex flex-nowrap gap-2 overflow-x-auto py-2 scrollable-filter-container"></div>
         </div>
@@ -444,7 +444,6 @@ function initialize() {
   toggleAnalyzeButtonState();
 }
 
-// --- All other functions ---
 function switchAverageType(type) {
     if (currentAverageType === type || !type) return;
     currentAverageType = type;
@@ -581,6 +580,11 @@ async function fetchData() {
     totalRecords = 0;
     renderPagination();
   }
+}
+
+function formatNumber(num, decimals = 2) {
+    if (typeof num !== 'number' || isNaN(num)) return '-';
+    return num.toLocaleString('zh-TW', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
 }
 
 function renderRankingReport() {
@@ -773,12 +777,14 @@ function renderPriceGridAnalysis() {
     }
     const { projectNames } = analysisDataCache.priceGridAnalysis;
 
-    if (projectNames && projectNames.length > 0) {
+    if (projectNames && projectNames.length > 1) { // 只在多於一個建案時顯示篩選器
         let filterHtml = `<button class="capsule-btn active" data-project="all">全部建案</button>`;
         filterHtml += projectNames.map(name => `<button class="capsule-btn" data-project="${name}">${name}</button>`).join('');
         dom.priceGridProjectFilterContainer.innerHTML = filterHtml;
+        dom.priceGridProjectFilterContainer.parentElement.classList.remove('hidden');
     } else {
         dom.priceGridProjectFilterContainer.innerHTML = '';
+        dom.priceGridProjectFilterContainer.parentElement.classList.add('hidden');
     }
     
     selectedPriceGridProject = 'all';
@@ -792,13 +798,11 @@ function displayCurrentPriceGrid() {
         : analysisDataCache.priceGridAnalysis.byProject[selectedPriceGridProject];
 
     if (!data) {
-        // 清理畫面而不是整個頁籤
         dom.horizontalPriceGridContainer.innerHTML = '<p class="text-gray-500">找不到所選建案的分析資料。</p>';
         dom.unitColorLegentContainer.innerHTML = '';
-        if(dom.verticalPriceTableContainer) dom.verticalPriceTableContainer.innerHTML = '';
         return;
     }
-
+    
     renderUnitColorLegend(data.unitColorMap);
     renderHorizontalPriceGrid(data.horizontalGrid, data.sortedFloors, data.sortedUnits, data.unitColorMap);
 }
@@ -849,7 +853,7 @@ function renderHorizontalPriceGrid(grid, floors, units, colorMap) {
                 }).join('');
                 bodyHtml += `<td style="background-color: ${bgColor}; vertical-align: top; padding: 4px 8px;"><div class="grid-cell-content">${cellContent}</div></td>`;
             } else {
-                bodyHtml += `<td>-</td>`;
+                bodyHtml += `<td class="bg-dark-card/50">-</td>`;
             }
         });
         bodyHtml += `</tr>`;
