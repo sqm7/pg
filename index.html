@@ -22,114 +22,55 @@ tailwind.config = {
 }
 </script>
 <style>
-body { font-family: 'Inter', 'Noto Sans TC', sans-serif;
-background: #1a1d29; color: #e5e7eb; }
-.glass-card { background: rgba(37, 40, 54, 0.8); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1);
-}
+[cite_start]body { font-family: 'Inter', 'Noto Sans TC', sans-serif; [cite: 171] background: #1a1d29; color: #e5e7eb; }
+[cite_start].glass-card { background: rgba(37, 40, 54, 0.8); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); [cite: 172] }
 .form-input, .form-select { background-color: #1f2937; border: 1px solid #4b5563; color: #d1d5db; }
-.form-input:focus, .form-select:focus, .form-input:has(input:focus) { border-color: #06b6d4;
-box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.5); outline: none; }
-select:disabled, input:disabled { background-color: #374151; cursor: not-allowed; opacity: 0.7;
-}
+[cite_start].form-input:focus, .form-select:focus, .form-input:has(input:focus) { border-color: #06b6d4; [cite: 173] box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.5); outline: none; }
+[cite_start]select:disabled, input:disabled { background-color: #374151; cursor: not-allowed; opacity: 0.7; [cite: 174] }
 .table-container { overflow-y: auto; }
 table { width: 100%; border-collapse: collapse; }
-th, td { border-bottom: 1px solid #374151; padding: 0.75rem 1rem;
-text-align: left; font-size: 0.875rem; white-space: nowrap; }
-thead th { background-color: #252836; position: sticky; top: 0; z-index: 10; font-weight: 600;
-color: #9ca3af; }
-.loader { border: 4px solid #374151; border-top: 4px solid #06b6d4; border-radius: 50%; width: 40px; height: 40px;
-animation: spin 1s linear infinite; }
-@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg);
-} }
-.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.7); display: flex;
-align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(5px); transition: opacity 0.3s ease; }
-.modal-container { background: #252836; padding: 2rem; border-radius: 12px;
-width: 90%; max-width: 1200px; max-height: 85vh; overflow-y: auto; border: 1px solid #4b5563; transform: scale(0.95); transition: transform 0.3s ease;
-}
+[cite_start]th, td { border-bottom: 1px solid #374151; padding: 0.75rem 1rem; [cite: 175] text-align: left; font-size: 0.875rem; white-space: nowrap; }
+[cite_start]thead th { background-color: #252836; position: sticky; top: 0; z-index: 10; font-weight: 600; [cite: 176] color: #9ca3af; }
+[cite_start].loader { border: 4px solid #374151; border-top: 4px solid #06b6d4; border-radius: 50%; width: 40px; height: 40px; [cite: 177] animation: spin 1s linear infinite; }
+@keyframes spin { 0% { transform: rotate(0deg); [cite_start]} 100% { transform: rotate(360deg); [cite: 178] } }
+[cite_start].modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.7); display: flex; [cite: 179] align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(5px); transition: opacity 0.3s ease; }
+[cite_start].modal-container { background: #252836; padding: 2rem; border-radius: 12px; [cite: 180] [cite_start]width: 90%; max-width: 1200px; max-height: 85vh; overflow-y: auto; border: 1px solid #4b5563; transform: scale(0.95); transition: transform 0.3s ease; [cite: 181] }
 .modal-overlay:not(.hidden) .modal-container { transform: scale(1); }
-.project-tag { display: inline-flex; align-items: center; background-color: #4b5563; color: #d1d5db; padding: 0.25rem 0.75rem; border-radius: 9999px;
-font-size: 0.875rem; flex-shrink: 0; }
+[cite_start].project-tag { display: inline-flex; align-items: center; background-color: #4b5563; color: #d1d5db; padding: 0.25rem 0.75rem; border-radius: 9999px; [cite: 182] font-size: 0.875rem; flex-shrink: 0; }
 .project-tag-remove { margin-left: 0.5rem; cursor: pointer; font-weight: bold; }
 .project-tag-remove:hover { color: #f87171; }
-#project-name-suggestions { max-height: 200px;
-overflow-y: auto; }
+[cite_start]#project-name-suggestions { max-height: 200px; [cite: 183] overflow-y: auto; }
 .suggestion-item { display: flex; align-items: center; padding: 0.5rem 1rem; cursor: pointer; }
-.suggestion-item:hover, .suggestion-item.active { background-color: #374151;
-}
-.suggestion-item input[type="checkbox"] { margin-right: 0.75rem; height: 1rem; width: 1rem; border-radius: 0.25rem; border-color: #6b7280; background-color: #374151; color: #06b6d4; cursor: pointer;
-}
+[cite_start].suggestion-item:hover, .suggestion-item.active { background-color: #374151; [cite: 184] }
+[cite_start].suggestion-item input[type="checkbox"] { margin-right: 0.75rem; height: 1rem; width: 1rem; border-radius: 0.25rem; border-color: #6b7280; background-color: #374151; color: #06b6d4; cursor: pointer; [cite: 185] }
 .suggestion-item input[type="checkbox"]:focus { ring: #06b6d4; }
-.scrollable-cell { max-width: 25ch; overflow-x: auto; white-space: nowrap; padding-top: 4px; padding-bottom: 4px;
-}
+[cite_start].scrollable-cell { max-width: 25ch; overflow-x: auto; white-space: nowrap; padding-top: 4px; padding-bottom: 4px; [cite: 186] }
 .scrollable-filter-container { padding-bottom: 8px; }
 .scrollable-cell::-webkit-scrollbar, #project-name-container::-webkit-scrollbar, .scrollable-filter-container::-webkit-scrollbar { height: 4px; }
-.scrollable-cell::-webkit-scrollbar-track, #project-name-container::-webkit-scrollbar-track, .scrollable-filter-container::-webkit-scrollbar-track { background: transparent; }
-.scrollable-cell::-webkit-scrollbar-thumb, #project-name-container::-webkit-scrollbar-thumb, .scrollable-filter-container::-webkit-scrollbar-thumb { background-color: #4b5563; border-radius: 20px;
-}
-.tab-button { padding: 0.75rem 1.5rem; font-medium; border-bottom: 3px solid transparent; transition: all 0.3s ease; color: #9ca3af; }
-.tab-button.active { color: #06b6d4;
-border-bottom-color: #06b6d4; }
+[cite_start].scrollable-cell::-webkit-scrollbar-track, #project-name-container::-webkit-scrollbar-track, .scrollable-filter-container::-webkit-scrollbar-track { background: transparent; [cite: 187] }
+.scrollable-cell::-webkit-scrollbar-thumb, #project-name-container::-webkit-scrollbar-thumb, .scrollable-filter-container::-webkit-scrollbar-thumb { background-color: #4b5563; border-radius: 20px; }
+[cite_start].tab-button { padding: 0.75rem 1.5rem; font-medium; border-bottom: 3px solid transparent; [cite: 188] transition: all 0.3s ease; color: #9ca3af; }
+.tab-button.active { color: #06b6d4; border-bottom-color: #06b6d4; }
 .tab-content { display: none; }
-.tab-content.active { display: block; }
-.metric-card { background-color: #1f2937; padding: 1.5rem; border-radius: 0.75rem;
-border: 1px solid #374151; }
-.metric-card-title { font-size: 0.875rem; color: #9ca3af; margin-bottom: 0.5rem; }
-.metric-card-value { font-size: 2rem; font-weight: 700; color: #e5e7eb;
-}
+[cite_start].tab-content.active { display: block; [cite: 189] }
+.metric-card { background-color: #1f2937; padding: 1.5rem; border-radius: 0.75rem; border: 1px solid #374151; }
+[cite_start].metric-card-title { font-size: 0.875rem; color: #9ca3af; margin-bottom: 0.5rem; [cite: 190] }
+.metric-card-value { font-size: 2rem; font-weight: 700; color: #e5e7eb; }
 .metric-card-unit { font-size: 1rem; color: #6b7280; margin-left: 0.5rem; }
-.sortable-th { cursor: pointer; user-select: none; }
-.sortable-th:hover { color: #e5e7eb;
-}
-.sortable-th .sort-icon { display: inline-block; margin-left: 0.5rem; color: #6b7280; transition: all 0.2s; }
-.sortable-th.asc .sort-icon { transform: rotate(180deg); color: #06b6d4;
-}
+[cite_start].sortable-th { cursor: pointer; [cite: 191] user-select: none; }
+.sortable-th:hover { color: #e5e7eb; }
+[cite_start].sortable-th .sort-icon { display: inline-block; margin-left: 0.5rem; color: #6b7280; transition: all 0.2s; [cite: 192] }
+.sortable-th.asc .sort-icon { transform: rotate(180deg); color: #06b6d4; }
 .sortable-th.desc .sort-icon { color: #06b6d4; }
-.report-section-title { font-size: 1.25rem; font-weight: 600; color: #e5e7eb; margin-bottom: 1rem; padding-bottom: 0.5rem;
-border-bottom: 1px solid #374151;}
+[cite_start].report-section-title { font-size: 1.25rem; font-weight: 600; color: #e5e7eb; [cite: 193] margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid #374151;}
 .avg-type-btn { color: #9ca3af; }
-.avg-type-btn.active { background-color: #06b6d4; color: #ffffff;
-}
-.capsule-btn {
-    padding: 0.375rem 1rem;
-    border-radius: 9999px;
-    border: 1px solid #4b5563;
-    background-color: transparent;
-    color: #d1d5db;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-size: 0.875rem;
-    white-space: nowrap;
-    flex-shrink: 0;
-}
-.capsule-btn.active, .capsule-btn:hover {
-    background-color: #06b6d4;
-    border-color: #06b6d4;
-    color: white;
-}
-.sub-tab-nav {
-    display: flex;
-    gap: 0.5rem;
-    margin-bottom: 1.5rem;
-    border-bottom: 1px solid #374151;
-    padding-bottom: 0.75rem;
-}
-.sub-tab-btn {
-    padding: 0.5rem 1rem;
-    border-radius: 0.5rem;
-    color: #9ca3af;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-.sub-tab-btn.active, .sub-tab-btn:hover {
-    background-color: #252836;
-    color: #e5e7eb;
-}
-.has-tooltip {
-  position: relative;
-  cursor: help;
-  display: inline-block;
-}
+[cite_start].avg-type-btn.active { background-color: #06b6d4; color: #ffffff; [cite: 194] }
+[cite_start].capsule-btn { padding: 0.375rem 1rem; border-radius: 9999px; border: 1px solid #4b5563; background-color: transparent; color: #d1d5db; cursor: pointer; [cite: 195] transition: all 0.2s ease; font-size: 0.875rem; white-space: nowrap; flex-shrink: 0; }
+[cite_start].capsule-btn.active, .capsule-btn:hover { background-color: #06b6d4; border-color: #06b6d4; [cite: 196] color: white; }
+[cite_start].sub-tab-nav { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; border-bottom: 1px solid #374151; padding-bottom: 0.75rem; [cite: 197] }
+[cite_start].sub-tab-btn { padding: 0.5rem 1rem; border-radius: 0.5rem; color: #9ca3af; font-weight: 500; cursor: pointer; transition: background-color 0.2s; [cite: 198] }
+.sub-tab-btn.active, .sub-tab-btn:hover { background-color: #252836; color: #e5e7eb; }
+[cite_start].has-tooltip { position: relative; cursor: help; display: inline-block; [cite: 199] }
 .has-tooltip::after {
   content: attr(data-tooltip);
   position: absolute;
@@ -137,7 +78,7 @@ border-bottom: 1px solid #374151;}
   left: 50%;
   transform: translateX(-50%) translateY(8px);
   background-color: #06b6d4;
-  color: white;
+  [cite_start]color: white; [cite: 200]
   padding: 6px 12px;
   border-radius: 6px;
   font-size: 0.875rem;
@@ -146,27 +87,11 @@ border-bottom: 1px solid #374151;}
   visibility: hidden;
   transition: opacity 0.2s, visibility 0.2s;
   pointer-events: none;
-  white-space: pre-wrap;
-  text-align: left;
-  max-width: 400px;
-  overflow-wrap: break-word;
-  word-wrap: break-word;
+  white-space: nowrap;
 }
-.has-tooltip:hover::after {
-  opacity: 1;
-  visibility: visible;
-}
-.parking-icon {
-    color: #a5b4fc;
-    margin-left: 4px;
-    font-size: 0.75rem;
-}
-.grid-cell-content {
-    line-height: 1.6;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-}
+[cite_start].has-tooltip:hover::after { opacity: 1; visibility: visible; [cite: 202] }
+.parking-icon { color: #a5b4fc; margin-left: 4px; font-size: 0.75rem; }
+[cite_start].grid-cell-content { line-height: 1.6; display: flex; [cite: 203] flex-direction: column; align-items: flex-start; }
 </style>
 </head>
 <body class="p-4 md:p-8">
@@ -181,7 +106,7 @@ border-bottom: 1px solid #374151;}
     <div class="glass-card p-6 rounded-xl shadow-lg mb-8">
       <div id="filter-form" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4 items-end">
         <div><label for="county" class="block text-sm font-medium text-gray-300">縣市</label><select id="county" class="form-select mt-1 block w-full pl-3 pr-10 py-2 text-base rounded-md"><option value="">請選擇縣市</option></select></div>
-        <div><label for="district" class="block text-sm font-medium text-gray-300">行政區</label><select id="district" class="form-select mt-1 block w-full pl-3 pr-10 py-2 text-base rounded-md" disabled><option value="">請先選縣市</option></select></div>
+        [cite_start]<div><label for="district" class="block text-sm font-medium text-gray-300">行政區</label><select id="district" class="form-select mt-1 [cite: 204] block w-full pl-3 pr-10 py-2 text-base rounded-md" disabled><option value="">請先選縣市</option></select></div>
  
         
         <div>
@@ -189,28 +114,26 @@ border-bottom: 1px solid #374151;}
             <select id="type" class="form-select mt-1 block w-full pl-3 pr-10 py-2 text-base rounded-md">
                 <option value="預售交易" selected>預售交易</option>
                 <option value="中古交易" disabled>中古交易 (開發中)</option>
-         
+    [cite_start][cite: 205]      
                 <option value="租賃交易" disabled>租賃交易 (開發中)</option>
             </select>
         </div>
         <div><label for="building-type" class="block text-sm font-medium text-gray-300">建物型態</label><select id="building-type" class="form-select mt-1 block w-full pl-3 pr-10 py-2 text-base rounded-md"><option value="">全部</option><option value="住宅大樓(11層含以上有電梯)">住宅大樓</option><option value="華廈(10層含以下有電梯)">華廈</option><option value="公寓(5層含以下無電梯)">公寓</option><option value="套房(1房(1廳)1衛)">套房</option><option value="透天厝">透天厝</option><option value="店面(店鋪)">店面</option><option value="辦公商業大樓">辦公商業大樓</option><option value="工廠">工廠</option><option value="倉庫">倉庫</option><option value="其他">其他</option></select></div>
-        <div class="xl:col-span-2"><div class="flex justify-between items-center"><label for="project-name-input" class="block text-sm font-medium text-gray-300">建案名稱 (可複選)</label><button id="clear-projects-btn" class="text-xs text-cyan-400 hover:text-cyan-300 hidden transition-opacity">清除選取</button></div><div class="relative mt-1"><div id="project-name-container" class="form-input flex flex-nowrap items-center gap-2 p-1 min-h-[42px] rounded-md 
-overflow-x-auto"><input type="text" id="project-name-input" placeholder="請先選縣市..." class="bg-transparent flex-grow outline-none text-base py-1 px-2" disabled></div><div id="project-name-suggestions" class="absolute z-20 w-full mt-1 bg-dark-card border border-gray-600 rounded-md shadow-lg hidden"></div></div></div>
+        [cite_start]<div class="xl:col-span-2"><div class="flex justify-between items-center"><label for="project-name-input" class="block text-sm font-medium text-gray-300">建案名稱 (可複選)</label><button id="clear-projects-btn" class="text-xs text-cyan-400 [cite: 206] hover:text-cyan-300 hidden transition-opacity">清除選取</button></div><div class="relative mt-1"><div id="project-name-container" class="form-input flex flex-nowrap items-center gap-2 p-1 min-h-[42px] rounded-md overflow-x-auto"><input type="text" id="project-name-input" placeholder="請先選縣市..." class="bg-transparent flex-grow outline-none text-base py-1 px-2" disabled></div><div id="project-name-suggestions" class="absolute z-20 w-full mt-1 bg-dark-card border border-gray-600 rounded-md shadow-lg hidden"></div></div></div>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:col-span-2 lg:grid-cols-4 xl:col-span-4">
             <div>
                 <label for="date-range" class="block text-sm font-medium text-gray-300">快捷時間</label>
-                <select id="date-range" class="form-select mt-1 block w-full pl-3 pr-10 py-2 text-base rounded-md">
+                [cite_start]<select [cite: 207] id="date-range" class="form-select mt-1 block w-full pl-3 pr-10 py-2 text-base rounded-md">
      
                     <option value="custom">自訂範圍</option><option value="7d">近7天</option><option value="14d">近14天</option><option value="30d">近30天</option><option value="1q">近一季 (3個月)</option><option value="2q">近兩季 (6個月)</option><option value="3q">近三季 (9個月)</option><option value="1y">近一年 (12個月)</option><option value="this_year">今年以來</option><option value="last_2_years">去年＋今年</option><option value="last_3_years">前年＋去年＋今年</option>
                 </select>
             </div>
-            <div><label for="date-start" class="block text-sm font-medium text-gray-300">起始日期</label><input type="date" id="date-start" class="form-input mt-1 block w-full pl-3 pr-2 py-2 text-base rounded-md"></div>
-            <div><label for="date-end" 
-class="block text-sm font-medium text-gray-300">結束日期</label><input type="date" id="date-end" class="form-input mt-1 block w-full pl-3 pr-2 py-2 text-base rounded-md"></div>
+            [cite_start]<div><label for="date-start" class="block text-sm font-medium text-gray-300">起始日期</label><input type="date" id="date-start" class="form-input mt-1 block [cite: 208] w-full pl-3 pr-2 py-2 text-base rounded-md"></div>
+            <div><label for="date-end" class="block text-sm font-medium text-gray-300">結束日期</label><input type="date" id="date-end" class="form-input mt-1 block w-full pl-3 pr-2 py-2 text-base rounded-md"></div>
         </div>
         <div class="sm:col-span-2 lg:col-span-4 xl:col-span-6 flex justify-end items-center gap-4">
           <button id="analyze-btn" class="bg-purple-600 hover:bg-purple-500 text-white font-bold py-2 px-6 rounded-lg shadow-lg hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed">分析報表</button>
-          <button id="search-btn" class="bg-gradient-to-r from-cyan-accent to-purple-accent text-white font-bold py-2 px-6 rounded-lg shadow-lg hover:opacity-90 transition-all">查詢資料列表</button>
+          [cite_start]<button id="search-btn" class="bg-gradient-to-r from-cyan-accent to-purple-accent text-white font-bold py-2 px-6 rounded-lg shadow-lg [cite: 209] hover:opacity-90 transition-all">查詢資料列表</button>
         </div>
       </div>
     
@@ -222,7 +145,7 @@ class="block text-sm font-medium text-gray-300">結束日期</label><input type=
           <button data-tab="ranking-report" class="tab-button active">核心指標與排名</button>
           <button data-tab="price-band-report" class="tab-button">總價帶分析</button>
           <button data-tab="unit-price-report" class="tab-button">房屋單價分析</button>
-          <button data-tab="parking-report" class="tab-button">車位單價分析</button>
+       [cite_start][cite: 210]    <button data-tab="parking-report" class="tab-button">車位單價分析</button>
           <button data-tab="velocity-report" class="tab-button">去化時間分析</button>
           <button data-tab="price-grid-report" class="tab-button">垂直水平分析</button>
           <button data-tab="data-list" class="tab-button">資料列表</button>
@@ -234,7 +157,7 @@ class="block text-sm font-medium text-gray-300">結束日期</label><input type=
 
       <div id="ranking-report-content" class="tab-content">
         <div id="metric-cards-container" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-8"></div>
-        <div class="overflow-x-auto">
+       [cite_start][cite: 211]  <div class="overflow-x-auto">
             <table id="ranking-table" class="min-w-full divide-y divide-gray-800"></table>
         </div>
       </div>
@@ -246,13 +169,13 @@ class="block text-sm font-medium text-gray-300">結束日期</label><input type=
       </div>
 
       <div id="unit-price-report-content" class="tab-content">
-        <div class="flex justify-end items-center mb-4">
+       [cite_start][cite: 212]  <div class="flex justify-end items-center mb-4">
             <label class="text-sm font-medium text-gray-400 mr-3">平均數類型:</label>
             <div id="avg-type-toggle" class="inline-flex bg-dark-card p-1 rounded-lg">
                 <button data-type="arithmetic" class="avg-type-btn active px-4 py-1 text-sm font-semibold rounded-md transition-colors">算術平均數</button>
                 <button data-type="weighted" class="avg-type-btn px-4 py-1 text-sm font-semibold rounded-md transition-colors">加權平均數</button>
             </div>
-        </div>
+ [cite_start][cite: 213]        </div>
         <div class="mb-8">
             <h3 class="report-section-title">住宅單價統計 (住宅大樓/華廈)</h3>
             <div id="residential-stats-table-container" class="overflow-x-auto"></div>
@@ -260,7 +183,7 @@ class="block text-sm font-medium text-gray-300">結束日期</label><input type=
         </div>
         <div>
             <h3 class="report-section-title">建案類型比較 (店舖/事務所 vs. 住宅)</h3>
-            <div id="type-comparison-table-container" class="overflow-x-auto"></div>
+       [cite_start][cite: 214]      <div id="type-comparison-table-container" class="overflow-x-auto"></div>
         </div>
         <div id="average-type-explanation" class="mt-8 p-4 bg-dark-card border border-gray-700 rounded-lg text-sm text-gray-400 space-y-3">
             <h4 class="font-bold text-gray-200">名詞解釋</h4>
@@ -269,7 +192,7 @@ class="block text-sm font-medium text-gray-300">結束日期</label><input type=
         </div>
       </div>
 
-      <div id="parking-report-content" class="tab-content">
+     [cite_start][cite: 215]  <div id="parking-report-content" class="tab-content">
         <div class="mb-8">
             <h3 class="report-section-title">房車配比</h3>
             <div id="parking-ratio-table-container" class="overflow-x-auto"></div>
@@ -279,7 +202,8 @@ class="block text-sm font-medium text-gray-300">結束日期</label><input type=
             <div id="avg-price-by-type-table-container" class="overflow-x-auto"></div>
         </div>
         <div>
-            <h3 class="report-section-title">坡道平面車位分層價格</h3>
+ 
+ [cite_start][cite: 216]            <h3 class="report-section-title">坡道平面車位分層價格</h3>
             <div id="ramp-plane-price-by-floor-table-container" class="overflow-x-auto"></div>
             <p class="text-sm text-gray-500 mt-2">* 此數據僅統計主表中「車位類別」為「坡道平面」的交易，並根據其附表中的車位資料進行彙總。</p>
         </div>
@@ -288,14 +212,14 @@ class="block text-sm font-medium text-gray-300">結束日期</label><input type=
       <div id="velocity-report-content" class="tab-content">
         <div class="mb-4">
             <label class="block text-sm font-medium text-gray-300 mb-2">房型篩選器</label>
-            <div id="velocity-room-filter-container" class="flex flex-wrap gap-2"></div>
+          [cite_start][cite: 217]   <div id="velocity-room-filter-container" class="flex flex-wrap gap-2"></div>
         </div>
         <div id="velocity-sub-tabs-container">
             <nav class="sub-tab-nav">
                 <button data-view="weekly" class="sub-tab-btn">每週去化</button>
                 <button data-view="monthly" class="sub-tab-btn active">每月去化</button>
                 <button data-view="quarterly" class="sub-tab-btn">每季去化</button>
-                <button data-view="yearly" class="sub-tab-btn">年度去化</button>
+         [cite_start][cite: 218]        <button data-view="yearly" class="sub-tab-btn">年度去化</button>
             </nav>
         </div>
         <div id="velocity-table-container" class="overflow-x-auto"></div>
@@ -305,7 +229,7 @@ class="block text-sm font-medium text-gray-300">結束日期</label><input type=
         <div class="my-4">
             <label class="block text-sm font-medium text-gray-300 mb-2">建案篩選器</label>
             <div id="price-grid-project-filter-container" class="flex flex-nowrap gap-2 overflow-x-auto py-2 scrollable-filter-container"></div>
-        </div>
+  [cite_start][cite: 219]       </div>
         <div>
             <h3 class="report-section-title">銷控表</h3>
             <div id="unit-color-legend-container" class="flex flex-wrap gap-x-4 gap-y-2 my-4 text-sm"></div>
@@ -315,7 +239,7 @@ class="block text-sm font-medium text-gray-300">結束日期</label><input type=
 
       <div id="data-list-content" class="tab-content">
         <div id="table-container" class="table-container overflow-x-auto">
-            <table id="results-table" class="min-w-full divide-y divide-gray-800"></table>
+       [cite_start][cite: 220]      <table id="results-table" class="min-w-full divide-y divide-gray-800"></table>
         </div>
         <div id="pagination-controls" class="flex justify-between items-center mt-4 text-sm text-gray-400"></div>
       </div>
@@ -328,7 +252,7 @@ class="block text-sm font-medium text-gray-300">結束日期</label><input type=
         <div class="flex justify-between items-center mb-6">
             <h2 id="modal-title" class="text-2xl font-bold text-white">附表詳細資料</h2>
             <button id="modal-close-btn" class="text-gray-400 hover:text-white text-3xl font-bold">&times;</button>
-        </div>
+   [cite_start][cite: 221]      </div>
         <div id="modal-content" class="text-gray-300"></div>
     </div>
 </div>
@@ -336,11 +260,10 @@ class="block text-sm font-medium text-gray-300">結束日期</label><input type=
 <script type="module">
 // API Endpoints
 const EDGE_FUNCTION_ENDPOINT = 'https://zxbmbbfrzbtuueysicoc.supabase.co/functions/v1/query-data';
-const SUB_DATA_ENDPOINT = 'https://zxbmbbfrzbtuueysicoc.supabase.co/functions/v1/query-sub-data';
+[cite_start][cite: 222] const SUB_DATA_ENDPOINT = 'https://zxbmbbfrzbtuueysicoc.supabase.co/functions/v1/query-sub-data';
 const PROJECT_NAMES_ENDPOINT = 'https://zxbmbbfrzbtuueysicoc.supabase.co/functions/v1/query-names';
 const RANKING_ANALYSIS_ENDPOINT = 'https://zxbmbbfrzbtuueysicoc.supabase.co/functions/v1/analyze-project-ranking';
-
-// DOM Elements
+[cite_start][cite: 223] // DOM Elements
 const dom = {
   countySelect: document.getElementById('county'),
   districtSelect: document.getElementById('district'),
@@ -373,7 +296,7 @@ const dom = {
   priceGridReportContent: document.getElementById('price-grid-report-content'),
   unitColorLegentContainer: document.getElementById('unit-color-legend-container'),
   horizontalPriceGridContainer: document.getElementById('horizontal-price-grid-container'),
-  priceGridProjectFilterContainer: document.getElementById('price-grid-project-filter-container'),
+  [cite_start][cite: 224] priceGridProjectFilterContainer: document.getElementById('price-grid-project-filter-container'),
   dataListContent: document.getElementById('data-list-content'),
   resultsTable: document.getElementById('results-table'),
   paginationControls: document.getElementById('pagination-controls'),
@@ -387,40 +310,38 @@ const dom = {
   clearProjectsBtn: document.getElementById('clear-projects-btn'),
   avgTypeToggle: document.getElementById('avg-type-toggle'),
 };
-
-// State variables
+[cite_start][cite: 225] // State variables
 let currentPage = 1, pageSize = 30, totalRecords = 0;
 let selectedProjects = [], suggestionDebounceTimer;
-let analysisDataCache = null;
+[cite_start][cite: 226] let analysisDataCache = null;
 let currentSort = { key: 'saleAmountSum', order: 'desc' };
 let currentAverageType = 'arithmetic';
-let currentVelocityView = 'monthly';
+[cite_start][cite: 227] let currentVelocityView = 'monthly';
 let selectedVelocityRooms = [];
-let selectedPriceGridProject = 'all';
+let selectedPriceGridProject = null;
 
 // Data
 const districtData = {"臺北市":["中正區","大同區","中山區","松山區","大安區","萬華區","信義區","士林區","北投區","內湖區","南港區","文山區"],"新北市":["板橋區","三重區","中和區","永和區","新莊區","新店區","樹林區","鶯歌區","三峽區","淡水區","汐止區","瑞芳區","土城區","蘆洲區","五股區","泰山區","林口區","深坑區","石碇區","坪林區","三芝區","石門區","八里區","平溪區","雙溪區","貢寮區","金山區","萬里區","烏來區"],"桃園市":["桃園區","中壢區","大溪區","楊梅區","蘆竹區","大園區","龜山區","八德區","龍潭區","平鎮區","新屋區","觀音區","復興區"],"臺中市":["中區","東區","南區","西區","北區","北屯區","西屯區","南屯區","太平區","大里區","霧峰區","烏日區","豐原區","后里區","石岡區","東勢區","和平區","新社區","潭子區","大雅區","神岡區","大肚區","沙鹿區","龍井區","梧棲區","清水區","大甲區","外埔區","大安區"],"臺南市":["中西區","東區","南區","北區","安平區","安南區","永康區","歸仁區","新化區","左鎮區","玉井區","楠西區","南化區","仁德區","關廟區","龍崎區","官田區","麻豆區","佳里區","西港區","七股區","將軍區","學甲區","北門區","新營區","後壁區","白河區","東山區","六甲區","下營區","柳營區","鹽水區","善化區","大內區","山上區","新市區","安定區"],"高雄市":["新興區","前金區","苓雅區","鹽埕區","鼓山區","旗津區","前鎮區","三民區","楠梓區","小港區","左營區","仁武區","大社區","岡山區","路竹區","阿蓮區","田寮區","燕巢區","橋頭區","梓官區","彌陀區","永安區","湖內區","鳳山區","大寮區","林園區","鳥松區","大樹區","旗山區","美濃區","六龜區","內門區","杉林區","甲仙區","桃源區","那瑪夏區","茂林區","茄萣區"],"基隆市":["仁愛區","信義區","中正區","中山區","安樂區","暖暖區","七堵區"],"新竹市":["東區","北區","香山區"],"嘉義市":["東區","西區"],"宜蘭縣":["宜蘭市","羅東鎮","蘇澳鎮","頭城鎮","礁溪鄉","壯圍鄉","員山鄉","冬山鄉","五結鄉","三星鄉","大同鄉","南澳鄉"],"新竹縣":["竹北市","竹東鎮","新埔鎮","關西鎮","湖口鄉","新豐鄉","芎林鄉","橫山鄉","北埔鄉","寶山鄉","峨眉鄉","尖石鄉","五峰鄉"],"苗栗縣":["苗栗市","苑裡鎮","通霄鎮","竹南鎮","頭份鎮","後龍鎮","卓蘭鎮","大湖鄉","公館鄉","銅鑼鄉","南庄鄉","頭屋鄉","三義鄉","西湖鄉","造橋鄉","三灣鄉","獅潭鄉","泰安鄉"],"彰化縣":["彰化市","鹿港鎮","和美鎮","線西鄉","伸港鄉","福興鄉","秀水鄉","花壇鄉","芬園鄉","員林鎮","溪湖鎮","田中鎮","大村鄉","埔鹽鄉","埔心鄉","永靖鄉","社頭鄉","二水鄉","北斗鎮","二林鎮","田尾鄉","埤頭鄉","芳苑鄉","大城鄉","竹塘鄉","溪州鄉"],"南投縣":["南投市","埔里鎮","草屯鎮","竹山鎮","集集鎮","名間鄉","鹿谷鄉","中寮鄉","魚池鄉","國姓鄉","水里鄉","信義鄉","仁愛鄉"],"雲林縣":["斗六市","斗南鎮","虎尾鎮","西螺鎮","土庫鎮","北港鎮","古坑鄉","大埤鄉","莿桐鄉","林內鄉","二崙鄉","崙背鄉","麥寮鄉","東勢鄉","褒忠鄉","台西鄉","元長鄉","四湖鄉","口湖鄉","水林鄉"],"嘉義縣":["太保市","朴子市","布袋鎮","大林鎮","民雄鄉","溪口鄉","新港鄉","六腳鄉","東石鄉","義竹鄉","鹿草鄉","水上鄉","中埔鄉","竹崎鄉","梅山鄉","番路鄉","大埔鄉","阿里山鄉"],"屏東縣":["屏東市","潮州鎮","東港鎮","恆春鎮","萬丹鄉","長治鄉","麟洛鄉","九如鄉","里港鄉","鹽埔鄉","高樹鄉","萬巒鄉","內埔鄉","竹田鄉","新埤鄉","枋寮鄉","新園鄉","崁頂鄉","林邊鄉","南州鄉","佳冬鄉","琉球鄉","車城鄉","滿州鄉","枋山鄉","霧台鄉","瑪家鄉","泰武鄉","來義鄉","春日鄉","獅子鄉","牡丹鄉","三地門鄉"],"花蓮縣":["花蓮市","鳳林鎮","玉里鎮","新城鄉","吉安鄉","壽豐鄉","光復鄉","豐濱鄉","瑞穗鄉","富里鄉","秀林鄉","萬榮鄉","卓溪鄉"],"臺東縣":["臺東市","成功鎮","關山鎮","卑南鄉","鹿野鄉","池上鄉","東河鄉","長濱鄉","太麻里鄉","大武鄉","綠島鄉","海端鄉","延平鄉","金峰鄉","達仁鄉","蘭嶼鄉"],"澎-湖縣":["馬公市","湖西鄉","白沙鄉","西嶼鄉","望安鄉","七美鄉"],"金門縣":["金城鎮","金湖鎮","金沙鎮","金寧鄉","烈嶼鄉","烏坵鄉"],"連江縣":["南竿鄉","北竿鄉","莒光鄉","東引鄉"]};
-const countyCodeMap = { "臺北市": "A", "新北市": "F", "桃園市": "H", "臺中市": "B", "臺南市": "D", "高雄市": "E", "基隆市": "C", "新竹市": "O", "嘉義市": "I", "新竹縣": "J", "苗栗縣": "K", "彰化縣": "N", "南投縣": "M", "雲林縣": "P", "嘉義縣": "Q", "屏東縣": "T", "宜蘭縣": "G", "花蓮縣": "U", "臺東縣": "V", "澎湖縣": "X", "金門縣": "W", "連江縣": "Z" };
-
-// --- Event Listeners & Initializers ---
+[cite_start][cite: 228] const countyCodeMap = { "臺北市": "A", "新北市": "F", "桃園市": "H", "臺中市": "B", "臺南市": "D", "高雄市": "E", "基隆市": "C", "新竹市": "O", "嘉義市": "I", "新竹縣": "J", "苗栗縣": "K", "彰化縣": "N", "南投縣": "M", "雲林縣": "P", "嘉義縣": "Q", "屏東縣": "T", "宜蘭縣": "G", "花蓮縣": "U", "臺東縣": "V", "澎湖縣": "X", "金門縣": "W", "連江縣": "Z" };
+[cite_start][cite: 229] // --- Event Listeners & Initializers ---
 function initialize() {
   Object.keys(districtData).forEach(name => dom.countySelect.add(new Option(name, name)));
-  dom.searchBtn.addEventListener('click', () => { currentPage = 1; fetchData(); });
+[cite_start][cite: 230] dom.searchBtn.addEventListener('click', () => { currentPage = 1; fetchData(); });
   dom.analyzeBtn.addEventListener('click', analyzeData);
   dom.countySelect.addEventListener('change', updateDistrictOptions);
   dom.typeSelect.addEventListener('change', toggleAnalyzeButtonState);
   dom.dateRangeSelect.addEventListener('change', handleDateRangeChange);
-  dom.dateStartInput.addEventListener('input', () => { if (document.activeElement === dom.dateStartInput) dom.dateRangeSelect.value = 'custom'; });
-  dom.dateEndInput.addEventListener('input', () => { if (document.activeElement === dom.dateEndInput) dom.dateRangeSelect.value = 'custom'; });
+[cite_start][cite: 231] dom.dateStartInput.addEventListener('input', () => { if (document.activeElement === dom.dateStartInput) dom.dateRangeSelect.value = 'custom'; });
+[cite_start][cite: 232] dom.dateEndInput.addEventListener('input', () => { if (document.activeElement === dom.dateEndInput) dom.dateRangeSelect.value = 'custom'; });
   dom.modalCloseBtn.addEventListener('click', () => dom.modal.classList.add('hidden'));
-  dom.resultsTable.addEventListener('click', e => { if (e.target.closest('.details-btn')) showSubTableDetails(e.target.closest('.details-btn')); });
+[cite_start][cite: 233] dom.resultsTable.addEventListener('click', e => { if (e.target.closest('.details-btn')) showSubTableDetails(e.target.closest('.details-btn')); });
   dom.projectNameInput.addEventListener('input', onProjectInput);
   dom.projectNameSuggestions.addEventListener('click', onSuggestionClick);
   dom.projectNameContainer.addEventListener('click', onTagRemove);
-  document.addEventListener('click', e => { if (!dom.projectNameContainer.parentElement.contains(e.target)) dom.projectNameSuggestions.classList.add('hidden'); });
+[cite_start][cite: 234] document.addEventListener('click', e => { if (!dom.projectNameContainer.parentElement.contains(e.target)) dom.projectNameSuggestions.classList.add('hidden'); });
   dom.clearProjectsBtn.addEventListener('click', clearSelectedProjects);
   dom.tabsContainer.addEventListener('click', e => { if (e.target.matches('.tab-button')) switchTab(e.target.dataset.tab); });
-  dom.rankingTable.addEventListener('click', e => {
+[cite_start][cite: 235] dom.rankingTable.addEventListener('click', e => {
     const header = e.target.closest('.sortable-th');
     if (!header) return;
     const sortKey = header.dataset.sortKey;
@@ -432,13 +353,13 @@ function initialize() {
     }
     renderRankingReport();
   });
-  dom.avgTypeToggle.addEventListener('click', (e) => {
+[cite_start][cite: 236] dom.avgTypeToggle.addEventListener('click', (e) => {
     if (e.target.matches('.avg-type-btn')) {
       const type = e.target.dataset.type;
       switchAverageType(type);
     }
   });
-  dom.velocityRoomFilterContainer.addEventListener('click', handleVelocityRoomFilterClick);
+[cite_start][cite: 237] dom.velocityRoomFilterContainer.addEventListener('click', handleVelocityRoomFilterClick);
   dom.velocitySubTabsContainer.addEventListener('click', handleVelocitySubTabClick);
   dom.priceGridProjectFilterContainer.addEventListener('click', handlePriceGridProjectFilterClick);
   toggleAnalyzeButtonState();
@@ -446,12 +367,12 @@ function initialize() {
 
 function switchAverageType(type) {
     if (currentAverageType === type || !type) return;
-    currentAverageType = type;
+[cite_start][cite: 238] currentAverageType = type;
     dom.avgTypeToggle.querySelector('.avg-type-btn.active').classList.remove('active');
     dom.avgTypeToggle.querySelector(`.avg-type-btn[data-type="${type}"]`).classList.add('active');
     if (analysisDataCache) {
         renderUnitPriceReport();
-    }
+[cite_start][cite: 239] }
 }
 
 function switchTab(targetTab) {
@@ -459,36 +380,37 @@ function switchTab(targetTab) {
   document.querySelectorAll('.tab-button').forEach(button => button.classList.remove('active'));
   document.getElementById(`${targetTab}-content`).classList.add('active');
   document.querySelector(`button[data-tab="${targetTab}"]`).classList.add('active');
-}
+[cite_start][cite: 240] }
 
 function getFilters() {
     const filters = {};
     if (dom.countySelect.value) filters.countyCode = countyCodeMap[dom.countySelect.value] || '';
-    if (dom.districtSelect.value) filters.district = dom.districtSelect.value;
+[cite_start][cite: 241] if (dom.districtSelect.value) filters.district = dom.districtSelect.value;
     if (dom.typeSelect.value) filters.type = dom.typeSelect.value;
     if (dom.dateStartInput.value) filters.dateStart = dom.dateStartInput.value;
     if (dom.dateEndInput.value) filters.dateEnd = dom.dateEndInput.value;
-    if (dom.buildingTypeSelect.value) filters.buildingType = dom.buildingTypeSelect.value;
+[cite_start][cite: 242] if (dom.buildingTypeSelect.value) filters.buildingType = dom.buildingTypeSelect.value;
     if (selectedProjects.length > 0) filters.projectNames = selectedProjects;
     return filters;
-}
+[cite_start][cite: 243] }
 
 function showLoading(message) {
     dom.messageArea.innerHTML = `<div class="loader mx-auto"></div><p class="mt-4">${message}</p>`;
     dom.messageArea.classList.remove('hidden');
     dom.tabsContainer.classList.add('hidden');
-    ['ranking-report-content', 'price-band-report-content', 'unit-price-report-content', 'parking-report-content', 'velocity-report-content', 'price-grid-report-content', 'data-list-content'].forEach(id => {
+[cite_start][cite: 244] ['ranking-report-content', 'price-band-report-content', 'unit-price-report-content', 'parking-report-content', 'velocity-report-content', 'price-grid-report-content', 'data-list-content'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.classList.remove('active');
     });
-}
+[cite_start][cite: 245] }
 
 function showMessage(message, isError = false) {
-    const messageClass = isError ? 'bg-red-900/50 border border-red-700 text-red-200 p-4 rounded-lg' : '';
+    const messageClass = isError ?
+[cite_start][cite: 246] 'bg-red-900/50 border border-red-700 text-red-200 p-4 rounded-lg' : '';
     dom.messageArea.innerHTML = `<div class="${messageClass}">${message}</div>`;
     dom.messageArea.classList.remove('hidden');
     dom.tabsContainer.classList.add('hidden');
-}
+[cite_start][cite: 247] }
 
 function formatDate(date) {
     return date.toISOString().split('T')[0];
@@ -496,44 +418,44 @@ function formatDate(date) {
 
 function handleDateRangeChange() {
     const value = dom.dateRangeSelect.value;
-    if (value === 'custom') return;
+[cite_start][cite: 248] if (value === 'custom') return;
     const endDate = new Date();
     let startDate = new Date();
-    switch (value) {
+[cite_start][cite: 249] switch (value) {
         case '7d': startDate.setDate(endDate.getDate() - 7); break;
-        case '14d': startDate.setDate(endDate.getDate() - 14); break;
+[cite_start][cite: 250] case '14d': startDate.setDate(endDate.getDate() - 14); break;
         case '30d': startDate.setDate(endDate.getDate() - 30); break;
         case '1q': startDate.setMonth(endDate.getMonth() - 3); break;
-        case '2q': startDate.setMonth(endDate.getMonth() - 6); break;
+[cite_start][cite: 251] case '2q': startDate.setMonth(endDate.getMonth() - 6); break;
         case '3q': startDate.setMonth(endDate.getMonth() - 9); break;
         case '1y': startDate.setFullYear(endDate.getFullYear() - 1); break;
-        case 'this_year': startDate = new Date(endDate.getFullYear(), 0, 1); break;
+[cite_start][cite: 252] case 'this_year': startDate = new Date(endDate.getFullYear(), 0, 1); break;
         case 'last_2_years': startDate = new Date(endDate.getFullYear() - 1, 0, 1); break;
-        case 'last_3_years': startDate = new Date(endDate.getFullYear() - 2, 0, 1); break;
+[cite_start][cite: 253] case 'last_3_years': startDate = new Date(endDate.getFullYear() - 2, 0, 1); break;
     }
     dom.dateStartInput.value = formatDate(startDate);
-    dom.dateEndInput.value = formatDate(endDate);
+[cite_start][cite: 254] dom.dateEndInput.value = formatDate(endDate);
 }
 
 async function analyzeData() {
   if (!dom.countySelect.value) return showMessage('請先選擇一個縣市再進行分析。');
   showLoading('分析中，請稍候...');
-  try {
+[cite_start][cite: 255] try {
     const response = await fetch(RANKING_ANALYSIS_ENDPOINT, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4Ym1iYmZyemJ0dXVleXNpY29jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA2ODg5ODksImV4cCI6MjA2NjI2NDk4OX0.1IUynv5eK1xF_3pb-oasqaTrPvbeAOC4Sc1oykPBy4M' },
       body: JSON.stringify({ filters: getFilters() })
     });
-    if (!response.ok) {
+[cite_start][cite: 256] if (!response.ok) {
       const err = await response.json().catch(() => ({ error: `分析請求失敗: ${response.status}` }));
-      throw new Error(err.error);
+[cite_start][cite: 257] throw new Error(err.error);
     }
     analysisDataCache = await response.json();
     if (!analysisDataCache.coreMetrics) return showMessage('找不到符合條件的分析資料。');
     
     dom.messageArea.classList.add('hidden');
     dom.tabsContainer.classList.remove('hidden');
-    currentSort = { key: 'saleAmountSum', order: 'desc' };
+[cite_start][cite: 258] currentSort = { key: 'saleAmountSum', order: 'desc' };
     
     renderRankingReport();
     renderPriceBandReport();
@@ -543,7 +465,7 @@ async function analyzeData() {
     renderPriceGridAnalysis();
     
     switchTab('ranking-report');
-  } catch(error) {
+[cite_start][cite: 259] } catch(error) {
     console.error("數據分析失敗:", error);
     showMessage(`數據分析失敗: ${error.message}`, true);
     analysisDataCache = null;
@@ -552,25 +474,25 @@ async function analyzeData() {
 
 async function fetchData() {
   showLoading('查詢中，請稍候...');
-  try {
+[cite_start][cite: 260] try {
     const response = await fetch(EDGE_FUNCTION_ENDPOINT, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4Ym1iYmZyemJ0dXVleXNpY29jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA2ODg5ODksImV4cCI6MjA2NjI2NDk4OX0.1IUynv5eK1xF_3pb-oasqaTrPvbeAOC4Sc1oykPBy4M' },
       body: JSON.stringify({ filters: getFilters(), pagination: { page: currentPage, limit: pageSize } })
     });
-    if (!response.ok) {
+[cite_start][cite: 261] if (!response.ok) {
       const err = await response.json().catch(() => ({ error: '無法解析伺服器回應' }));
-      throw new Error(err.error);
+[cite_start][cite: 262] throw new Error(err.error);
     }
     const result = await response.json();
     totalRecords = result.count || 0;
-    if (!result.data || result.data.length === 0) {
+[cite_start][cite: 263] if (!result.data || result.data.length === 0) {
       showMessage('找不到符合條件的資料。');
       renderPagination();
       return;
     }
     renderTable(result.data);
-    renderPagination();
+[cite_start][cite: 264] renderPagination();
     dom.messageArea.classList.add('hidden');
     dom.tabsContainer.classList.remove('hidden');
     switchTab('data-list');
@@ -579,187 +501,189 @@ async function fetchData() {
     showMessage(`查詢錯誤: ${error.message}`, true);
     totalRecords = 0;
     renderPagination();
-  }
+[cite_start][cite: 265] }
 }
 
 function formatNumber(num, decimals = 2) {
     if (typeof num !== 'number' || isNaN(num)) return '-';
-    return num.toLocaleString('zh-TW', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+[cite_start][cite: 266] return num.toLocaleString('zh-TW', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
 }
 
 function renderRankingReport() {
     if (!analysisDataCache || !analysisDataCache.coreMetrics) return;
-    const { coreMetrics, projectRanking } = analysisDataCache;
+[cite_start][cite: 267] const { coreMetrics, projectRanking } = analysisDataCache;
     dom.metricCardsContainer.innerHTML = `<div class="metric-card"><div class="metric-card-title">市場去化總銷售金額</div><div><span class="metric-card-value">${formatNumber(coreMetrics.totalSaleAmount, 0)}</span><span class="metric-card-unit">萬</span></div></div><div class="metric-card"><div class="metric-card-title">總銷去化房屋坪數</div><div><span class="metric-card-value">${formatNumber(coreMetrics.totalHouseArea, 2)}</span><span class="metric-card-unit">坪</span></div></div><div class="metric-card"><div class="metric-card-title">總平均單價</div><div><span class="metric-card-value">${formatNumber(coreMetrics.overallAveragePrice, 2)}</span><span class="metric-card-unit">萬/坪</span></div></div><div class="metric-card"><div class="metric-card-title">總交易筆數</div><div><span class="metric-card-value">${coreMetrics.transactionCount.toLocaleString()}</span><span class="metric-card-unit">筆</span></div></div>`;
-    projectRanking.sort((a, b) => {
+[cite_start][cite: 268] projectRanking.sort((a, b) => {
         const valA = a[currentSort.key];
         const valB = b[currentSort.key];
         return currentSort.order === 'desc' ? valB - valA : valA - valB;
     });
-    const tableHeaders = [{ key: 'rank', label: '排名', sortable: false },{ key: 'projectName', label: '建案名稱', sortable: false },{ key: 'saleAmountSum', label: '交易總價(萬)', sortable: true },{ key: 'houseAreaSum', label: '房屋面積(坪)', sortable: true },{ key: 'transactionCount', label: '資料筆數', sortable: true },{ key: 'marketShare', label: '市場佔比(%)', sortable: true },{ key: 'averagePrice', label: '平均單價(萬)', sortable: true },{ key: 'minPrice', label: '最低單價(萬)', sortable: true },{ key: 'maxPrice', label: '最高單價(萬)', sortable: true },{ key: 'medianPrice', label: '單價中位數(萬)', sortable: true },{ key: 'avgParkingPrice', label: '車位平均單價', sortable: true }];
-    let headerHtml = '<thead><tr>';
+[cite_start][cite: 269] const tableHeaders = [{ key: 'rank', label: '排名', sortable: false },{ key: 'projectName', label: '建案名稱', sortable: false },{ key: 'saleAmountSum', label: '交易總價(萬)', sortable: true },{ key: 'houseAreaSum', label: '房屋面積(坪)', sortable: true },{ key: 'transactionCount', label: '資料筆數', sortable: true },{ key: 'marketShare', label: '市場佔比(%)', sortable: true },{ key: 'averagePrice', label: '平均單價(萬)', sortable: true },{ key: 'minPrice', label: '最低單價(萬)', sortable: true },{ key: 'maxPrice', label: '最高單價(萬)', sortable: true },{ key: 'medianPrice', label: '單價中位數(萬)', sortable: true },{ key: 'avgParkingPrice', label: '車位平均單價', sortable: true }];
+[cite_start][cite: 270] let headerHtml = '<thead><tr>';
     tableHeaders.forEach(h => {
         if (h.sortable) {
             const sortClass = currentSort.key === h.key ? currentSort.order : '';
             headerHtml += `<th class="sortable-th ${sortClass}" data-sort-key="${h.key}">${h.label}<span class="sort-icon">▼</span></th>`;
         } else { headerHtml += `<th>${h.label}</th>`; }
     });
-    headerHtml += '</tr></thead>';
+[cite_start][cite: 271] headerHtml += '</tr></thead>';
     let bodyHtml = '<tbody>';
     projectRanking.slice(0, 15).forEach((proj, index) => {
         bodyHtml += `<tr class="hover:bg-dark-card transition-colors"><td>${index + 1}</td><td>${proj.projectName}</td><td>${formatNumber(proj.saleAmountSum, 0)}</td><td>${formatNumber(proj.houseAreaSum)}</td><td>${proj.transactionCount.toLocaleString()}</td><td>${formatNumber(proj.marketShare)}%</td><td>${formatNumber(proj.averagePrice)}</td><td>${formatNumber(proj.minPrice)}</td><td>${formatNumber(proj.maxPrice)}</td><td>${formatNumber(proj.medianPrice)}</td><td>${formatNumber(proj.avgParkingPrice, 0)}</td></tr>`;
     });
-    bodyHtml += '</tbody>';
+[cite_start][cite: 272] bodyHtml += '</tbody>';
     let footerHtml = `<tfoot class="bg-dark-card font-bold"><tr class="border-t-2 border-gray-600"><td colspan="2">總計</td><td>${formatNumber(coreMetrics.totalSaleAmount, 0)}</td><td>${formatNumber(coreMetrics.totalHouseArea)}</td><td>${coreMetrics.transactionCount.toLocaleString()}</td><td colspan="6"></td></tr></tfoot>`;
-    dom.rankingTable.innerHTML = headerHtml + bodyHtml + footerHtml;
+[cite_start][cite: 273] dom.rankingTable.innerHTML = headerHtml + bodyHtml + footerHtml;
 }
 
 function renderPriceBandReport() {
     if (!analysisDataCache || !analysisDataCache.priceBandAnalysis) return;
-    const { priceBandAnalysis } = analysisDataCache;
+[cite_start][cite: 274] const { priceBandAnalysis } = analysisDataCache;
     priceBandAnalysis.sort((a, b) => {
         if (a.rooms !== b.rooms) return a.rooms - b.rooms;
         return a.bathrooms - b.bathrooms;
     });
-    const tableHeaders = ['房數', '衛浴數', '筆數', '平均房屋總價', '最低房屋總價', '1/4分位房屋總價', '中位數房屋總價', '3/4分位房屋總價', '最高房屋總價'];
-    let headerHtml = '<thead><tr>' + tableHeaders.map(h => `<th>${h}</th>`).join('') + '</tr></thead>';
+[cite_start][cite: 275] const tableHeaders = ['房數', '衛浴數', '筆數', '平均房屋總價', '最低房屋總價', '1/4分位房屋總價', '中位數房屋總價', '3/4分位房屋總價', '最高房屋總價'];
+[cite_start][cite: 276] let headerHtml = '<thead><tr>' + tableHeaders.map(h => `<th>${h}</th>`).join('') + '</tr></thead>';
     let bodyHtml = '<tbody>';
-    priceBandAnalysis.forEach(item => {
+[cite_start][cite: 277] priceBandAnalysis.forEach(item => {
         bodyHtml += `<tr class="hover:bg-dark-card transition-colors"><td>${item.rooms}</td><td>${item.bathrooms}</td><td>${item.count.toLocaleString()}</td><td>${formatNumber(item.avgPrice, 0)}</td><td>${formatNumber(item.minPrice, 0)}</td><td>${formatNumber(item.q1Price, 0)}</td><td>${formatNumber(item.medianPrice, 0)}</td><td>${formatNumber(item.q3Price, 0)}</td><td>${formatNumber(item.maxPrice, 0)}</td></tr>`;
     });
-    bodyHtml += '</tbody>';
+[cite_start][cite: 278] bodyHtml += '</tbody>';
     dom.priceBandTable.innerHTML = headerHtml + bodyHtml;
 }
 
 function renderUnitPriceReport() {
     if (!analysisDataCache || !analysisDataCache.unitPriceAnalysis) return;
-    const { residentialStats, typeComparison } = analysisDataCache.unitPriceAnalysis;
+[cite_start][cite: 279] const { residentialStats, typeComparison } = analysisDataCache.unitPriceAnalysis;
     const statsContainer = dom.residentialStatsTableContainer;
-    if (residentialStats && residentialStats.avgPrice) {
+[cite_start][cite: 280] if (residentialStats && residentialStats.avgPrice) {
         const avgPriceToShow = residentialStats.avgPrice[currentAverageType];
-        const minPriceTooltip = residentialStats.minPriceProject ? `建案: ${residentialStats.minPriceProject} | 戶型: ${residentialStats.minPriceUnit || '-'} | 樓層: ${residentialStats.minPriceFloor || '-'}` : '';
-        const maxPriceTooltip = residentialStats.maxPriceProject ? `建案: ${residentialStats.maxPriceProject} | 戶型: ${residentialStats.maxPriceUnit || '-'} | 樓層: ${residentialStats.maxPriceFloor || '-'}` : '';
-        statsContainer.innerHTML = `<table class="min-w-full divide-y divide-gray-800"><thead><tr><th class="w-1/2">統計項目</th><th class="w-1/2">房屋單價 (萬/坪)</th></tr></thead><tbody><tr class="hover:bg-dark-card"><td class="font-medium text-gray-300">平均單價</td><td>${formatNumber(avgPriceToShow)}</td></tr><tr class="hover:bg-dark-card"><td class="font-medium text-gray-300">最低單價</td><td><span class="has-tooltip" data-tooltip="${minPriceTooltip}">${formatNumber(residentialStats.minPrice)}</span></td></tr><tr class="hover:bg-dark-card"><td class="font-medium text-gray-300">1/4分位數單價</td><td>${formatNumber(residentialStats.q1Price)}</td></tr><tr class="hover:bg-dark-card"><td class="font-medium text-gray-300">中位數單價</td><td>${formatNumber(residentialStats.medianPrice)}</td></tr><tr class="hover:bg-dark-card"><td class="font-medium text-gray-300">3/4分位數單價</td><td>${formatNumber(residentialStats.q3Price)}</td></tr><tr class="hover:bg-dark-card"><td class="font-medium text-gray-300">最高單價</td><td><span class="has-tooltip" data-tooltip="${maxPriceTooltip}">${formatNumber(residentialStats.maxPrice)}</span></td></tr></tbody></table>`;
-        dom.residentialStatsExtraInfo.innerHTML = `<p><span class="font-semibold text-cyan-400">最低房屋單價建案：</span>${residentialStats.minPriceProject || 'N/A'}</p><p><span class="font-semibold text-purple-400">最高房屋單價建案：</span>${residentialStats.maxPriceProject || 'N/A'}</p>`;
-    } else {
+[cite_start][cite: 281] const minPriceTooltip = residentialStats.minPriceProject ? `建案: ${residentialStats.minPriceProject} | 戶型: ${residentialStats.minPriceUnit || '-'} | 樓層: ${residentialStats.minPriceFloor || '-'}` : '';
+[cite_start][cite: 282] const maxPriceTooltip = residentialStats.maxPriceProject ? `建案: ${residentialStats.maxPriceProject} | 戶型: ${residentialStats.maxPriceUnit || '-'} | 樓層: ${residentialStats.maxPriceFloor || '-'}` : '';
+[cite_start][cite: 283] statsContainer.innerHTML = `<table class="min-w-full divide-y divide-gray-800"><thead><tr><th class="w-1/2">統計項目</th><th class="w-1/2">房屋單價 (萬/坪)</th></tr></thead><tbody><tr class="hover:bg-dark-card"><td class="font-medium text-gray-300">平均單價</td><td>${formatNumber(avgPriceToShow)}</td></tr><tr class="hover:bg-dark-card"><td class="font-medium text-gray-300">最低單價</td><td><span class="has-tooltip" data-tooltip="${minPriceTooltip}">${formatNumber(residentialStats.minPrice)}</span></td></tr><tr class="hover:bg-dark-card"><td class="font-medium text-gray-300">1/4分位數單價</td><td>${formatNumber(residentialStats.q1Price)}</td></tr><tr class="hover:bg-dark-card"><td class="font-medium text-gray-300">中位數單價</td><td>${formatNumber(residentialStats.medianPrice)}</td></tr><tr class="hover:bg-dark-card"><td class="font-medium text-gray-300">3/4分位數單價</td><td>${formatNumber(residentialStats.q3Price)}</td></tr><tr class="hover:bg-dark-card"><td class="font-medium text-gray-300">最高單價</td><td><span class="has-tooltip" data-tooltip="${maxPriceTooltip}">${formatNumber(residentialStats.maxPrice)}</span></td></tr></tbody></table>`;
+[cite_start][cite: 284] dom.residentialStatsExtraInfo.innerHTML = `<p><span class="font-semibold text-cyan-400">最低房屋單價建案：</span>${residentialStats.minPriceProject || 'N/A'}</p><p><span class="font-semibold text-purple-400">最高房屋單價建案：</span>${residentialStats.maxPriceProject || 'N/A'}</p>`;
+[cite_start][cite: 285] } else {
         statsContainer.innerHTML = '<p class="text-gray-500">無符合條件的住宅交易資料可供分析。</p>';
         dom.residentialStatsExtraInfo.innerHTML = '';
-    }
+[cite_start][cite: 286] }
     const comparisonContainer = dom.typeComparisonTableContainer;
     if (typeComparison && typeComparison.length > 0) {
         let comparisonHtml = `<table class="min-w-full divide-y divide-gray-800"><thead><tr><th>建案名稱</th><th>住宅均價(萬/坪)</th><th>店舖均價(萬/坪)</th><th>店舖對住宅倍數</th><th>事務所均價(萬/坪)</th><th>事務所對住宅倍數</th></tr></thead><tbody>`;
-        typeComparison.forEach(item => {
+[cite_start][cite: 287] typeComparison.forEach(item => {
             const residentialAvgToShow = (item.residentialAvg && typeof item.residentialAvg === 'object') ? item.residentialAvg[currentAverageType] : 0;
             const shopAvgToShow = (item.shopAvg && typeof item.shopAvg === 'object') ? item.shopAvg[currentAverageType] : 0;
             const officeAvgToShow = (item.officeAvg && typeof item.officeAvg === 'object') ? item.officeAvg[currentAverageType] : 0;
-            comparisonHtml += `<tr class="hover:bg-dark-card"><td>${item.projectName}</td><td>${residentialAvgToShow > 0 ? formatNumber(residentialAvgToShow) : '-'}</td><td>${shopAvgToShow > 0 ? formatNumber(shopAvgToShow) : '-'}</td><td>${item.shopMultiple > 0 ? formatNumber(item.shopMultiple) + ' 倍' : '-'}</td><td>${officeAvgToShow > 0 ? formatNumber(officeAvgToShow) : '-'}</td><td>${item.officeMultiple > 0 ? formatNumber(item.officeMultiple) + ' 倍' : '-'}</td></tr>`;
+            comparisonHtml += `<tr class="hover:bg-dark-card"><td>${item.projectName}</td><td>${residentialAvgToShow > 0 ? formatNumber(residentialAvgToShow) : '-'}</td><td>${shopAvgToShow > 0 ? formatNumber(shopAvgToShow) 
+[cite_start][cite: 288]: '-'}</td><td>${item.shopMultiple > 0 ? formatNumber(item.shopMultiple) + ' 倍' : '-'}</td><td>${officeAvgToShow > 0 ? formatNumber(officeAvgToShow) : '-'}</td><td>${item.officeMultiple > 0 ? formatNumber(item.officeMultiple) + ' 倍' : '-'}</td></tr>`;
         });
-        comparisonHtml += `</tbody></table>`;
+[cite_start][cite: 289] comparisonHtml += `</tbody></table>`;
         comparisonContainer.innerHTML = comparisonHtml;
     } else {
         comparisonContainer.innerHTML = '<p class="text-gray-500">無符合條件的建案可進行類型比較。</p>';
-    }
+[cite_start][cite: 290] }
 }
 
 function renderParkingAnalysisReport() {
     if (!analysisDataCache || !analysisDataCache.parkingAnalysis) return;
     const { parkingRatio, avgPriceByType, rampPlanePriceByFloor } = analysisDataCache.parkingAnalysis;
-    if (parkingRatio) {
+[cite_start][cite: 291] if (parkingRatio) {
         dom.parkingRatioTableContainer.innerHTML = `<table class="min-w-full divide-y divide-gray-800"><thead><tr><th>配置類型</th><th>交易筆數</th><th>佔比(%)</th></tr></thead><tbody><tr class="hover:bg-dark-card"><td>有搭車位</td><td>${parkingRatio.withParking.count.toLocaleString()}</td><td>${formatNumber(parkingRatio.withParking.percentage, 2)}%</td></tr><tr class="hover:bg-dark-card"><td>沒搭車位</td><td>${parkingRatio.withoutParking.count.toLocaleString()}</td><td>${formatNumber(parkingRatio.withoutParking.percentage, 2)}%</td></tr></tbody></table>`;
-    } else {
+[cite_start][cite: 292] } else {
         dom.parkingRatioTableContainer.innerHTML = '<p class="text-gray-500">無車位配比資料可供分析。</p>';
-    }
+[cite_start][cite: 293] }
     if (avgPriceByType && avgPriceByType.length > 0) {
         let avgPriceHtml = `<table class="min-w-full divide-y divide-gray-800"><thead><tr><th>車位類型</th><th>交易筆數</th><th>車位平均單價(萬)</th></tr></thead><tbody>`;
-        avgPriceByType.sort((a, b) => b.transactionCount - a.transactionCount).forEach(item => {
+[cite_start][cite: 294] avgPriceByType.sort((a, b) => b.transactionCount - a.transactionCount).forEach(item => {
             avgPriceHtml += `<tr class="hover:bg-dark-card"><td>${item.type}</td><td>${item.transactionCount.toLocaleString()}</td><td>${formatNumber(item.avgPrice, 0)}</td></tr>`;
         });
-        avgPriceHtml += `</tbody></table>`;
+[cite_start][cite: 295] avgPriceHtml += `</tbody></table>`;
         dom.avgPriceByTypeTableContainer.innerHTML = avgPriceHtml;
     } else {
         dom.avgPriceByTypeTableContainer.innerHTML = '<p class="text-gray-500">無含車位的交易資料可供分析。</p>';
-    }
+[cite_start][cite: 296] }
     if (rampPlanePriceByFloor && rampPlanePriceByFloor.some(item => item.count > 0)) {
         const floorMapping = {'B1': '地下一樓', 'B2': '地下二樓', 'B3': '地下三樓', 'B4': '地下四樓', 'B5_below': '地下五樓含以下'};
-        let floorPriceHtml = `<table class="min-w-full divide-y divide-gray-800"><thead><tr><th>樓層</th><th>筆數</th><th>均價(萬)</th><th>最高價(萬)</th><th>最低價(萬)</th></tr></thead><tbody>`;
+[cite_start][cite: 297] let floorPriceHtml = `<table class="min-w-full divide-y divide-gray-800"><thead><tr><th>樓層</th><th>筆數</th><th>均價(萬)</th><th>最高價(萬)</th><th>最低價(萬)</th></tr></thead><tbody>`;
         rampPlanePriceByFloor.forEach(item => {
             if (item && item.count > 0) {
                 const maxPriceTooltip = item.maxPriceProject ? `建案: ${item.maxPriceProject} | 戶型: ${item.maxPriceUnit || '-'} | 樓層: ${item.maxPriceFloor || '-'}` : '';
                 const minPriceTooltip = item.minPriceProject ? `建案: ${item.minPriceProject} | 戶型: ${item.minPriceUnit || '-'} | 樓層: ${item.minPriceFloor || '-'}` : '';
-                floorPriceHtml += `<tr class="hover:bg-dark-card"><td>${floorMapping[item.floor] || item.floor}</td><td>${item.count.toLocaleString()}</td><td>${formatNumber(item.avgPrice, 0)}</td><td><span class="has-tooltip" data-tooltip="${maxPriceTooltip}">${formatNumber(item.maxPrice, 0)}</span></td><td><span class="has-tooltip" data-tooltip="${minPriceTooltip}">${formatNumber(item.minPrice, 0)}</span></td></tr>`;
+     [cite_start][cite: 298]            floorPriceHtml += `<tr class="hover:bg-dark-card"><td>${floorMapping[item.floor] || item.floor}</td><td>${item.count.toLocaleString()}</td><td>${formatNumber(item.avgPrice, 0)}</td><td><span class="has-tooltip" data-tooltip="${maxPriceTooltip}">${formatNumber(item.maxPrice, 0)}</span></td><td><span class="has-tooltip" data-tooltip="${minPriceTooltip}">${formatNumber(item.minPrice, 0)}</span></td></tr>`;
             }
         });
-        floorPriceHtml += `</tbody></table>`;
+[cite_start][cite: 299] floorPriceHtml += `</tbody></table>`;
         dom.rampPlanePriceByFloorTableContainer.innerHTML = floorPriceHtml;
     } else {
         dom.rampPlanePriceByFloorTableContainer.innerHTML = '<p class="text-gray-500">無符合條件的坡道平面車位交易資料可供分析。</p>';
-    }
+[cite_start][cite: 300] }
 }
 
 function renderSalesVelocityReport() {
     if (!analysisDataCache || !analysisDataCache.salesVelocityAnalysis) return;
     const { allRoomTypes } = analysisDataCache.salesVelocityAnalysis;
-    if (allRoomTypes && allRoomTypes.length > 0) {
+[cite_start][cite: 301] if (allRoomTypes && allRoomTypes.length > 0) {
         selectedVelocityRooms = [...allRoomTypes];
-        dom.velocityRoomFilterContainer.innerHTML = allRoomTypes.map(roomType => `<button class="capsule-btn active" data-room-type="${roomType}">${roomType}</button>`).join('');
+[cite_start][cite: 302] dom.velocityRoomFilterContainer.innerHTML = allRoomTypes.map(roomType => `<button class="capsule-btn active" data-room-type="${roomType}">${roomType}</button>`).join('');
     } else {
         dom.velocityRoomFilterContainer.innerHTML = '<p class="text-gray-500 text-sm">無可用房型</p>';
-    }
+[cite_start][cite: 303] }
     renderVelocityTable();
 }
 
 function renderVelocityTable() {
     if (!analysisDataCache || !analysisDataCache.salesVelocityAnalysis) return;
-    const dataForView = analysisDataCache.salesVelocityAnalysis[currentVelocityView] || {};
+[cite_start][cite: 304] const dataForView = analysisDataCache.salesVelocityAnalysis[currentVelocityView] || {};
     const timeKeys = Object.keys(dataForView).sort().reverse();
     let headerHtml = '<thead><tr class="bg-dark-card"><th rowspan="2" class="sticky left-0 bg-dark-card z-10">時間</th>';
-    selectedVelocityRooms.forEach(roomType => {
+[cite_start][cite: 305] selectedVelocityRooms.forEach(roomType => {
         headerHtml += `<th colspan="3" class="text-center border-l border-r border-gray-700">${roomType}</th>`;
     });
-    headerHtml += `<th colspan="3" class="text-center font-bold text-cyan-400 border-l border-gray-700">總計</th></tr><tr class="bg-dark-card">`;
+[cite_start][cite: 306] headerHtml += `<th colspan="3" class="text-center font-bold text-cyan-400 border-l border-gray-700">總計</th></tr><tr class="bg-dark-card">`;
     const subHeaders = ['資料筆數', '產權總價(萬)', '房屋坪數(坪)'];
-    selectedVelocityRooms.forEach(() => {
+[cite_start][cite: 307] selectedVelocityRooms.forEach(() => {
         subHeaders.forEach(sub => headerHtml += `<th class="border-l border-gray-700">${sub}</th>`);
     });
-    subHeaders.forEach(sub => headerHtml += `<th class="font-bold text-cyan-400 border-l border-gray-700">${sub}</th>`);
+[cite_start][cite: 308] subHeaders.forEach(sub => headerHtml += `<th class="font-bold text-cyan-400 border-l border-gray-700">${sub}</th>`);
     headerHtml += '</tr></thead>';
     let bodyHtml = '<tbody>';
-    timeKeys.forEach(timeKey => {
+[cite_start][cite: 309] timeKeys.forEach(timeKey => {
         const periodData = dataForView[timeKey];
         let rowTotal = { count: 0, priceSum: 0, areaSum: 0 };
         let rowHtml = `<tr class="hover:bg-dark-card"><td class="sticky left-0 bg-dark-card hover:bg-gray-800 z-10 font-mono">${timeKey}</td>`;
         selectedVelocityRooms.forEach(roomType => {
             const stats = periodData[roomType];
             if (stats) {
-                rowHtml += `<td class="border-l border-gray-700">${stats.count.toLocaleString()}</td><td>${formatNumber(stats.priceSum, 0)}</td><td>${formatNumber(stats.areaSum, 2)}</td>`;
+            [cite_start][cite: 310]     rowHtml += `<td class="border-l border-gray-700">${stats.count.toLocaleString()}</td><td>${formatNumber(stats.priceSum, 0)}</td><td>${formatNumber(stats.areaSum, 2)}</td>`;
                 rowTotal.count += stats.count;
                 rowTotal.priceSum += stats.priceSum;
                 rowTotal.areaSum += stats.areaSum;
             } else {
                 rowHtml += `<td class="border-l border-gray-700">-</td><td>-</td><td>-</td>`;
-            }
+  [cite_start][cite: 311]           }
         });
         rowHtml += `<td class="font-semibold border-l border-gray-700">${rowTotal.count.toLocaleString()}</td><td class="font-semibold">${formatNumber(rowTotal.priceSum, 0)}</td><td class="font-semibold">${formatNumber(rowTotal.areaSum, 2)}</td></tr>`;
-        bodyHtml += rowHtml;
+[cite_start][cite: 312] bodyHtml += rowHtml;
     });
     bodyHtml += '</tbody>';
-    dom.velocityTableContainer.innerHTML = timeKeys.length > 0 ? `<table class="min-w-full divide-y divide-gray-800">${headerHtml}${bodyHtml}</table>` : '<p class="text-gray-500 p-4 text-center">在此條件下無資料。</p>';
+    dom.velocityTableContainer.innerHTML = timeKeys.length > 0 ?
+[cite_start][cite: 313] `<table class="min-w-full divide-y divide-gray-800">${headerHtml}${bodyHtml}</table>` : '<p class="text-gray-500 p-4 text-center">在此條件下無資料。</p>';
 }
 
 function handleVelocityRoomFilterClick(e) {
     const button = e.target.closest('.capsule-btn');
-    if (!button) return;
+[cite_start][cite: 314] if (!button) return;
     const roomType = button.dataset.roomType;
     button.classList.toggle('active');
     if (button.classList.contains('active')) {
         if (!selectedVelocityRooms.includes(roomType)) selectedVelocityRooms.push(roomType);
-    } else {
+[cite_start][cite: 315] } else {
         selectedVelocityRooms = selectedVelocityRooms.filter(r => r !== roomType);
-    }
+[cite_start][cite: 316] }
     const { allRoomTypes } = analysisDataCache.salesVelocityAnalysis;
     selectedVelocityRooms.sort((a, b) => allRoomTypes.indexOf(a) - allRoomTypes.indexOf(b));
     renderVelocityTable();
-}
+[cite_start][cite: 317] }
 
 function handleVelocitySubTabClick(e) {
     const button = e.target.closest('.sub-tab-btn');
@@ -768,37 +692,68 @@ function handleVelocitySubTabClick(e) {
     dom.velocitySubTabsContainer.querySelector('.active').classList.remove('active');
     button.classList.add('active');
     renderVelocityTable();
-}
+[cite_start][cite: 318] }
 
 function renderPriceGridAnalysis() {
-    if (!analysisDataCache || !analysisDataCache.priceGridAnalysis) {
-        dom.priceGridReportContent.innerHTML = '<p class="text-gray-500 p-4 text-center">無垂直水平分析資料可供分析。</p>';
+    const reportContent = dom.priceGridReportContent;
+    
+    if (!analysisDataCache || !analysisDataCache.priceGridAnalysis || !analysisDataCache.priceGridAnalysis.projectNames) {
+        reportContent.innerHTML = '<p class="text-gray-500 p-4 text-center">無垂直水平分析資料可供分析。</p>';
         return;
     }
-    const { projectNames } = analysisDataCache.priceGridAnalysis;
-
-    if (projectNames && projectNames.length > 1) { // 只在多於一個建案時顯示篩選器
-        let filterHtml = `<button class="capsule-btn active" data-project="all">全部建案</button>`;
-        filterHtml += projectNames.map(name => `<button class="capsule-btn" data-project="${name}">${name}</button>`).join('');
-        dom.priceGridProjectFilterContainer.innerHTML = filterHtml;
-        dom.priceGridProjectFilterContainer.parentElement.classList.remove('hidden');
-    } else {
-        dom.priceGridProjectFilterContainer.innerHTML = '';
-        dom.priceGridProjectFilterContainer.parentElement.classList.add('hidden');
+    
+    // Restore the structure if it was previously overwritten by the error message above
+    if (!reportContent.querySelector('#price-grid-project-filter-container')) {
+        reportContent.innerHTML = `
+            <div class="my-4">
+                <label class="block text-sm font-medium text-gray-300 mb-2">建案篩選器</label>
+                <div id="price-grid-project-filter-container" class="flex flex-nowrap gap-2 overflow-x-auto py-2 scrollable-filter-container"></div>
+            </div>
+            <div>
+                <h3 class="report-section-title">銷控表</h3>
+                <div id="unit-color-legend-container" class="flex flex-wrap gap-x-4 gap-y-2 my-4 text-sm"></div>
+                <div id="horizontal-price-grid-container" class="w-full"></div>
+            </div>`;
+        
+        // Re-bind DOM elements and listener
+        dom.priceGridProjectFilterContainer = document.getElementById('price-grid-project-filter-container');
+        dom.unitColorLegentContainer = document.getElementById('unit-color-legend-container');
+        dom.horizontalPriceGridContainer = document.getElementById('horizontal-price-grid-container');
+        dom.priceGridProjectFilterContainer.addEventListener('click', handlePriceGridProjectFilterClick);
     }
     
-    selectedPriceGridProject = 'all';
-    displayCurrentPriceGrid();
+    const { projectNames } = analysisDataCache.priceGridAnalysis;
+    
+    if (projectNames && projectNames.length > 0) {
+        selectedPriceGridProject = projectNames[0]; // Default to the first project
+        
+        const filterHtml = projectNames.map(name => 
+            `<button class="capsule-btn ${name === selectedPriceGridProject ? 'active' : ''}" data-project="${name}">${name}</button>`
+        ).join('');
+        
+        dom.priceGridProjectFilterContainer.innerHTML = filterHtml;
+        dom.priceGridProjectFilterContainer.parentElement.classList.remove('hidden');
+        
+        displayCurrentPriceGrid(); // Render the grid for the default selected project
+    } else {
+        selectedPriceGridProject = null;
+        dom.priceGridProjectFilterContainer.parentElement.classList.add('hidden');
+        dom.unitColorLegentContainer.innerHTML = '';
+        dom.horizontalPriceGridContainer.innerHTML = '<p class="text-gray-500 p-4 text-center">無特定建案資料可供分析。</p>';
+    }
 }
 
 function displayCurrentPriceGrid() {
-    if (!analysisDataCache || !analysisDataCache.priceGridAnalysis) return;
-    const data = selectedPriceGridProject === 'all'
-        ? analysisDataCache.priceGridAnalysis.allProjects
-        : analysisDataCache.priceGridAnalysis.byProject[selectedPriceGridProject];
+    if (!analysisDataCache || !analysisDataCache.priceGridAnalysis || !selectedPriceGridProject) {
+        dom.horizontalPriceGridContainer.innerHTML = '<p class="text-gray-500 p-4 text-center">請從上方選擇建案以查看銷控表。</p>';
+        dom.unitColorLegentContainer.innerHTML = '';
+        return;
+    }
 
+    const data = analysisDataCache.priceGridAnalysis.byProject[selectedPriceGridProject];
+    
     if (!data) {
-        dom.horizontalPriceGridContainer.innerHTML = '<p class="text-gray-500">找不到所選建案的分析資料。</p>';
+        dom.horizontalPriceGridContainer.innerHTML = `<p class="text-gray-500">找不到建案「${selectedPriceGridProject}」的分析資料。</p>`;
         dom.unitColorLegentContainer.innerHTML = '';
         return;
     }
@@ -809,35 +764,35 @@ function displayCurrentPriceGrid() {
 
 function handlePriceGridProjectFilterClick(e) {
     const button = e.target.closest('.capsule-btn');
-    if (!button) return;
+    if (!button || button.classList.contains('active')) return;
     selectedPriceGridProject = button.dataset.project;
     dom.priceGridProjectFilterContainer.querySelector('.active').classList.remove('active');
     button.classList.add('active');
     displayCurrentPriceGrid();
-}
+[cite_start][cite: 330] }
 
 function renderUnitColorLegend(unitColorMap) {
     if (!unitColorMap || Object.keys(unitColorMap).length === 0) {
         dom.unitColorLegentContainer.innerHTML = '';
-        return;
+[cite_start][cite: 331] return;
     }
     let legendHtml = Object.entries(unitColorMap).map(([unit, color]) => 
         `<div class="flex items-center"><span class="w-4 h-4 rounded-full mr-2" style="background-color: ${color};"></span><span>${unit}</span></div>`
     ).join('');
-    dom.unitColorLegentContainer.innerHTML = legendHtml;
+[cite_start][cite: 332] dom.unitColorLegentContainer.innerHTML = legendHtml;
 }
 
 function renderHorizontalPriceGrid(grid, floors, units, colorMap) {
     if (!grid || !floors || !units || floors.length === 0 || units.length === 0) {
         dom.horizontalPriceGridContainer.innerHTML = '<p class="text-gray-500">無水平價盤資料。</p>';
-        return;
+[cite_start][cite: 333] return;
     }
     let tableHtml = '<table class="min-w-full divide-y divide-gray-800 border-collapse">';
-    let headerHtml = '<thead><tr><th class="sticky left-0 bg-dark-card z-10">樓層 \\ 戶別</th>';
-    units.forEach(unit => {
+[cite_start][cite: 334] let headerHtml = '<thead><tr><th class="sticky left-0 bg-dark-card z-10">樓層 \\ 戶別</th>';
+[cite_start][cite: 335] units.forEach(unit => {
         headerHtml += `<th class="text-center" style="background-color:${colorMap[unit] || '#4b5563'}80;">${unit}</th>`;
     });
-    headerHtml += '</tr></thead>';
+[cite_start][cite: 336] headerHtml += '</tr></thead>';
 
     let bodyHtml = '<tbody>';
     floors.forEach(floor => {
@@ -846,47 +801,47 @@ function renderHorizontalPriceGrid(grid, floors, units, colorMap) {
             const cellData = grid[floor] ? grid[floor][unit] : null;
             if (cellData && cellData.length > 0) {
                 const bgColor = colorMap[unit] || '#374151';
-                let cellContent = cellData.map(tx => {
+       
+                 let cellContent = cellData.map(tx => {
                     const parkingIcon = tx.hasParking ? ` <i class="fas fa-parking parking-icon" title="含車位"></i>` : '';
-                    const tooltipText = `交易總價: ${formatNumber(tx.tooltipInfo.totalPrice, 0)} 萬\n房屋總價: ${formatNumber(tx.tooltipInfo.housePrice, 0)} 萬\n房屋面積: ${formatNumber(tx.tooltipInfo.houseArea, 2)} 坪\n車位總價: ${formatNumber(tx.tooltipInfo.parkingPrice, 0)} 萬\n格局: ${tx.tooltipInfo.rooms} 房`;
+                    const tooltipText = `交易總價: ${formatNumber(tx.tooltipInfo.totalPrice, 0)} 萬 | 房屋總價: ${formatNumber(tx.tooltipInfo.housePrice, 0)} 萬 | 房屋面積: ${formatNumber(tx.tooltipInfo.houseArea, 2)} 坪 | 車位總價: ${formatNumber(tx.tooltipInfo.parkingPrice, 0)} 萬 | 格局: ${tx.tooltipInfo.rooms} 房`;
                     return `<div class="has-tooltip py-1" data-tooltip="${tooltipText}"><span>${formatNumber(tx.unitPrice, 1)}萬</span>${parkingIcon}<br><span class="text-xs text-gray-400">(${tx.transactionDate})</span></div>`;
                 }).join('');
-                bodyHtml += `<td style="background-color: ${bgColor}; vertical-align: top; padding: 4px 8px;"><div class="grid-cell-content">${cellContent}</div></td>`;
-            } else {
+[cite_start][cite: 339] bodyHtml += `<td style="background-color: ${bgColor}; vertical-align: top; padding: 4px 8px;"><div class="grid-cell-content">${cellContent}</div></td>`;
+[cite_start][cite: 340] } else {
                 bodyHtml += `<td class="bg-dark-card/50">-</td>`;
-            }
+[cite_start][cite: 341] }
         });
         bodyHtml += `</tr>`;
     });
     bodyHtml += '</tbody>';
-
-    tableHtml += headerHtml + bodyHtml + '</table>';
+[cite_start][cite: 342] tableHtml += headerHtml + bodyHtml + '</table>';
     dom.horizontalPriceGridContainer.innerHTML = tableHtml;
-}
+[cite_start][cite: 343] }
 
 function renderTable(data) {
     if (!data || data.length === 0) {
         dom.resultsTable.innerHTML = '<tbody><tr><td colspan="99" class="text-center p-4">無資料</td></tr></tbody>';
-        return;
+[cite_start][cite: 344] return;
     }
     const isPresale = data[0]['交易類型'] === '預售交易';
     const hiddenColumns = ['編號', '縣市代碼', '交易類型', '戶型'];
-    const headers = Object.keys(data[0]);
+[cite_start][cite: 345] const headers = Object.keys(data[0]);
     const headerRow = document.createElement('tr');
-    headerRow.innerHTML = '<th>操作</th>'; 
-    headers.forEach(header => {
+    headerRow.innerHTML = '<th>操作</th>';
+[cite_start][cite: 346] headers.forEach(header => {
         if (!hiddenColumns.includes(header)) {
             const th = document.createElement('th');
             th.textContent = header;
             headerRow.appendChild(th);
             if (isPresale && header === '戶別') {
                 const newTh = document.createElement('th');
-                newTh.textContent = '戶型';
+          [cite_start][cite: 347]       newTh.textContent = '戶型';
                 headerRow.appendChild(newTh);
             }
         }
     });
-    const thead = document.createElement('thead');
+[cite_start][cite: 348] const thead = document.createElement('thead');
     thead.appendChild(headerRow);
     const tbody = document.createElement('tbody');
     data.forEach(row => {
@@ -896,22 +851,22 @@ function renderTable(data) {
         headers.forEach(header => {
             if (!hiddenColumns.includes(header)) {
                 const td = document.createElement('td');
-                const value = row[header];
+   [cite_start][cite: 349]              const value = row[header];
                 if (header === '地址' || header === '備註') {
                     td.innerHTML = `<div class="scrollable-cell">${value ?? "-"}</div>`;
                 } else {
-                    const cellText = (typeof value === 'number' && !Number.isInteger(value)) ? formatNumber(value) : (value ?? "-");
+                 [cite_start][cite: 350]    const cellText = (typeof value === 'number' && !Number.isInteger(value)) ? formatNumber(value) : (value ?? "-");
                     td.textContent = cellText;
                 }
                 tr.appendChild(td);
                 if (isPresale && header === '戶別') {
-                    const unitTypeTd = document.createElement('td');
-                    unitTypeTd.textContent = row['戶型'] || '-';
+       [cite_start][cite: 351]              const unitTypeTd = document.createElement('td');
+[cite_start][cite: 352] unitTypeTd.textContent = row['戶型'] || '-';
                     tr.appendChild(unitTypeTd);
                 }
             }
         });
-        tbody.appendChild(tr);
+[cite_start][cite: 353] tbody.appendChild(tr);
     });
     dom.resultsTable.innerHTML = '';
     dom.resultsTable.append(thead, tbody);
@@ -921,12 +876,12 @@ function renderPagination(){dom.paginationControls.innerHTML='';if(totalRecords=
 
 async function showSubTableDetails(btn){const{id,type,county}=btn.dataset;dom.modalTitle.textContent=`附表詳細資料 (編號: ${id})`;dom.modalContent.innerHTML='<div class="loader mx-auto"></div>';dom.modal.classList.remove('hidden');try{if(!id||!type||!county||county==='undefined'){throw new Error(`前端參數不足，無法查詢附表。 (編號: ${id}, 類型: ${type}, 縣市: ${county})`)}const response=await fetch(SUB_DATA_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4Ym1iYmZyemJ0dXVleXNpY29jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA2ODg5ODksImV4cCI6MjA2NjI2NDk4OX0.1IUynv5eK1xF_3pb-oasqaTrPvbeAOC4Sc1oykPBy4M'},body:JSON.stringify({id,type,county})});if(!response.ok){const errorResult=await response.json().catch(()=>({error:'無法從伺服器獲取附表資料'}));throw new Error(errorResult.error)}const result=await response.json();let contentHTML='<div class="space-y-6">';if(type!=='預售交易')contentHTML+=renderSubTable('建物資料',result.build);contentHTML+=renderSubTable('土地資料',result.land);contentHTML+=renderSubTable('車位資料',result.park);contentHTML=(contentHTML==='<div class="space-y-6">')?'<p>此筆紀錄沒有對應的附表資料。</p>':contentHTML+'</div>';dom.modalContent.innerHTML=contentHTML}catch(error){dom.modalContent.innerHTML=`<p class="text-red-400">查詢失敗: ${error.message}</p>`}}
 
-function renderSubTable(title,records){if(!records||!Array.isArray(records)||records.length===0){return`<div class="mb-4"><h3 class="text-lg font-semibold text-cyan-400 mb-2">${title}</h3><p class="text-sm text-gray-500">無資料</p></div>`}const headers=Object.keys(records[0]).filter(h=>h!=='id'&&h!=='編號');let html=`<div><h3 class="text-lg font-semibold text-cyan-400 mb-2">${title}</h3><div class="overflow-x-auto"><table class="w-full text-sm text-left"><thead><tr class="border-b border-gray-600">`;headers.forEach(header=>{html+=`<th class="py-2 pr-2 font-medium text-gray-400">${header}</th>`});html+='</tr></thead><tbody>';records.forEach(record=>{html+='<tr class="border-b border-gray-700 last:border-b-0">';headers.forEach(header=>{html+=`<td class="py-2 pr-2">${record[header]??"-"}</td>`});html+='</tr>'});html+='</tbody></table></div></div>';return html}
+[cite_start]function renderSubTable(title,records){if(!records||!Array.isArray(records)||records.length===0){return`<div class="mb-4"><h3 class="text-lg font-semibold text-cyan-400 mb-2">${title}</h3><p class="text-sm text-gray-500">無資料</p></div>`}const headers=Object.keys(records[0]).filter(h=>h!=='id'&&h!=='編號');let html=`<div><h3 class="text-lg font-semibold text-cyan-400 mb-2">${title}</h3><div class="overflow-x-auto"><table class="w-full text-sm text-left"><thead><tr class="border-b border-gray-600">`;headers.forEach(header=>{html+=`<th class="py-2 pr-2 font-medium text-gray-400">${header}</th>`});html+='</tr></thead><tbody>';records.forEach(record=>{html+='<tr class="border-b border-gray-700 [cite: 354] last:border-b-0">';headers.forEach(header=>{html+=`<td class="py-2 pr-2">${record[header]??"-"}</td>`});html+='</tr>'});html+='</tbody></table></div></div>';return html}
 
 function toggleAnalyzeButtonState(){
     const isCountySelected = !!dom.countySelect.value;
     const isValidType = dom.typeSelect.value === '預售交易';
-    dom.analyzeBtn.disabled = !(isCountySelected && isValidType);
+[cite_start][cite: 355] dom.analyzeBtn.disabled = !(isCountySelected && isValidType);
 }
 
 function updateDistrictOptions(){const selectedCounty=dom.countySelect.value;dom.districtSelect.innerHTML='<option value="">全部</option>';if(selectedCounty&&districtData[selectedCounty]){districtData[selectedCounty].forEach(districtName=>{const option=document.createElement('option');option.value=districtName;option.textContent=districtName;dom.districtSelect.appendChild(option)});dom.districtSelect.disabled=false;dom.projectNameInput.disabled=false;dom.projectNameInput.placeholder="輸入建案名稱搜尋..."}else{dom.districtSelect.disabled=true;dom.projectNameInput.disabled=true;dom.projectNameInput.placeholder="請先選縣市..."}toggleAnalyzeButtonState();clearSelectedProjects()}
@@ -948,6 +903,6 @@ function removeProject(name){selectedProjects=selectedProjects.filter(p=>p!==nam
 function renderProjectTags(){const tags=dom.projectNameContainer.querySelectorAll('.project-tag');tags.forEach(tag=>tag.remove());dom.projectNameContainer.insertBefore(dom.projectNameInput,dom.projectNameContainer.firstChild);selectedProjects.forEach(name=>{const tagElement=document.createElement('span');tagElement.className='project-tag';tagElement.textContent=name;const removeBtn=document.createElement('span');removeBtn.className='project-tag-remove';removeBtn.innerHTML='&times;';removeBtn.dataset.name=name;tagElement.appendChild(removeBtn);dom.projectNameContainer.insertBefore(tagElement,dom.projectNameInput)});dom.clearProjectsBtn.classList.toggle('hidden',selectedProjects.length===0)}
 
 initialize();
-</script>
+[cite_start][cite: 356] </script>
 </body>
 </html>
