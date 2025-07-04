@@ -202,9 +202,8 @@ thead th { background-color: #252836; position: sticky; top: 0; z-index: 10; fon
             <div id="avg-price-by-type-table-container" class="overflow-x-auto"></div>
         </div>
         <div>
- 
             <h3 class="report-section-title">坡道平面車位分層價格</h3>
-            <div id="ramp-plane-price-by-floor-table-container" class="overflow-x-auto"></div>
+            <div id="ramp-plane-price-by-floor-table-container"></div>
             <p class="text-sm text-gray-500 mt-2">* 此數據僅統計主表中「車位類別」為「坡道平面」的交易，並根據其附表中的車位資料進行彙總。</p>
         </div>
       </div>
@@ -233,7 +232,7 @@ thead th { background-color: #252836; position: sticky; top: 0; z-index: 10; fon
         <div>
             <h3 class="report-section-title">銷控表</h3>
             <div id="unit-color-legend-container" class="flex flex-wrap gap-x-4 gap-y-2 my-4 text-sm"></div>
-            <div id="horizontal-price-grid-container" class="w-full"></div>
+            <div id="horizontal-price-grid-container" class="w-full overflow-x-auto"></div>
         </div>
       </div>
 
@@ -701,7 +700,6 @@ function renderPriceGridAnalysis() {
         return;
     }
     
-    // Restore the structure if it was previously overwritten by the error message above
     if (!reportContent.querySelector('#price-grid-project-filter-container')) {
         reportContent.innerHTML = `
             <div class="my-4">
@@ -711,10 +709,9 @@ function renderPriceGridAnalysis() {
             <div>
                 <h3 class="report-section-title">銷控表</h3>
                 <div id="unit-color-legend-container" class="flex flex-wrap gap-x-4 gap-y-2 my-4 text-sm"></div>
-                <div id="horizontal-price-grid-container" class="w-full"></div>
+                <div id="horizontal-price-grid-container" class="w-full overflow-x-auto"></div>
             </div>`;
         
-        // Re-bind DOM elements and listener
         dom.priceGridProjectFilterContainer = document.getElementById('price-grid-project-filter-container');
         dom.unitColorLegendContainer = document.getElementById('unit-color-legend-container');
         dom.horizontalPriceGridContainer = document.getElementById('horizontal-price-grid-container');
@@ -724,7 +721,7 @@ function renderPriceGridAnalysis() {
     const { projectNames } = analysisDataCache.priceGridAnalysis;
     
     if (projectNames && projectNames.length > 0) {
-        selectedPriceGridProject = projectNames[0]; // Default to the first project
+        selectedPriceGridProject = projectNames[0];
         
         const filterHtml = projectNames.map(name => 
             `<button class="capsule-btn ${name === selectedPriceGridProject ? 'active' : ''}" data-project="${name}">${name}</button>`
@@ -733,7 +730,7 @@ function renderPriceGridAnalysis() {
         dom.priceGridProjectFilterContainer.innerHTML = filterHtml;
         dom.priceGridProjectFilterContainer.parentElement.classList.remove('hidden');
         
-        displayCurrentPriceGrid(); // Render the grid for the default selected project
+        displayCurrentPriceGrid();
     } else {
         selectedPriceGridProject = null;
         dom.priceGridProjectFilterContainer.parentElement.classList.add('hidden');
