@@ -6,6 +6,7 @@
 <title>不動產數據查詢平台</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 <script>
 tailwind.config = {
   theme: {
@@ -149,6 +150,14 @@ border-bottom: 1px solid #374151;}
   opacity: 1;
   visibility: visible;
 }
+.parking-icon {
+    color: #a5b4fc;
+    margin-left: 4px;
+    font-size: 0.75rem;
+}
+.grid-cell-content {
+    line-height: 1.6;
+}
 </style>
 </head>
 <body class="p-4 md:p-8">
@@ -206,6 +215,7 @@ class="block text-sm font-medium text-gray-300">結束日期</label><input type=
           <button data-tab="unit-price-report" class="tab-button">房屋單價分析</button>
           <button data-tab="parking-report" class="tab-button">車位單價分析</button>
           <button data-tab="velocity-report" class="tab-button">去化時間分析</button>
+          <button data-tab="price-grid-report" class="tab-button">垂直水平分析</button>
           <button data-tab="data-list" class="tab-button">資料列表</button>
         </nav>
       </div>
@@ -282,6 +292,18 @@ class="block text-sm font-medium text-gray-300">結束日期</label><input type=
         <div id="velocity-table-container" class="overflow-x-auto"></div>
       </div>
 
+      <div id="price-grid-report-content" class="tab-content">
+        <div class="mb-8">
+            <h3 class="report-section-title">戶別垂直價差</h3>
+            <div id="vertical-price-table-container" class="overflow-x-auto"></div>
+        </div>
+        <div>
+            <h3 class="report-section-title">戶別水平價差（價盤格）</h3>
+            <div id="unit-color-legend-container" class="flex flex-wrap gap-x-4 gap-y-2 mb-4 text-sm"></div>
+            <div id="horizontal-price-grid-container" class="overflow-x-auto"></div>
+        </div>
+      </div>
+
       <div id="data-list-content" class="tab-content">
         <div id="table-container" class="table-container overflow-x-auto">
             <table id="results-table" class="min-w-full divide-y divide-gray-800"></table>
@@ -322,7 +344,6 @@ const dom = {
   analyzeBtn: document.getElementById('analyze-btn'),
   messageArea: document.getElementById('message-area'),
   tabsContainer: document.getElementById('tabs-container'),
-  // 報表
   rankingReportContent: document.getElementById('ranking-report-content'),
   metricCardsContainer: document.getElementById('metric-cards-container'),
   rankingTable: document.getElementById('ranking-table'),
@@ -340,21 +361,21 @@ const dom = {
   velocityRoomFilterContainer: document.getElementById('velocity-room-filter-container'),
   velocitySubTabsContainer: document.getElementById('velocity-sub-tabs-container'),
   velocityTableContainer: document.getElementById('velocity-table-container'),
-  // 資料列表
+  priceGridReportContent: document.getElementById('price-grid-report-content'),
+  verticalPriceTableContainer: document.getElementById('vertical-price-table-container'),
+  unitColorLegentContainer: document.getElementById('unit-color-legend-container'),
+  horizontalPriceGridContainer: document.getElementById('horizontal-price-grid-container'),
   dataListContent: document.getElementById('data-list-content'),
   resultsTable: document.getElementById('results-table'),
   paginationControls: document.getElementById('pagination-controls'),
-  // Modal
   modal: document.getElementById('details-modal'),
   modalTitle: document.getElementById('modal-title'),
   modalContent: document.getElementById('modal-content'),
   modalCloseBtn: document.getElementById('modal-close-btn'),
-  // 建案複選
   projectNameContainer: document.getElementById('project-name-container'),
   projectNameInput: document.getElementById('project-name-input'),
   projectNameSuggestions: document.getElementById('project-name-suggestions'),
   clearProjectsBtn: document.getElementById('clear-projects-btn'),
-  // 平均數切換
   avgTypeToggle: document.getElementById('avg-type-toggle'),
 };
 
@@ -446,7 +467,7 @@ function showLoading(message) {
     dom.messageArea.innerHTML = `<div class="loader mx-auto"></div><p class="mt-4">${message}</p>`;
     dom.messageArea.classList.remove('hidden');
     dom.tabsContainer.classList.add('hidden');
-    ['ranking-report-content', 'price-band-report-content', 'unit-price-report-content', 'parking-report-content', 'velocity-report-content', 'data-list-content'].forEach(id => {
+    ['ranking-report-content', 'price-band-report-content', 'unit-price-report-content', 'parking-report-content', 'velocity-report-content', 'price-grid-report-content', 'data-list-content'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.classList.remove('active');
     });
@@ -510,6 +531,7 @@ async function analyzeData() {
     renderUnitPriceReport();
     renderParkingAnalysisReport();
     renderSalesVelocityReport();
+    renderPriceGridAnalysis();
     
     switchTab('ranking-report');
   } catch(error) {
