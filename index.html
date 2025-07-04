@@ -823,7 +823,68 @@ function handleVelocitySubTabClick(e) {
     renderVelocityTable();
 }
 
-function renderTable(data){if(!data||data.length===0)return;const isPresale=data[0]['交易類型']==='預售交易';const hiddenColumns=['編號','縣市代碼','交易類型','戶型'];const headers=Object.keys(data[0]);const headerRow=document.createElement('tr');headerRow.innerHTML='<th>操作</th>';headers.forEach(headerText=>{if(!hiddenColumns.includes(headerText)){const th=document.createElement('th');th.textContent=headerText;headerRow.appendChild(th);if(isPresale&&headerText==='戶別'){const newTh=document.createElement('th');newTh.textContent='戶型';headerRow.appendChild(newTh)}}});const thead=document.createElement('thead');thead.appendChild(headerRow);const tbody=document.createElement('tbody');data.forEach(row=>{const tr=document.createElement('tr');tr.className='hover:bg-dark-card transition-colors';tr.innerHTML=`<td><button class="details-btn bg-purple-600 hover:bg-purple-500 text-white text-xs px-3 py-1 rounded-md" data-id="${row['編號']}" data-type="${row['交易類型']}" data-county="${row['縣市代碼']}">附表</button></td>`;headers.forEach(header=>{if(!hiddenColumns.includes(header)){const td=document.createElement('td');let value=row[header];if(header==='地址'||header==='備註'){td.innerHTML=`<div class="scrollable-cell">${value??"-"}</div>`}else{td.textContent=(typeof value==='number'&&!Number.isInteger(value))?formatNumber(value):(value??"-")}tr.appendChild(td);if(isPresale&&headerText==='戶別'){const unitTypeTd=document.createElement('td');unitTypeTd.textContent=row['戶型']||'-';tr.appendChild(unitTypeTd)}}});tbody.appendChild(tr)});dom.resultsTable.innerHTML='';dom.resultsTable.append(thead,tbody)}
+function renderTable(data) {
+    if (!data || data.length === 0) {
+        dom.resultsTable.innerHTML = '<tbody><tr><td colspan="99" class="text-center p-4">無資料</td></tr></tbody>';
+        return;
+    }
+
+    const isPresale = data[0]['交易類型'] === '預售交易';
+    const hiddenColumns = ['編號', '縣市代碼', '交易類型', '戶型'];
+    const headers = Object.keys(data[0]);
+
+    const headerRow = document.createElement('tr');
+    headerRow.innerHTML = '<th>操作</th>'; 
+    
+    headers.forEach(header => {
+        if (!hiddenColumns.includes(header)) {
+            const th = document.createElement('th');
+            th.textContent = header;
+            headerRow.appendChild(th);
+            if (isPresale && header === '戶別') {
+                const newTh = document.createElement('th');
+                newTh.textContent = '戶型';
+                headerRow.appendChild(newTh);
+            }
+        }
+    });
+
+    const thead = document.createElement('thead');
+    thead.appendChild(headerRow);
+
+    const tbody = document.createElement('tbody');
+    data.forEach(row => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-dark-card transition-colors';
+        tr.innerHTML = `<td><button class="details-btn bg-purple-600 hover:bg-purple-500 text-white text-xs px-3 py-1 rounded-md" data-id="${row['編號']}" data-type="${row['交易類型']}" data-county="${row['縣市代碼']}">附表</button></td>`;
+        
+        headers.forEach(header => {
+            if (!hiddenColumns.includes(header)) {
+                const td = document.createElement('td');
+                const value = row[header];
+
+                if (header === '地址' || header === '備註') {
+                    td.innerHTML = `<div class="scrollable-cell">${value ?? "-"}</div>`;
+                } else {
+                    const cellText = (typeof value === 'number' && !Number.isInteger(value)) ? formatNumber(value) : (value ?? "-");
+                    td.textContent = cellText;
+                }
+                tr.appendChild(td);
+
+                if (isPresale && header === '戶別') {
+                    const unitTypeTd = document.createElement('td');
+                    unitTypeTd.textContent = row['戶型'] || '-';
+                    tr.appendChild(unitTypeTd);
+                }
+            }
+        });
+        tbody.appendChild(tr);
+    });
+
+    dom.resultsTable.innerHTML = '';
+    dom.resultsTable.append(thead, tbody);
+}
+
 
 function renderPagination(){dom.paginationControls.innerHTML='';if(totalRecords===0&&currentPage===1){dom.paginationControls.innerHTML=`<span>共 0 筆資料</span>`;return}const totalPages=Math.ceil(totalRecords/pageSize);dom.paginationControls.innerHTML=`<div>共 ${totalRecords} 筆資料</div><div class="flex items-center space-x-2"><button id="prev-page" class="bg-gray-700 hover:bg-cyan-600 text-white font-bold py-2 px-4 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors">上一頁</button><span class="px-4">第 ${currentPage} / ${totalPages>0?totalPages:1} 頁</span><button id="next-page" class="bg-gray-700 hover:bg-cyan-600 text-white font-bold py-2 px-4 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors">下一頁</button></div>`;const prevBtn=document.getElementById('prev-page');const nextBtn=document.getElementById('next-page');prevBtn.disabled=currentPage===1;nextBtn.disabled=currentPage>=totalPages;prevBtn.onclick=()=>{currentPage--;fetchData()};nextBtn.onclick=()=>{currentPage++;fetchData()}}
 
