@@ -61,6 +61,7 @@ overflow-y: auto; }
 .suggestion-item input[type="checkbox"]:focus { ring: #06b6d4; }
 .scrollable-cell { max-width: 25ch; overflow-x: auto; white-space: nowrap; padding-top: 4px; padding-bottom: 4px;
 }
+.scrollable-filter-container { padding-bottom: 8px; } /* 增加底部空間給卷軸 */
 .scrollable-cell::-webkit-scrollbar, #project-name-container::-webkit-scrollbar, .scrollable-filter-container::-webkit-scrollbar { height: 4px; }
 .scrollable-cell::-webkit-scrollbar-track, #project-name-container::-webkit-scrollbar-track, .scrollable-filter-container::-webkit-scrollbar-track { background: transparent; }
 .scrollable-cell::-webkit-scrollbar-thumb, #project-name-container::-webkit-scrollbar-thumb, .scrollable-filter-container::-webkit-scrollbar-thumb { background-color: #4b5563; border-radius: 20px;
@@ -145,7 +146,11 @@ border-bottom: 1px solid #374151;}
   visibility: hidden;
   transition: opacity 0.2s, visibility 0.2s;
   pointer-events: none;
-  white-space: nowrap;
+  white-space: pre-wrap;
+  text-align: left;
+  max-width: 400px;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
 }
 .has-tooltip:hover::after {
   opacity: 1;
@@ -297,18 +302,14 @@ class="block text-sm font-medium text-gray-300">結束日期</label><input type=
       </div>
 
       <div id="price-grid-report-content" class="tab-content">
-        <div class="mb-8">
-            <h3 class="report-section-title">戶別垂直價差</h3>
-            <div id="vertical-price-table-container" class="overflow-x-auto"></div>
+        <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-300 mb-2">建案篩選器</label>
+            <div id="price-grid-project-filter-container" class="flex flex-nowrap gap-2 overflow-x-auto py-2 scrollable-filter-container"></div>
         </div>
         <div>
-            <h3 class="report-section-title">戶別水平價差（價盤格）</h3>
-            <div class="my-4">
-                <label class="block text-sm font-medium text-gray-300 mb-2">建案篩選器</label>
-                <div id="price-grid-project-filter-container" class="flex flex-nowrap gap-2 overflow-x-auto py-2 scrollable-filter-container"></div>
-            </div>
-            <div id="unit-color-legend-container" class="flex flex-wrap gap-x-4 gap-y-2 mb-4 text-sm"></div>
-            <div id="horizontal-price-grid-container" class="overflow-x-auto"></div>
+            <h3 class="report-section-title">銷控表</h3>
+            <div id="unit-color-legend-container" class="flex flex-wrap gap-x-4 gap-y-2 my-4 text-sm"></div>
+            <div id="horizontal-price-grid-container" class="w-full"></div>
         </div>
       </div>
 
@@ -370,7 +371,6 @@ const dom = {
   velocitySubTabsContainer: document.getElementById('velocity-sub-tabs-container'),
   velocityTableContainer: document.getElementById('velocity-table-container'),
   priceGridReportContent: document.getElementById('price-grid-report-content'),
-  verticalPriceTableContainer: document.getElementById('vertical-price-table-container'),
   unitColorLegentContainer: document.getElementById('unit-color-legend-container'),
   horizontalPriceGridContainer: document.getElementById('horizontal-price-grid-container'),
   priceGridProjectFilterContainer: document.getElementById('price-grid-project-filter-container'),
@@ -444,6 +444,7 @@ function initialize() {
   toggleAnalyzeButtonState();
 }
 
+// --- All other functions ---
 function switchAverageType(type) {
     if (currentAverageType === type || !type) return;
     currentAverageType = type;
@@ -580,11 +581,6 @@ async function fetchData() {
     totalRecords = 0;
     renderPagination();
   }
-}
-
-function formatNumber(num, decimals = 2) {
-    if (typeof num !== 'number' || isNaN(num)) return '-';
-    return num.toLocaleString('zh-TW', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
 }
 
 function renderRankingReport() {
@@ -796,13 +792,13 @@ function displayCurrentPriceGrid() {
         : analysisDataCache.priceGridAnalysis.byProject[selectedPriceGridProject];
 
     if (!data) {
-        dom.verticalPriceTableContainer.innerHTML = '<p class="text-gray-500">找不到所選建案的分析資料。</p>';
+        // 清理畫面而不是整個頁籤
+        dom.horizontalPriceGridContainer.innerHTML = '<p class="text-gray-500">找不到所選建案的分析資料。</p>';
         dom.unitColorLegentContainer.innerHTML = '';
-        dom.horizontalPriceGridContainer.innerHTML = '';
+        if(dom.verticalPriceTableContainer) dom.verticalPriceTableContainer.innerHTML = '';
         return;
     }
 
-    renderVerticalPriceTable(data.verticalAnalysis);
     renderUnitColorLegend(data.unitColorMap);
     renderHorizontalPriceGrid(data.horizontalGrid, data.sortedFloors, data.sortedUnits, data.unitColorMap);
 }
@@ -814,19 +810,6 @@ function handlePriceGridProjectFilterClick(e) {
     dom.priceGridProjectFilterContainer.querySelector('.active').classList.remove('active');
     button.classList.add('active');
     displayCurrentPriceGrid();
-}
-
-function renderVerticalPriceTable(data) {
-    if (!data || data.length === 0) {
-        dom.verticalPriceTableContainer.innerHTML = '<p class="text-gray-500">無垂直價差資料。</p>';
-        return;
-    }
-    let tableHtml = `<table class="min-w-full divide-y divide-gray-800"><thead><tr><th>樓層</th><th>交易筆數</th><th>平均單價(萬)</th><th>最低單價(萬)</th><th>最高單價(萬)</th><th>樓層價差(萬)</th></tr></thead><tbody>`;
-    data.forEach(item => {
-        tableHtml += `<tr class="hover:bg-dark-card"><td>${item.floor}</td><td>${item.transactionCount}</td><td>${formatNumber(item.avgPrice, 2)}</td><td>${formatNumber(item.minPrice, 2)}</td><td>${formatNumber(item.maxPrice, 2)}</td><td>${formatNumber(item.priceSpread, 2)}</td></tr>`;
-    });
-    tableHtml += '</tbody></table>';
-    dom.verticalPriceTableContainer.innerHTML = tableHtml;
 }
 
 function renderUnitColorLegend(unitColorMap) {
@@ -848,9 +831,10 @@ function renderHorizontalPriceGrid(grid, floors, units, colorMap) {
     let tableHtml = '<table class="min-w-full divide-y divide-gray-800 border-collapse">';
     let headerHtml = '<thead><tr><th class="sticky left-0 bg-dark-card z-10">樓層 \\ 戶別</th>';
     units.forEach(unit => {
-        headerHtml += `<th class="text-center" style="background-color:${colorMap[unit]}80;">${unit}</th>`;
+        headerHtml += `<th class="text-center" style="background-color:${colorMap[unit] || '#4b5563'}80;">${unit}</th>`;
     });
     headerHtml += '</tr></thead>';
+
     let bodyHtml = '<tbody>';
     floors.forEach(floor => {
         bodyHtml += `<tr class="hover:bg-gray-800/50"><td class="font-bold sticky left-0 bg-dark-card z-10">${floor}</td>`;
@@ -861,7 +845,7 @@ function renderHorizontalPriceGrid(grid, floors, units, colorMap) {
                 let cellContent = cellData.map(tx => {
                     const parkingIcon = tx.hasParking ? ` <i class="fas fa-parking parking-icon" title="含車位"></i>` : '';
                     const tooltipText = `交易總價: ${formatNumber(tx.tooltipInfo.totalPrice, 0)} 萬\n房屋總價: ${formatNumber(tx.tooltipInfo.housePrice, 0)} 萬\n房屋面積: ${formatNumber(tx.tooltipInfo.houseArea, 2)} 坪\n車位總價: ${formatNumber(tx.tooltipInfo.parkingPrice, 0)} 萬\n格局: ${tx.tooltipInfo.rooms} 房`;
-                    return `<div class="has-tooltip" data-tooltip="${tooltipText}"><span>${formatNumber(tx.unitPrice, 1)}萬 (${tx.transactionDate})${parkingIcon}</span></div>`;
+                    return `<div class="has-tooltip py-1" data-tooltip="${tooltipText}"><span>${formatNumber(tx.unitPrice, 1)}萬</span>${parkingIcon}<br><span class="text-xs text-gray-400">(${tx.transactionDate})</span></div>`;
                 }).join('');
                 bodyHtml += `<td style="background-color: ${bgColor}; vertical-align: top; padding: 4px 8px;"><div class="grid-cell-content">${cellContent}</div></td>`;
             } else {
@@ -871,6 +855,7 @@ function renderHorizontalPriceGrid(grid, floors, units, colorMap) {
         bodyHtml += `</tr>`;
     });
     bodyHtml += '</tbody>';
+
     tableHtml += headerHtml + bodyHtml + '</table>';
     dom.horizontalPriceGridContainer.innerHTML = tableHtml;
 }
