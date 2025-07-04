@@ -584,26 +584,34 @@ function renderPriceBandReport() {
     dom.priceBandTable.innerHTML = headerHtml + bodyHtml;
 }
 
-/**
- * 【已修改】渲染房屋單價分析報表，為最高/最低價加上 title 屬性
- */
 function renderUnitPriceReport() {
-    if (!analysisDataCache || !analysisDataCache.unitPriceAnalysis) return;
+    if (!analysisDataCache || !analysisDataCache.unitPriceAnalysis) {
+        dom.residentialStatsTableContainer.innerHTML = '<p class="text-gray-500">無房屋單價資料可供分析。</p>';
+        dom.residentialStatsExtraInfo.innerHTML = '';
+        dom.typeComparisonTableContainer.innerHTML = '';
+        return;
+    }
+
     const { residentialStats, typeComparison } = analysisDataCache.unitPriceAnalysis;
     
     const statsContainer = dom.residentialStatsTableContainer;
     if (residentialStats && residentialStats.avgPrice) {
         const avgPriceToShow = residentialStats.avgPrice[currentAverageType];
+        
+        const minPriceTitle = residentialStats.minPriceProject ? `建案: ${residentialStats.minPriceProject}` : '';
+        const maxPriceTitle = residentialStats.maxPriceProject ? `建案: ${residentialStats.maxPriceProject}` : '';
+
         statsContainer.innerHTML = `<table class="min-w-full divide-y divide-gray-800">
             <thead><tr><th class="w-1/2">統計項目</th><th class="w-1/2">房屋單價 (萬/坪)</th></tr></thead>
             <tbody>
                 <tr class="hover:bg-dark-card"><td class="font-medium text-gray-300">平均單價</td><td>${formatNumber(avgPriceToShow)}</td></tr>
-                <tr class="hover:bg-dark-card"><td class="font-medium text-gray-300">最低單價</td><td title="建案: ${residentialStats.minPriceProject || 'N/A'}">${formatNumber(residentialStats.minPrice)}</td></tr>
+                <tr class="hover:bg-dark-card"><td class="font-medium text-gray-300">最低單價</td><td title="${minPriceTitle}">${formatNumber(residentialStats.minPrice)}</td></tr>
                 <tr class="hover:bg-dark-card"><td class="font-medium text-gray-300">1/4分位數單價</td><td>${formatNumber(residentialStats.q1Price)}</td></tr>
                 <tr class="hover:bg-dark-card"><td class="font-medium text-gray-300">中位數單價</td><td>${formatNumber(residentialStats.medianPrice)}</td></tr>
                 <tr class="hover:bg-dark-card"><td class="font-medium text-gray-300">3/4分位數單價</td><td>${formatNumber(residentialStats.q3Price)}</td></tr>
-                <tr class="hover:bg-dark-card"><td class="font-medium text-gray-300">最高單價</td><td title="建案: ${residentialStats.maxPriceProject || 'N/A'}">${formatNumber(residentialStats.maxPrice)}</td></tr>
+                <tr class="hover:bg-dark-card"><td class="font-medium text-gray-300">最高單價</td><td title="${maxPriceTitle}">${formatNumber(residentialStats.maxPrice)}</td></tr>
             </tbody></table>`;
+        
         dom.residentialStatsExtraInfo.innerHTML = `
             <p><span class="font-semibold text-cyan-400">最低房屋單價建案：</span>${residentialStats.minPriceProject || 'N/A'}</p>
             <p><span class="font-semibold text-purple-400">最高房屋單價建案：</span>${residentialStats.maxPriceProject || 'N/A'}</p>`;
@@ -637,9 +645,6 @@ function renderUnitPriceReport() {
     }
 }
 
-/**
- * 【已修改】渲染車位單價分析報表，為最高/最低價加上 title 屬性
- */
 function renderParkingAnalysisReport() {
     if (!analysisDataCache || !analysisDataCache.parkingAnalysis) {
         dom.parkingRatioTableContainer.innerHTML = '<p class="text-gray-500">無車位配比資料可供分析。</p>';
@@ -656,6 +661,8 @@ function renderParkingAnalysisReport() {
                 <tr class="hover:bg-dark-card"><td>沒搭車位</td><td>${parkingRatio.withoutParking.count.toLocaleString()}</td><td>${formatNumber(parkingRatio.withoutParking.percentage, 2)}%</td></tr>
             </tbody></table>`;
         dom.parkingRatioTableContainer.innerHTML = ratioHtml;
+    } else {
+         dom.parkingRatioTableContainer.innerHTML = '<p class="text-gray-500">無車位配比資料可供分析。</p>';
     }
 
     if (avgPriceByType && avgPriceByType.length > 0) {
@@ -682,13 +689,16 @@ function renderParkingAnalysisReport() {
             <thead><tr><th>樓層</th><th>筆數</th><th>均價(萬)</th><th>最高價(萬)</th><th>最低價(萬)</th></tr></thead><tbody>`;
         
         rampPlanePriceByFloor.forEach(item => {
-            if (item.count > 0) {
+            if (item && item.count > 0) {
+                const maxPriceTitle = item.maxPriceProject ? `建案: ${item.maxPriceProject}` : '';
+                const minPriceTitle = item.minPriceProject ? `建案: ${item.minPriceProject}` : '';
+
                 floorPriceHtml += `<tr class="hover:bg-dark-card">
                     <td>${floorMapping[item.floor] || item.floor}</td>
                     <td>${item.count.toLocaleString()}</td>
                     <td>${formatNumber(item.avgPrice, 0)}</td>
-                    <td title="建案: ${item.maxPriceProject || 'N/A'}">${formatNumber(item.maxPrice, 0)}</td>
-                    <td title="建案: ${item.minPriceProject || 'N/A'}">${formatNumber(item.minPrice, 0)}</td>
+                    <td title="${maxPriceTitle}">${formatNumber(item.maxPrice, 0)}</td>
+                    <td title="${minPriceTitle}">${formatNumber(item.minPrice, 0)}</td>
                 </tr>`;
             }
         });
