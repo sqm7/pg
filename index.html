@@ -1,190 +1,189 @@
-[cite_start][cite: 5]
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-[cite_start]<meta charset="UTF-8"> [cite: 1]
-[cite_start]<meta name="viewport" content="width=device-width, initial-scale=1.0"> [cite: 1]
-[cite_start]<title>不動產數據查詢平台</title> [cite: 1]
-[cite_start]<script src="https://cdn.tailwindcss.com"></script> [cite: 1]
-[cite_start]<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet"> [cite: 1]
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>不動產數據查詢平台</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 <script>
 tailwind.config = {
   theme: {
     extend: {
       colors: {
-        [cite_start]'dark-bg': '#1a1d29', [cite: 1]
-        [cite_start]'dark-card': '#252836', [cite: 1]
-        [cite_start]'cyan-accent': '#06b6d4', [cite: 1]
-        [cite_start]'purple-accent': '#8b5cf6', [cite: 1]
+        'dark-bg': '#1a1d29',
+        'dark-card': '#252836',
+        'cyan-accent': '#06b6d4',
+        'purple-accent': '#8b5cf6',
       }
     }
   }
 }
 </script>
 <style>
-[cite_start]body { font-family: 'Inter', 'Noto Sans TC', sans-serif; [cite: 1]
-background: #1a1d29; color: #e5e7eb; [cite_start]} [cite: 2]
-[cite_start].glass-card { background: rgba(37, 40, 54, 0.8); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); [cite: 2]
-[cite_start]} [cite: 3]
-.form-input, .form-select { background-color: #1f2937; border: 1px solid #4b5563; color: #d1d5db; [cite_start]} [cite: 3]
-[cite_start].form-input:focus, .form-select:focus, .form-input:has(input:focus) { border-color: #06b6d4; [cite: 3]
-box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.5); outline: none; [cite_start]} [cite: 4]
-[cite_start]select:disabled, input:disabled { background-color: #374151; cursor: not-allowed; opacity: 0.7; [cite: 4]
-[cite_start]} [cite: 5]
-.table-container { overflow-y: auto; [cite_start]} [cite: 5]
-table { width: 100%; border-collapse: collapse; [cite_start]} [cite: 5]
-[cite_start]th, td { border-bottom: 1px solid #374151; padding: 0.75rem 1rem; [cite: 5]
-text-align: left; font-size: 0.875rem; white-space: nowrap; [cite_start]} [cite: 6]
-[cite_start]thead th { background-color: #252836; position: sticky; top: 0; z-index: 10; font-weight: 600; [cite: 6]
-color: #9ca3af; [cite_start]} [cite: 7]
-[cite_start].loader { border: 4px solid #374151; border-top: 4px solid #06b6d4; border-radius: 50%; width: 40px; height: 40px; [cite: 7]
-animation: spin 1s linear infinite; [cite_start]} [cite: 8]
-@keyframes spin { 0% { transform: rotate(0deg); [cite_start]} 100% { transform: rotate(360deg); [cite: 8]
-[cite_start]} } [cite: 9]
-[cite_start].modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.7); display: flex; [cite: 9]
-align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(5px); transition: opacity 0.3s ease; [cite_start]} [cite: 10]
-[cite_start].modal-container { background: #252836; padding: 2rem; border-radius: 12px; [cite: 10]
-[cite_start]width: 90%; max-width: 1200px; max-height: 85vh; overflow-y: auto; border: 1px solid #4b5563; transform: scale(0.95); transition: transform 0.3s ease; [cite: 11]
-[cite_start]} [cite: 12]
-.modal-overlay:not(.hidden) .modal-container { transform: scale(1); [cite_start]} [cite: 12]
-[cite_start].project-tag { display: inline-flex; align-items: center; background-color: #4b5563; color: #d1d5db; padding: 0.25rem 0.75rem; border-radius: 9999px; [cite: 12]
-font-size: 0.875rem; flex-shrink: 0; [cite_start]} [cite: 13]
-.project-tag-remove { margin-left: 0.5rem; cursor: pointer; font-weight: bold; [cite_start]} [cite: 13]
-.project-tag-remove:hover { color: #f87171; [cite_start]} [cite: 13]
-[cite_start]#project-name-suggestions { max-height: 200px; [cite: 13]
-overflow-y: auto; [cite_start]} [cite: 14]
-.suggestion-item { display: flex; align-items: center; padding: 0.5rem 1rem; cursor: pointer; [cite_start]} [cite: 14]
-[cite_start].suggestion-item:hover, .suggestion-item.active { background-color: #374151; [cite: 14]
-[cite_start]} [cite: 15]
-[cite_start].suggestion-item input[type="checkbox"] { margin-right: 0.75rem; height: 1rem; width: 1rem; border-radius: 0.25rem; border-color: #6b7280; background-color: #374151; color: #06b6d4; cursor: pointer; [cite: 15]
-[cite_start]} [cite: 16]
-.suggestion-item input[type="checkbox"]:focus { ring: #06b6d4; [cite_start]} [cite: 16]
-[cite_start].scrollable-cell { max-width: 25ch; overflow-x: auto; white-space: nowrap; padding-top: 4px; padding-bottom: 4px; [cite: 16]
-[cite_start]} [cite: 17]
-.scrollable-cell::-webkit-scrollbar, #project-name-container::-webkit-scrollbar { height: 4px; [cite_start]} [cite: 17]
-.scrollable-cell::-webkit-scrollbar-track, #project-name-container::-webkit-scrollbar-track { background: transparent; [cite_start]} [cite: 17]
-[cite_start].scrollable-cell::-webkit-scrollbar-thumb, #project-name-container::-webkit-scrollbar-thumb { background-color: #4b5563; border-radius: 20px; [cite: 17]
-[cite_start]} [cite: 18]
-.tab-button { padding: 0.75rem 1.5rem; font-medium; border-bottom: 3px solid transparent; transition: all 0.3s ease; color: #9ca3af; [cite_start]} [cite: 18]
-[cite_start].tab-button.active { color: #06b6d4; [cite: 18]
-border-bottom-color: #06b6d4; [cite_start]} [cite: 19]
-.tab-content { display: none; [cite_start]} [cite: 19]
-.tab-content.active { display: block; [cite_start]} [cite: 19]
-[cite_start].metric-card { background-color: #1f2937; padding: 1.5rem; border-radius: 0.75rem; [cite: 19]
-border: 1px solid #374151; [cite_start]} [cite: 20]
-.metric-card-title { font-size: 0.875rem; color: #9ca3af; margin-bottom: 0.5rem; [cite_start]} [cite: 20]
-[cite_start].metric-card-value { font-size: 2rem; font-weight: 700; color: #e5e7eb; [cite: 20]
-[cite_start]} [cite: 21]
-.metric-card-unit { font-size: 1rem; color: #6b7280; margin-left: 0.5rem; [cite_start]} [cite: 21]
-.sortable-th { cursor: pointer; user-select: none; [cite_start]} [cite: 21]
-[cite_start].sortable-th:hover { color: #e5e7eb; [cite: 21]
-[cite_start]} [cite: 22]
-.sortable-th .sort-icon { display: inline-block; margin-left: 0.5rem; color: #6b7280; transition: all 0.2s; [cite_start]} [cite: 22]
-[cite_start].sortable-th.asc .sort-icon { transform: rotate(180deg); color: #06b6d4; [cite: 22]
-[cite_start]} [cite: 23]
-.sortable-th.desc .sort-icon { color: #06b6d4; [cite_start]} [cite: 23]
-[cite_start].report-section-title { font-size: 1.25rem; font-weight: 600; color: #e5e7eb; margin-bottom: 1rem; padding-bottom: 0.5rem; [cite: 23]
-[cite_start]border-bottom: 1px solid #374151;} [cite: 24]
-.avg-type-btn { color: #9ca3af; [cite_start]} [cite: 24]
-[cite_start].avg-type-btn.active { background-color: #06b6d4; color: #ffffff; [cite: 24]
-[cite_start]} [cite: 25]
+body { font-family: 'Inter', 'Noto Sans TC', sans-serif;
+background: #1a1d29; color: #e5e7eb; }
+.glass-card { background: rgba(37, 40, 54, 0.8); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.form-input, .form-select { background-color: #1f2937; border: 1px solid #4b5563; color: #d1d5db; }
+.form-input:focus, .form-select:focus, .form-input:has(input:focus) { border-color: #06b6d4;
+box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.5); outline: none; }
+select:disabled, input:disabled { background-color: #374151; cursor: not-allowed; opacity: 0.7;
+}
+.table-container { overflow-y: auto; }
+table { width: 100%; border-collapse: collapse; }
+th, td { border-bottom: 1px solid #374151; padding: 0.75rem 1rem;
+text-align: left; font-size: 0.875rem; white-space: nowrap; }
+thead th { background-color: #252836; position: sticky; top: 0; z-index: 10; font-weight: 600;
+color: #9ca3af; }
+.loader { border: 4px solid #374151; border-top: 4px solid #06b6d4; border-radius: 50%; width: 40px; height: 40px;
+animation: spin 1s linear infinite; }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg);
+} }
+.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.7); display: flex;
+align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(5px); transition: opacity 0.3s ease; }
+.modal-container { background: #252836; padding: 2rem; border-radius: 12px;
+width: 90%; max-width: 1200px; max-height: 85vh; overflow-y: auto; border: 1px solid #4b5563; transform: scale(0.95); transition: transform 0.3s ease;
+}
+.modal-overlay:not(.hidden) .modal-container { transform: scale(1); }
+.project-tag { display: inline-flex; align-items: center; background-color: #4b5563; color: #d1d5db; padding: 0.25rem 0.75rem; border-radius: 9999px;
+font-size: 0.875rem; flex-shrink: 0; }
+.project-tag-remove { margin-left: 0.5rem; cursor: pointer; font-weight: bold; }
+.project-tag-remove:hover { color: #f87171; }
+#project-name-suggestions { max-height: 200px;
+overflow-y: auto; }
+.suggestion-item { display: flex; align-items: center; padding: 0.5rem 1rem; cursor: pointer; }
+.suggestion-item:hover, .suggestion-item.active { background-color: #374151;
+}
+.suggestion-item input[type="checkbox"] { margin-right: 0.75rem; height: 1rem; width: 1rem; border-radius: 0.25rem; border-color: #6b7280; background-color: #374151; color: #06b6d4; cursor: pointer;
+}
+.suggestion-item input[type="checkbox"]:focus { ring: #06b6d4; }
+.scrollable-cell { max-width: 25ch; overflow-x: auto; white-space: nowrap; padding-top: 4px; padding-bottom: 4px;
+}
+.scrollable-cell::-webkit-scrollbar, #project-name-container::-webkit-scrollbar { height: 4px; }
+.scrollable-cell::-webkit-scrollbar-track, #project-name-container::-webkit-scrollbar-track { background: transparent; }
+.scrollable-cell::-webkit-scrollbar-thumb, #project-name-container::-webkit-scrollbar-thumb { background-color: #4b5563; border-radius: 20px;
+}
+.tab-button { padding: 0.75rem 1.5rem; font-medium; border-bottom: 3px solid transparent; transition: all 0.3s ease; color: #9ca3af; }
+.tab-button.active { color: #06b6d4;
+border-bottom-color: #06b6d4; }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+.metric-card { background-color: #1f2937; padding: 1.5rem; border-radius: 0.75rem;
+border: 1px solid #374151; }
+.metric-card-title { font-size: 0.875rem; color: #9ca3af; margin-bottom: 0.5rem; }
+.metric-card-value { font-size: 2rem; font-weight: 700; color: #e5e7eb;
+}
+.metric-card-unit { font-size: 1rem; color: #6b7280; margin-left: 0.5rem; }
+.sortable-th { cursor: pointer; user-select: none; }
+.sortable-th:hover { color: #e5e7eb;
+}
+.sortable-th .sort-icon { display: inline-block; margin-left: 0.5rem; color: #6b7280; transition: all 0.2s; }
+.sortable-th.asc .sort-icon { transform: rotate(180deg); color: #06b6d4;
+}
+.sortable-th.desc .sort-icon { color: #06b6d4; }
+.report-section-title { font-size: 1.25rem; font-weight: 600; color: #e5e7eb; margin-bottom: 1rem; padding-bottom: 0.5rem;
+border-bottom: 1px solid #374151;}
+.avg-type-btn { color: #9ca3af; }
+.avg-type-btn.active { background-color: #06b6d4; color: #ffffff;
+}
 </style>
 </head>
 <body class="p-4 md:p-8">
 
 <div class="max-w-screen-2xl mx-auto">
   <header class="mb-8 text-center">
-    [cite_start]<h1 class="text-4xl font-extrabold text-white tracking-tight">不動產數據查詢平台</h1> [cite: 25]
-    [cite_start]<p class="mt-2 text-lg text-gray-400">您的專屬數據查詢與分析工具。</p> [cite: 25]
+    <h1 class="text-4xl font-extrabold text-white tracking-tight">不動產數據查詢平台</h1>
+    <p class="mt-2 text-lg text-gray-400">您的專屬數據查詢與分析工具。</p>
   </header>
 
   <main>
-    [cite_start]<div class="glass-card p-6 rounded-xl shadow-lg mb-8"> [cite: 25]
-      [cite_start]<div id="filter-form" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4 items-end"> [cite: 25]
-        [cite_start]<div><label for="county" class="block text-sm font-medium text-gray-300">縣市</label><select id="county" class="form-select mt-1 block w-full pl-3 pr-10 py-2 text-base rounded-md"><option value="">請選擇縣市</option></select></div> [cite: 25]
-        [cite_start]<div><label for="district" class="block text-sm font-medium text-gray-300">行政區</label><select id="district" class="form-select mt-1 block w-full pl-3 pr-10 py-2 text-base rounded-md" disabled><option value="">請先選縣市</option></select></div> [cite: 25]
+    <div class="glass-card p-6 rounded-xl shadow-lg mb-8">
+      <div id="filter-form" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4 items-end">
+        <div><label for="county" class="block text-sm font-medium text-gray-300">縣市</label><select id="county" class="form-select mt-1 block w-full pl-3 pr-10 py-2 text-base rounded-md"><option value="">請選擇縣市</option></select></div>
+        <div><label for="district" class="block text-sm font-medium text-gray-300">行政區</label><select id="district" class="form-select mt-1 block w-full pl-3 pr-10 py-2 text-base rounded-md" disabled><option value="">請先選縣市</option></select></div>
  
         
         <div>
-            [cite_start]<label for="type" class="block text-sm font-medium text-gray-300">交易類型</label> [cite: 26]
-            [cite_start]<select id="type" class="form-select mt-1 block w-full pl-3 pr-10 py-2 text-base rounded-md"> [cite: 26]
-                [cite_start]<option value="預售交易" selected>預售交易</option> [cite: 26]
-                [cite_start]<option value="中古交易" disabled>中古交易 (開發中)</option> [cite: 26]
+            <label for="type" class="block text-sm font-medium text-gray-300">交易類型</label>
+            <select id="type" class="form-select mt-1 block w-full pl-3 pr-10 py-2 text-base rounded-md">
+                <option value="預售交易" selected>預售交易</option>
+                <option value="中古交易" disabled>中古交易 (開發中)</option>
          
-                [cite_start]<option value="租賃交易" disabled>租賃交易 (開發中)</option> [cite: 27]
+                <option value="租賃交易" disabled>租賃交易 (開發中)</option>
             </select>
         </div>
-        [cite_start]<div><label for="building-type" class="block text-sm font-medium text-gray-300">建物型態</label><select id="building-type" class="form-select mt-1 block w-full pl-3 pr-10 py-2 text-base rounded-md"><option value="">全部</option><option value="住宅大樓(11層含以上有電梯)">住宅大樓</option><option value="華廈(10層含以下有電梯)">華廈</option><option value="公寓(5層含以下無電梯)">公寓</option><option value="套房(1房(1廳)1衛)">套房</option><option value="透天厝">透天厝</option><option value="店面(店鋪)">店面</option><option value="辦公商業大樓">辦公商業大樓</option><option value="工廠">工廠</option><option value="倉庫">倉庫</option><option value="其他">其他</option></select></div> [cite: 27]
-        [cite_start]<div class="xl:col-span-2"><div class="flex justify-between items-center"><label for="project-name-input" class="block text-sm font-medium text-gray-300">建案名稱 (可複選)</label><button id="clear-projects-btn" class="text-xs text-cyan-400 hover:text-cyan-300 hidden transition-opacity">清除選取</button></div><div class="relative mt-1"><div id="project-name-container" class="form-input flex flex-nowrap items-center gap-2 p-1 min-h-[42px] rounded-md [cite: 27]
-[cite_start]overflow-x-auto"><input type="text" id="project-name-input" placeholder="請先選縣市..." class="bg-transparent flex-grow outline-none text-base py-1 px-2" disabled></div><div id="project-name-suggestions" class="absolute z-20 w-full mt-1 bg-dark-card border border-gray-600 rounded-md shadow-lg hidden"></div></div></div> [cite: 28]
-        [cite_start]<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:col-span-2 lg:col-span-4 xl:col-span-4"> [cite: 28]
+        <div><label for="building-type" class="block text-sm font-medium text-gray-300">建物型態</label><select id="building-type" class="form-select mt-1 block w-full pl-3 pr-10 py-2 text-base rounded-md"><option value="">全部</option><option value="住宅大樓(11層含以上有電梯)">住宅大樓</option><option value="華廈(10層含以下有電梯)">華廈</option><option value="公寓(5層含以下無電梯)">公寓</option><option value="套房(1房(1廳)1衛)">套房</option><option value="透天厝">透天厝</option><option value="店面(店鋪)">店面</option><option value="辦公商業大樓">辦公商業大樓</option><option value="工廠">工廠</option><option value="倉庫">倉庫</option><option value="其他">其他</option></select></div>
+        <div class="xl:col-span-2"><div class="flex justify-between items-center"><label for="project-name-input" class="block text-sm font-medium text-gray-300">建案名稱 (可複選)</label><button id="clear-projects-btn" class="text-xs text-cyan-400 hover:text-cyan-300 hidden transition-opacity">清除選取</button></div><div class="relative mt-1"><div id="project-name-container" class="form-input flex flex-nowrap items-center gap-2 p-1 min-h-[42px] rounded-md 
+overflow-x-auto"><input type="text" id="project-name-input" placeholder="請先選縣市..." class="bg-transparent flex-grow outline-none text-base py-1 px-2" disabled></div><div id="project-name-suggestions" class="absolute z-20 w-full mt-1 bg-dark-card border border-gray-600 rounded-md shadow-lg hidden"></div></div></div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:col-span-2 lg:col-span-4 xl:col-span-4">
             <div>
-                [cite_start]<label for="date-range" class="block text-sm font-medium text-gray-300">快捷時間</label> [cite: 28]
-                [cite_start]<select id="date-range" class="form-select mt-1 block w-full pl-3 pr-10 py-2 text-base rounded-md"> [cite: 28]
+                <label for="date-range" class="block text-sm font-medium text-gray-300">快捷時間</label>
+                <select id="date-range" class="form-select mt-1 block w-full pl-3 pr-10 py-2 text-base rounded-md">
      
-                    [cite_start]<option value="custom">自訂範圍</option><option value="7d">近7天</option><option value="14d">近14天</option><option value="30d">近30天</option><option value="1q">近一季 (3個月)</option><option value="2q">近兩季 (6個月)</option><option value="3q">近三季 (9個月)</option><option value="1y">近一年 (12個月)</option><option value="this_year">今年以來</option><option value="last_2_years">去年＋今年</option><option value="last_3_years">前年＋去年＋今年</option> [cite: 29]
+                    <option value="custom">自訂範圍</option><option value="7d">近7天</option><option value="14d">近14天</option><option value="30d">近30天</option><option value="1q">近一季 (3個月)</option><option value="2q">近兩季 (6個月)</option><option value="3q">近三季 (9個月)</option><option value="1y">近一年 (12個月)</option><option value="this_year">今年以來</option><option value="last_2_years">去年＋今年</option><option value="last_3_years">前年＋去年＋今年</option>
                 </select>
             </div>
-            [cite_start]<div><label for="date-start" class="block text-sm font-medium text-gray-300">起始日期</label><input type="date" id="date-start" class="form-input mt-1 block w-full pl-3 pr-2 py-2 text-base rounded-md"></div> [cite: 29]
-            [cite_start]<div><label for="date-end" [cite: 29]
-[cite_start]class="block text-sm font-medium text-gray-300">結束日期</label><input type="date" id="date-end" class="form-input mt-1 block w-full pl-3 pr-2 py-2 text-base rounded-md"></div> [cite: 30]
+            <div><label for="date-start" class="block text-sm font-medium text-gray-300">起始日期</label><input type="date" id="date-start" class="form-input mt-1 block w-full pl-3 pr-2 py-2 text-base rounded-md"></div>
+            <div><label for="date-end" 
+class="block text-sm font-medium text-gray-300">結束日期</label><input type="date" id="date-end" class="form-input mt-1 block w-full pl-3 pr-2 py-2 text-base rounded-md"></div>
         </div>
-        [cite_start]<div class="sm:col-span-2 lg:col-span-4 xl:col-span-6 flex justify-end items-center gap-4"> [cite: 30]
-          [cite_start]<button id="analyze-btn" class="bg-purple-600 hover:bg-purple-500 text-white font-bold py-2 px-6 rounded-lg shadow-lg hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed">分析報表</button> [cite: 30]
-          [cite_start]<button id="search-btn" class="bg-gradient-to-r from-cyan-accent to-purple-accent text-white font-bold py-2 px-6 rounded-lg shadow-lg hover:opacity-90 transition-all">查詢資料列表</button> [cite: 30]
+        <div class="sm:col-span-2 lg:col-span-4 xl:col-span-6 flex justify-end items-center gap-4">
+          <button id="analyze-btn" class="bg-purple-600 hover:bg-purple-500 text-white font-bold py-2 px-6 rounded-lg shadow-lg hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed">分析報表</button>
+          <button id="search-btn" class="bg-gradient-to-r from-cyan-accent to-purple-accent text-white font-bold py-2 px-6 rounded-lg shadow-lg hover:opacity-90 transition-all">查詢資料列表</button>
         </div>
       </div>
     
-    [cite_start]</div> [cite: 31]
+    </div>
   
-    [cite_start]<div id="results-container" class="glass-card p-6 rounded-xl shadow-lg"> [cite: 31]
-      [cite_start]<div id="tabs-container" class="border-b border-gray-700 mb-6 hidden"> [cite: 31]
-        [cite_start]<nav class="flex -mb-px"> [cite: 31]
-          [cite_start]<button data-tab="ranking-report" class="tab-button active">核心指標與排名</button> [cite: 31]
-          [cite_start]<button data-tab="price-band-report" class="tab-button">總價帶分析</button> [cite: 31]
-          [cite_start]<button data-tab="unit-price-report" class="tab-button">房屋單價分析</button> [cite: 31]
+    <div id="results-container" class="glass-card p-6 rounded-xl shadow-lg">
+      <div id="tabs-container" class="border-b border-gray-700 mb-6 hidden">
+        <nav class="flex -mb-px">
+          <button data-tab="ranking-report" class="tab-button active">核心指標與排名</button>
+          <button data-tab="price-band-report" class="tab-button">總價帶分析</button>
+          <button data-tab="unit-price-report" class="tab-button">房屋單價分析</button>
           <button data-tab="parking-report" class="tab-button">車位單價分析</button>
-          [cite_start]<button data-tab="data-list" class="tab-button">資料列表</button> [cite: 31]
+          <button data-tab="data-list" class="tab-button">資料列表</button>
         </nav>
       </div>
 
      
-      [cite_start]<div id="message-area" class="text-center p-8 text-gray-400">請設定篩選條件後點擊查詢或分析。</div> [cite: 32]
+      <div id="message-area" class="text-center p-8 text-gray-400">請設定篩選條件後點擊查詢或分析。</div>
 
-      [cite_start]<div id="ranking-report-content" class="tab-content"><div id="metric-cards-container" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-8"></div><div class="overflow-x-auto"><table id="ranking-table" class="min-w-full divide-y divide-gray-800"></table></div></div> [cite: 32]
+      <div id="ranking-report-content" class="tab-content"><div id="metric-cards-container" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-8"></div><div class="overflow-x-auto"><table id="ranking-table" class="min-w-full divide-y divide-gray-800"></table></div></div>
       
-      [cite_start]<div id="price-band-report-content" class="tab-content"><div class="overflow-x-auto"><table id="price-band-table" class="min-w-full divide-y divide-gray-800"></table></div></div> [cite: 32]
+      <div id="price-band-report-content" class="tab-content"><div class="overflow-x-auto"><table id="price-band-table" class="min-w-full divide-y divide-gray-800"></table></div></div>
 
-      [cite_start]<div id="unit-price-report-content" class="tab-content"> [cite: 32]
+      <div id="unit-price-report-content" class="tab-content">
         
-        [cite_start]<div class="flex justify-end items-center mb-4"> [cite: 32]
-            [cite_start]<label class="text-sm font-medium text-gray-400 mr-3">平均數類型:</label> [cite: 32]
+        <div class="flex justify-end items-center mb-4">
+            <label class="text-sm font-medium text-gray-400 mr-3">平均數類型:</label>
             
-            [cite_start]<div id="avg-type-toggle" class="inline-flex bg-dark-card p-1 rounded-lg"> [cite: 33]
-                [cite_start]<button data-type="arithmetic" class="avg-type-btn active px-4 py-1 text-sm font-semibold rounded-md transition-colors">算術平均數</button> [cite: 33]
-                [cite_start]<button data-type="weighted" class="avg-type-btn px-4 py-1 text-sm font-semibold rounded-md transition-colors">加權平均數</button> [cite: 33]
+            <div id="avg-type-toggle" class="inline-flex bg-dark-card p-1 rounded-lg">
+                <button data-type="arithmetic" class="avg-type-btn active px-4 py-1 text-sm font-semibold rounded-md transition-colors">算術平均數</button>
+                <button data-type="weighted" class="avg-type-btn px-4 py-1 text-sm font-semibold rounded-md transition-colors">加權平均數</button>
             </div>
         </div>
 
         <div class="mb-8">
-            [cite_start]<h3 class="report-section-title">住宅單價統計 (住宅大樓/華廈)</h3> [cite: 33]
+            <h3 class="report-section-title">住宅單價統計 (住宅大樓/華廈)</h3>
    
-             [cite_start]<div id="residential-stats-table-container" class="overflow-x-auto"></div> [cite: 34]
-            [cite_start]<div id="residential-stats-extra-info" class="text-sm text-gray-400 mt-4 space-y-1"></div> [cite: 34]
+             <div id="residential-stats-table-container" class="overflow-x-auto"></div>
+            <div id="residential-stats-extra-info" class="text-sm text-gray-400 mt-4 space-y-1"></div>
         </div>
         <div>
-            [cite_start]<h3 class="report-section-title">建案類型比較 (店舖/事務所 vs. 住宅)</h3> [cite: 34]
-            [cite_start]<div id="type-comparison-table-container" class="overflow-x-auto"></div> [cite: 34]
+            <h3 class="report-section-title">建案類型比較 (店舖/事務所 vs. 住宅)</h3>
+            <div id="type-comparison-table-container" class="overflow-x-auto"></div>
         </div>
         
-        [cite_start]<div id="average-type-explanation" [cite: 34]
-[cite_start]class="mt-8 p-4 bg-dark-card border border-gray-700 rounded-lg text-sm text-gray-400 space-y-3"> [cite: 35]
-            [cite_start]<h4 class="font-bold text-gray-200">名詞解釋</h4> [cite: 35]
-            [cite_start]<p><strong class="text-cyan-400">算術平均數 (Arithmetic Mean):</strong> 將每一筆交易的單價直接相加後，除以總筆數。它能反映「一筆典型交易」的單價，不受房屋坪數大小影響，適合了解普遍行情。</p> [cite: 35]
-            [cite_start]<p><strong class="text-purple-400">加權平均數 (Weighted Average):</strong> 以「總房屋總價  總房屋面積」計算。坪數越大的交易，對平均價格的影響力就越大。它更能反映市場的「整體價值」與資金結構。</p> [cite: 35]
+        <div id="average-type-explanation" 
+class="mt-8 p-4 bg-dark-card border border-gray-700 rounded-lg text-sm text-gray-400 space-y-3">
+            <h4 class="font-bold text-gray-200">名詞解釋</h4>
+            <p><strong class="text-cyan-400">算術平均數 (Arithmetic Mean):</strong> 將每一筆交易的單價直接相加後，除以總筆數。它能反映「一筆典型交易」的單價，不受房屋坪數大小影響，適合了解普遍行情。</p>
+            <p><strong class="text-purple-400">加權平均數 (Weighted Average):</strong> 以「總房屋總價  總房屋面積」計算。坪數越大的交易，對平均價格的影響力就越大。它更能反映市場的「整體價值」與資金結構。</p>
         </div>
       </div>
-
+      
       <div id="parking-report-content" class="tab-content">
         <div class="mb-8">
             <h3 class="report-section-title">房車配比</h3>
@@ -201,318 +200,321 @@ border: 1px solid #374151; [cite_start]} [cite: 20]
         </div>
       </div>
 
-      [cite_start]<div id="data-list-content" class="tab-content"><div id="table-container" class="table-container overflow-x-auto"><table id="results-table" class="min-w-full divide-y divide-gray-800"></table></div><div id="pagination-controls" class="flex justify-between items-center mt-4 text-sm text-gray-400"></div></div> [cite: 35]
+      <div id="data-list-content" class="tab-content"><div id="table-container" class="table-container overflow-x-auto"><table id="results-table" class="min-w-full divide-y divide-gray-800"></table></div><div id="pagination-controls" class="flex justify-between items-center mt-4 text-sm text-gray-400"></div></div>
     </div>
   </main>
 </div>
 
-[cite_start]<div id="details-modal" [cite: 35]
-[cite_start]class="modal-overlay hidden"><div class="modal-container"><div class="flex justify-between items-center mb-6"><h2 id="modal-title" class="text-2xl font-bold text-white">附表詳細資料</h2><button id="modal-close-btn" class="text-gray-400 hover:text-white text-3xl font-bold">&times;</button></div><div id="modal-content" class="text-gray-300"></div></div></div> [cite: 36]
+<div id="details-modal" 
+class="modal-overlay hidden"><div class="modal-container"><div class="flex justify-between items-center mb-6"><h2 id="modal-title" class="text-2xl font-bold text-white">附表詳細資料</h2><button id="modal-close-btn" class="text-gray-400 hover:text-white text-3xl font-bold">&times;</button></div><div id="modal-content" class="text-gray-300"></div></div></div>
 
 <script type="module">
 // API Endpoints
-[cite_start]const EDGE_FUNCTION_ENDPOINT = 'https://zxbmbbfrzbtuueysicoc.supabase.co/functions/v1/query-data'; [cite: 36]
-[cite_start]const SUB_DATA_ENDPOINT = 'https://zxbmbbfrzbtuueysicoc.supabase.co/functions/v1/query-sub-data'; [cite: 37]
-[cite_start]const PROJECT_NAMES_ENDPOINT = 'https://zxbmbbfrzbtuueysicoc.supabase.co/functions/v1/query-names'; [cite: 37]
-[cite_start]const RANKING_ANALYSIS_ENDPOINT = 'https://zxbmbbfrzbtuueysicoc.supabase.co/functions/v1/analyze-project-ranking'; [cite: 37]
+const EDGE_FUNCTION_ENDPOINT = 'https://zxbmbbfrzbtuueysicoc.supabase.co/functions/v1/query-data';
+const SUB_DATA_ENDPOINT = 'https://zxbmbbfrzbtuueysicoc.supabase.co/functions/v1/query-sub-data';
+const PROJECT_NAMES_ENDPOINT = 'https://zxbmbbfrzbtuueysicoc.supabase.co/functions/v1/query-names';
+const RANKING_ANALYSIS_ENDPOINT = 'https://zxbmbbfrzbtuueysicoc.supabase.co/functions/v1/analyze-project-ranking';
 // DOM Elements
 const dom = {
-  [cite_start]countySelect: document.getElementById('county'), [cite: 38]
-  [cite_start]districtSelect: document.getElementById('district'), [cite: 38]
-  [cite_start]typeSelect: document.getElementById('type'), [cite: 38]
-  [cite_start]buildingTypeSelect: document.getElementById('building-type'), [cite: 38]
-  [cite_start]dateRangeSelect: document.getElementById('date-range'), [cite: 38]
-  [cite_start]dateStartInput: document.getElementById('date-start'), [cite: 38]
-  [cite_start]dateEndInput: document.getElementById('date-end'), [cite: 38]
-  [cite_start]searchBtn: document.getElementById('search-btn'), [cite: 38]
-  [cite_start]analyzeBtn: document.getElementById('analyze-btn'), [cite: 38]
-  [cite_start]messageArea: document.getElementById('message-area'), [cite: 38]
-  [cite_start]tabsContainer: document.getElementById('tabs-container'), [cite: 38]
+  countySelect: document.getElementById('county'),
+  districtSelect: document.getElementById('district'),
+  typeSelect: document.getElementById('type'),
+  buildingTypeSelect: document.getElementById('building-type'),
+  dateRangeSelect: document.getElementById('date-range'),
+  dateStartInput: document.getElementById('date-start'),
+  dateEndInput: document.getElementById('date-end'),
+  searchBtn: document.getElementById('search-btn'),
+  analyzeBtn: document.getElementById('analyze-btn'),
+  messageArea: document.getElementById('message-area'),
+  tabsContainer: document.getElementById('tabs-container'),
   // 報表
-  [cite_start]rankingReportContent: document.getElementById('ranking-report-content'), [cite: 38]
-  [cite_start]metricCardsContainer: document.getElementById('metric-cards-container'), [cite: 38]
-  [cite_start]rankingTable: document.getElementById('ranking-table'), [cite: 38]
-  [cite_start]priceBandReportContent: document.getElementById('price-band-report-content'), [cite: 38]
-  [cite_start]priceBandTable: document.getElementById('price-band-table'), [cite: 38]
-  [cite_start]unitPriceReportContent: document.getElementById('unit-price-report-content'), [cite: 38]
-  [cite_start]residentialStatsTableContainer: document.getElementById('residential-stats-table-container'), [cite: 38]
-  [cite_start]residentialStatsExtraInfo: document.getElementById('residential-stats-extra-info'), [cite: 38]
-  [cite_start]typeComparisonTableContainer: document.getElementById('type-comparison-table-container'), [cite: 38]
+  rankingReportContent: document.getElementById('ranking-report-content'),
+  metricCardsContainer: document.getElementById('metric-cards-container'),
+  rankingTable: document.getElementById('ranking-table'),
+  priceBandReportContent: document.getElementById('price-band-report-content'),
+  priceBandTable: document.getElementById('price-band-table'),
+  unitPriceReportContent: document.getElementById('unit-price-report-content'),
+  residentialStatsTableContainer: document.getElementById('residential-stats-table-container'),
+  residentialStatsExtraInfo: document.getElementById('residential-stats-extra-info'),
+  typeComparisonTableContainer: document.getElementById('type-comparison-table-container'),
+  // 【修改三】新增 DOM 參照
   parkingReportContent: document.getElementById('parking-report-content'),
   parkingRatioTableContainer: document.getElementById('parking-ratio-table-container'),
   avgPriceByTypeTableContainer: document.getElementById('avg-price-by-type-table-container'),
   rampPlanePriceByFloorTableContainer: document.getElementById('ramp-plane-price-by-floor-table-container'),
   // 資料列表
-  [cite_start]dataListContent: document.getElementById('data-list-content'), [cite: 38]
-  [cite_start]resultsTable: document.getElementById('results-table'), [cite: 38]
-  [cite_start]paginationControls: document.getElementById('pagination-controls'), [cite: 38]
+  dataListContent: document.getElementById('data-list-content'),
+  resultsTable: document.getElementById('results-table'),
+  paginationControls: document.getElementById('pagination-controls'),
   // Modal
-  [cite_start]modal: document.getElementById('details-modal'), [cite: 38]
-  [cite_start]modalTitle: document.getElementById('modal-title'), [cite: 38]
-  [cite_start]modalContent: document.getElementById('modal-content'), [cite: 38]
-  [cite_start]modalCloseBtn: document.getElementById('modal-close-btn'), [cite: 38]
+  modal: document.getElementById('details-modal'),
+  modalTitle: document.getElementById('modal-title'),
+  modalContent: document.getElementById('modal-content'),
+  modalCloseBtn: document.getElementById('modal-close-btn'),
   // 建案複選
   
-  [cite_start]projectNameContainer: document.getElementById('project-name-container'), [cite: 39]
-  [cite_start]projectNameInput: document.getElementById('project-name-input'), [cite: 39]
-  [cite_start]projectNameSuggestions: document.getElementById('project-name-suggestions'), [cite: 39]
-  [cite_start]clearProjectsBtn: document.getElementById('clear-projects-btn'), [cite: 39]
+  projectNameContainer: document.getElementById('project-name-container'),
+  projectNameInput: document.getElementById('project-name-input'),
+  projectNameSuggestions: document.getElementById('project-name-suggestions'),
+  clearProjectsBtn: document.getElementById('clear-projects-btn'),
   // 平均數切換
-  [cite_start]avgTypeToggle: document.getElementById('avg-type-toggle'), [cite: 39]
+  avgTypeToggle: document.getElementById('avg-type-toggle'),
 };
 // State variables
-[cite_start]let currentPage = 1, pageSize = 30, totalRecords = 0; [cite: 40]
-[cite_start]let selectedProjects = [], suggestionDebounceTimer; [cite: 40]
-[cite_start]let analysisDataCache = null; [cite: 41]
-[cite_start]let currentSort = { key: 'saleAmountSum', order: 'desc' }; [cite: 41]
-[cite_start]let currentAverageType = 'arithmetic'; [cite: 41]
+let currentPage = 1, pageSize = 30, totalRecords = 0;
+let selectedProjects = [], suggestionDebounceTimer;
+let analysisDataCache = null;
+let currentSort = { key: 'saleAmountSum', order: 'desc' };
+let currentAverageType = 'arithmetic';
 // Data
-[cite_start]const districtData = {"臺北市":["中正區","大同區","中山區","松山區","大安區","萬華區","信義區","士林區","北投區","內湖區","南港區","文山區"],"新北市":["板橋區","三重區","中和區","永和區","新莊區","新店區","樹林區","鶯歌區","三峽區","淡水區","汐止區","瑞芳區","土城區","蘆洲區","五股區","泰山區","林口區","深坑區","石碇區","坪林區","三芝區","石門區","八里區","平溪區","雙溪區","貢寮區","金山區","萬里區","烏來區"],"桃園市":["桃園區","中壢區","大溪區","楊梅區","蘆竹區","大園區","龜山區","八德區","龍潭區","平鎮區","新屋區","觀音區","復興區"],"臺中市":["中區","東區","南區","西區","北區","北屯區","西屯區","南屯區","太平區","大里區","霧峰區","烏日區","豐原區","后里區","石岡區","東勢區","和平區","新社區","潭子區","大雅區","神岡區","大肚區","沙鹿區","龍井區","梧棲區","清水區","大甲區","外埔區","大安區"],"臺南市":["中西區","東區","南區","北區","安平區","安南區","永康區","歸仁區","新化區","左鎮區","玉井區","楠西區","南化區","仁德區","關廟區","龍崎區","官田區","麻豆區","佳里區","西港區","七股區","將軍區","學甲區","北門區","新營區","後壁區","白河區","東山區","六甲區","下營區","柳營區","鹽水區","善化區","大內區","山上區","新市區","安定區"],"高雄市":["新興區","前金區","苓雅區","鹽埕區","鼓山區","旗津區","前鎮區","三民區","楠梓區","小港區","左營區","仁武區","大社區","岡山區","路竹區","阿蓮區","田寮區","燕巢區","橋頭區","梓官區","彌陀區","永安區","湖內區","鳳山區","大寮區","林園區","鳥松區","大樹區","旗山區","美濃區","六龜區","內門區","杉林區","甲仙區","桃源區","那瑪夏區","茂林區","茄萣區"],"基隆市":["仁愛區","信義區","中正區","中山區","安樂區","暖暖區","七堵區"],"新竹市":["東區","北區","香山區"],"嘉義市":["東區","西區"],"宜蘭縣":["宜蘭市","羅東鎮","蘇澳鎮","頭城鎮","礁溪鄉","壯圍鄉","員山鄉","冬山鄉","五結鄉","三星鄉","大同鄉","南澳鄉"],"新竹縣":["竹北市","竹東鎮","新埔鎮","關西鎮","湖口鄉","新豐鄉","芎林鄉","橫山鄉","北埔鄉","寶山鄉","峨眉鄉","尖石鄉","五峰鄉"],"苗栗縣":["苗栗市","苑裡鎮","通霄鎮","竹南鎮","頭份鎮","後龍鎮","卓蘭鎮","大湖鄉","公館鄉","銅鑼鄉","南庄鄉","頭屋鄉","三義鄉","西湖鄉","造橋鄉","三灣鄉","獅潭鄉","泰安鄉"],"彰化縣":["彰化市","鹿港鎮","和美鎮","線西鄉","伸港鄉","福興鄉","秀水鄉","花壇鄉","芬園鄉","員林鎮","溪湖鎮","田中鎮","大村鄉","埔鹽鄉","埔心鄉","永靖鄉","社頭鄉","二水鄉","北斗鎮","二林鎮","田尾鄉","埤頭鄉","芳苑鄉","大城鄉","竹塘鄉","溪州鄉"],"南投縣":["南投市","埔里鎮","草屯鎮","竹山鎮","集集鎮","名間鄉","鹿谷鄉","中寮鄉","魚池鄉","國姓鄉","水里鄉","信義鄉","仁愛鄉"],"雲林縣":["斗六市","斗南鎮","虎尾鎮","西螺鎮","土庫鎮","北港鎮","古坑鄉","大埤鄉","莿桐鄉","林內鄉","二崙鄉","崙背鄉","麥寮鄉","東勢鄉","褒忠鄉","台西鄉","元長鄉","四湖鄉","口湖鄉","水林鄉"],"嘉義縣":["太保市","朴子市","布袋鎮","大林鎮","民雄鄉","溪口鄉","新港鄉","六腳鄉","東石鄉","義竹鄉","鹿草鄉","水上鄉","中埔鄉","竹崎鄉","梅山鄉","番路鄉","大埔鄉","阿里山鄉"],"屏東縣":["屏東市","潮州鎮","東港鎮","恆春鎮","萬丹鄉","長治鄉","麟洛鄉","九如鄉","里港鄉","鹽埔鄉","高樹鄉","萬巒鄉","內埔鄉","竹田鄉","新埤鄉","枋寮鄉","新園鄉","崁頂鄉","林邊鄉","南州鄉","佳冬鄉","琉球鄉","車城鄉","滿州鄉","枋山鄉","霧台鄉","瑪家鄉","泰武鄉","來義鄉","春日鄉","獅子鄉","牡丹鄉","三地門鄉"],"花蓮縣":["花蓮市","鳳林鎮","玉里鎮","新城鄉","吉安鄉","壽豐鄉","光復鄉","豐濱鄉","瑞穗鄉","富里鄉","秀林鄉","萬榮鄉","卓溪鄉"],"臺東縣":["臺東市","成功鎮","關山鎮","卑南鄉","鹿野鄉","池上鄉","東河鄉","長濱鄉","太麻里鄉","大武鄉","綠島鄉","海端鄉","延平鄉","金峰鄉","達仁鄉","蘭嶼鄉"],"澎-湖縣":["馬公市","湖西鄉","白沙鄉","西嶼鄉","望安鄉","七美鄉"],"金門縣":["金城鎮","金湖鎮","金沙鎮","金寧鄉","烈嶼鄉","烏坵鄉"],"連江縣":["南竿鄉","北竿鄉","莒光鄉","東引鄉"]}; [cite: 42]
-[cite_start]const countyCodeMap = { "臺北市": "A", "新北市": "F", "桃園市": "H", "臺中市": "B", "臺南市": "D", "高雄市": "E", "基隆市": "C", "新竹市": "O", "嘉義市": "I", "新竹縣": "J", "苗栗縣": "K", "彰化縣": "N", "南投縣": "M", "雲林縣": "P", "嘉義縣": "Q", "屏東縣": "T", "宜蘭縣": "G", "花蓮縣": "U", "臺東縣": "V", "澎湖縣": "X", "金門縣": "W", "連江縣": "Z" }; [cite: 42]
+const districtData = {"臺北市":["中正區","大同區","中山區","松山區","大安區","萬華區","信義區","士林區","北投區","內湖區","南港區","文山區"],"新北市":["板橋區","三重區","中和區","永和區","新莊區","新店區","樹林區","鶯歌區","三峽區","淡水區","汐止區","瑞芳區","土城區","蘆洲區","五股區","泰山區","林口區","深坑區","石碇區","坪林區","三芝區","石門區","八里區","平溪區","雙溪區","貢寮區","金山區","萬里區","烏來區"],"桃園市":["桃園區","中壢區","大溪區","楊梅區","蘆竹區","大園區","龜山區","八德區","龍潭區","平鎮區","新屋區","觀音區","復興區"],"臺中市":["中區","東區","南區","西區","北區","北屯區","西屯區","南屯區","太平區","大里區","霧峰區","烏日區","豐原區","后里區","石岡區","東勢區","和平區","新社區","潭子區","大雅區","神岡區","大肚區","沙鹿區","龍井區","梧棲區","清水區","大甲區","外埔區","大安區"],"臺南市":["中西區","東區","南區","北區","安平區","安南區","永康區","歸仁區","新化區","左鎮區","玉井區","楠西區","南化區","仁德區","關廟區","龍崎區","官田區","麻豆區","佳里區","西港區","七股區","將軍區","學甲區","北門區","新營區","後壁區","白河區","東山區","六甲區","下營區","柳營區","鹽水區","善化區","大內區","山上區","新市區","安定區"],"高雄市":["新興區","前金區","苓雅區","鹽埕區","鼓山區","旗津區","前鎮區","三民區","楠梓區","小港區","左營區","仁武區","大社區","岡山區","路竹區","阿蓮區","田寮區","燕巢區","橋頭區","梓官區","彌陀區","永安區","湖內區","鳳山區","大寮區","林園區","鳥松區","大樹區","旗山區","美濃區","六龜區","內門區","杉林區","甲仙區","桃源區","那瑪夏區","茂林區","茄萣區"],"基隆市":["仁愛區","信義區","中正區","中山區","安樂區","暖暖區","七堵區"],"新竹市":["東區","北區","香山區"],"嘉義市":["東區","西區"],"宜蘭縣":["宜蘭市","羅東鎮","蘇澳鎮","頭城鎮","礁溪鄉","壯圍鄉","員山鄉","冬山鄉","五結鄉","三星鄉","大同鄉","南澳鄉"],"新竹縣":["竹北市","竹東鎮","新埔鎮","關西鎮","湖口鄉","新豐鄉","芎林鄉","橫山鄉","北埔鄉","寶山鄉","峨眉鄉","尖石鄉","五峰鄉"],"苗栗縣":["苗栗市","苑裡鎮","通霄鎮","竹南鎮","頭份鎮","後龍鎮","卓蘭鎮","大湖鄉","公館鄉","銅鑼鄉","南庄鄉","頭屋鄉","三義鄉","西湖鄉","造橋鄉","三灣鄉","獅潭鄉","泰安鄉"],"彰化縣":["彰化市","鹿港鎮","和美鎮","線西鄉","伸港鄉","福興鄉","秀水鄉","花壇鄉","芬園鄉","員林鎮","溪湖鎮","田中鎮","大村鄉","埔鹽鄉","埔心鄉","永靖鄉","社頭鄉","二水鄉","北斗鎮","二林鎮","田尾鄉","埤頭鄉","芳苑鄉","大城鄉","竹塘鄉","溪州鄉"],"南投縣":["南投市","埔里鎮","草屯鎮","竹山鎮","集集鎮","名間鄉","鹿谷鄉","中寮鄉","魚池鄉","國姓鄉","水里鄉","信義鄉","仁愛鄉"],"雲林縣":["斗六市","斗南鎮","虎尾鎮","西螺鎮","土庫鎮","北港鎮","古坑鄉","大埤鄉","莿桐鄉","林內鄉","二崙鄉","崙背鄉","麥寮鄉","東勢鄉","褒忠鄉","台西鄉","元長鄉","四湖鄉","口湖鄉","水林鄉"],"嘉義縣":["太保市","朴子市","布袋鎮","大林鎮","民雄鄉","溪口鄉","新港鄉","六腳鄉","東石鄉","義竹鄉","鹿草鄉","水上鄉","中埔鄉","竹崎鄉","梅山鄉","番路鄉","大埔鄉","阿里山鄉"],"屏東縣":["屏東市","潮州鎮","東港鎮","恆春鎮","萬丹鄉","長治鄉","麟洛鄉","九如鄉","里港鄉","鹽埔鄉","高樹鄉","萬巒鄉","內埔鄉","竹田鄉","新埤鄉","枋寮鄉","新園鄉","崁頂鄉","林邊鄉","南州鄉","佳冬鄉","琉球鄉","車城鄉","滿州鄉","枋山鄉","霧台鄉","瑪家鄉","泰武鄉","來義鄉","春日鄉","獅子鄉","牡丹鄉","三地門鄉"],"花蓮縣":["花蓮市","鳳林鎮","玉里鎮","新城鄉","吉安鄉","壽豐鄉","光復鄉","豐濱鄉","瑞穗鄉","富里鄉","秀林鄉","萬榮鄉","卓溪鄉"],"臺東縣":["臺東市","成功鎮","關山鎮","卑南鄉","鹿野鄉","池上鄉","東河鄉","長濱鄉","太麻里鄉","大武鄉","綠島鄉","海端鄉","延平鄉","金峰鄉","達仁鄉","蘭嶼鄉"],"澎-湖縣":["馬公市","湖西鄉","白沙鄉","西嶼鄉","望安鄉","七美鄉"],"金門縣":["金城鎮","金湖鎮","金沙鎮","金寧鄉","烈嶼鄉","烏坵鄉"],"連江縣":["南竿鄉","北竿鄉","莒光鄉","東引鄉"]};
+const countyCodeMap = { "臺北市": "A", "新北市": "F", "桃園市": "H", "臺中市": "B", "臺南市": "D", "高雄市": "E", "基隆市": "C", "新竹市": "O", "嘉義市": "I", "新竹縣": "J", "苗栗縣": "K", "彰化縣": "N", "南投縣": "M", "雲林縣": "P", "嘉義縣": "Q", "屏東縣": "T", "宜蘭縣": "G", "花蓮縣": "U", "臺東縣": "V", "澎湖縣": "X", "金門縣": "W", "連江縣": "Z" };
 // --- Event Listeners & Initializers ---
 function initialize() {
-  [cite_start]Object.keys(districtData).forEach(name => dom.countySelect.add(new Option(name, name))); [cite: 43]
-  [cite_start]dom.searchBtn.addEventListener('click', () => { currentPage = 1; fetchData(); }); [cite: 44]
-  [cite_start]dom.analyzeBtn.addEventListener('click', analyzeData); [cite: 44]
-  [cite_start]dom.countySelect.addEventListener('change', updateDistrictOptions); [cite: 44]
-  [cite_start]dom.typeSelect.addEventListener('change', toggleAnalyzeButtonState); [cite: 44]
-  [cite_start]dom.dateRangeSelect.addEventListener('change', handleDateRangeChange); [cite: 44]
-  [cite_start]dom.dateStartInput.addEventListener('input', () => { if (document.activeElement === dom.dateStartInput) dom.dateRangeSelect.value = 'custom'; }); [cite: 45]
-  [cite_start]dom.dateEndInput.addEventListener('input', () => { if (document.activeElement === dom.dateEndInput) dom.dateRangeSelect.value = 'custom'; }); [cite: 46]
-  [cite_start]dom.modalCloseBtn.addEventListener('click', () => dom.modal.classList.add('hidden')); [cite: 46]
-  [cite_start]dom.resultsTable.addEventListener('click', e => { if (e.target.closest('.details-btn')) showSubTableDetails(e.target.closest('.details-btn')); }); [cite: 47]
-  [cite_start]dom.projectNameInput.addEventListener('input', onProjectInput); [cite: 47]
-  [cite_start]dom.projectNameSuggestions.addEventListener('click', onSuggestionClick); [cite: 47]
-  [cite_start]dom.projectNameContainer.addEventListener('click', onTagRemove); [cite: 47]
-  [cite_start]document.addEventListener('click', e => { if (!dom.projectNameContainer.parentElement.contains(e.target)) dom.projectNameSuggestions.classList.add('hidden'); }); [cite: 48]
-  [cite_start]dom.clearProjectsBtn.addEventListener('click', clearSelectedProjects); [cite: 48]
-  [cite_start]dom.tabsContainer.addEventListener('click', e => { if (e.target.matches('.tab-button')) switchTab(e.target.dataset.tab); }); [cite: 48]
-  [cite_start]dom.rankingTable.addEventListener('click', e => { [cite: 49]
-    [cite_start]const header = e.target.closest('.sortable-th'); [cite: 49]
-    [cite_start]if (!header) return; [cite: 49]
-    [cite_start]const sortKey = header.dataset.sortKey; [cite: 49]
-    [cite_start]if (currentSort.key === sortKey) { [cite: 49]
-      currentSort.order = currentSort.order === 'desc' ? [cite_start]'asc' : 'desc'; [cite: 49]
+  Object.keys(districtData).forEach(name => dom.countySelect.add(new Option(name, name)));
+  dom.searchBtn.addEventListener('click', () => { currentPage = 1; fetchData(); });
+  dom.analyzeBtn.addEventListener('click', analyzeData);
+  dom.countySelect.addEventListener('change', updateDistrictOptions);
+  dom.typeSelect.addEventListener('change', toggleAnalyzeButtonState);
+  dom.dateRangeSelect.addEventListener('change', handleDateRangeChange);
+  dom.dateStartInput.addEventListener('input', () => { if (document.activeElement === dom.dateStartInput) dom.dateRangeSelect.value = 'custom'; });
+  dom.dateEndInput.addEventListener('input', () => { if (document.activeElement === dom.dateEndInput) dom.dateRangeSelect.value = 'custom'; });
+  dom.modalCloseBtn.addEventListener('click', () => dom.modal.classList.add('hidden'));
+  dom.resultsTable.addEventListener('click', e => { if (e.target.closest('.details-btn')) showSubTableDetails(e.target.closest('.details-btn')); });
+  dom.projectNameInput.addEventListener('input', onProjectInput);
+  dom.projectNameSuggestions.addEventListener('click', onSuggestionClick);
+  dom.projectNameContainer.addEventListener('click', onTagRemove);
+  document.addEventListener('click', e => { if (!dom.projectNameContainer.parentElement.contains(e.target)) dom.projectNameSuggestions.classList.add('hidden'); });
+  dom.clearProjectsBtn.addEventListener('click', clearSelectedProjects);
+  dom.tabsContainer.addEventListener('click', e => { if (e.target.matches('.tab-button')) switchTab(e.target.dataset.tab); });
+  dom.rankingTable.addEventListener('click', e => {
+    const header = e.target.closest('.sortable-th');
+    if (!header) return;
+    const sortKey = header.dataset.sortKey;
+    if (currentSort.key === sortKey) {
+      currentSort.order = currentSort.order === 'desc' ? 'asc' : 'desc';
     } else {
-      [cite_start]currentSort.key = sortKey; [cite: 49]
-      [cite_start]currentSort.order = 'desc'; [cite: 49]
+      currentSort.key = sortKey;
+      currentSort.order = 'desc';
     }
-    [cite_start]renderRankingReport(); [cite: 49]
+    renderRankingReport();
   });
-  [cite_start]dom.avgTypeToggle.addEventListener('click', (e) => { [cite: 50]
-    [cite_start]if (e.target.matches('.avg-type-btn')) { [cite: 50]
-      [cite_start]const type = e.target.dataset.type; [cite: 50]
-      [cite_start]switchAverageType(type); [cite: 50]
+  dom.avgTypeToggle.addEventListener('click', (e) => {
+    if (e.target.matches('.avg-type-btn')) {
+      const type = e.target.dataset.type;
+      switchAverageType(type);
     }
   });
-  [cite_start]toggleAnalyzeButtonState(); [cite: 51]
+  toggleAnalyzeButtonState();
 }
 
 function switchAverageType(type) {
-    [cite_start]if (currentAverageType === type || !type) return; [cite: 51]
-    [cite_start]currentAverageType = type; [cite: 51]
+    if (currentAverageType === type || !type) return;
+    currentAverageType = type;
     
-    [cite_start]dom.avgTypeToggle.querySelector('.avg-type-btn.active').classList.remove('active'); [cite: 51]
-    [cite_start]dom.avgTypeToggle.querySelector(`.avg-type-btn[data-type="${type}"]`).classList.add('active'); [cite: 51]
-    [cite_start]if (analysisDataCache) { [cite: 52]
-        [cite_start]renderUnitPriceReport(); [cite: 52]
-    [cite_start]} [cite: 53]
+    dom.avgTypeToggle.querySelector('.avg-type-btn.active').classList.remove('active');
+    dom.avgTypeToggle.querySelector(`.avg-type-btn[data-type="${type}"]`).classList.add('active');
+    if (analysisDataCache) {
+        renderUnitPriceReport();
+    }
 }
 
 // --- UI & State Management ---
 function switchTab(targetTab) {
-  [cite_start]document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active')); [cite: 53]
-  [cite_start]document.querySelectorAll('.tab-button').forEach(button => button.classList.remove('active')); [cite: 53]
-  [cite_start]document.getElementById(`${targetTab}-content`).classList.add('active'); [cite: 53]
-  [cite_start]document.querySelector(`button[data-tab="${targetTab}"]`).classList.add('active'); [cite: 53]
-[cite_start]} [cite: 54]
+  document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+  document.querySelectorAll('.tab-button').forEach(button => button.classList.remove('active'));
+  document.getElementById(`${targetTab}-content`).classList.add('active');
+  document.querySelector(`button[data-tab="${targetTab}"]`).classList.add('active');
+}
 
 function getFilters() {
-    [cite_start]const filters = {}; [cite: 54]
-    if (dom.countySelect.value) filters.countyCode = countyCodeMap[dom.countySelect.value] || [cite_start]''; [cite: 54]
-    [cite_start]if (dom.districtSelect.value) filters.district = dom.districtSelect.value; [cite: 55]
-    [cite_start]if (dom.typeSelect.value) filters.type = dom.typeSelect.value; [cite: 55]
-    [cite_start]if (dom.dateStartInput.value) filters.dateStart = dom.dateStartInput.value; [cite: 55]
-    [cite_start]if (dom.dateEndInput.value) filters.dateEnd = dom.dateEndInput.value; [cite: 55]
-    [cite_start]if (dom.buildingTypeSelect.value) filters.buildingType = dom.buildingTypeSelect.value; [cite: 56]
-    [cite_start]if (selectedProjects.length > 0) filters.projectNames = selectedProjects; [cite: 56]
-    [cite_start]return filters; [cite: 56]
-[cite_start]} [cite: 57]
+    const filters = {};
+    if (dom.countySelect.value) filters.countyCode = countyCodeMap[dom.countySelect.value] || '';
+    if (dom.districtSelect.value) filters.district = dom.districtSelect.value;
+    if (dom.typeSelect.value) filters.type = dom.typeSelect.value;
+    if (dom.dateStartInput.value) filters.dateStart = dom.dateStartInput.value;
+    if (dom.dateEndInput.value) filters.dateEnd = dom.dateEndInput.value;
+    if (dom.buildingTypeSelect.value) filters.buildingType = dom.buildingTypeSelect.value;
+    if (selectedProjects.length > 0) filters.projectNames = selectedProjects;
+    return filters;
+}
 
 function showLoading(message) {
-    [cite_start]dom.messageArea.innerHTML = `<div class="loader mx-auto"></div><p class="mt-4">${message}</p>`; [cite: 57]
-    [cite_start]dom.messageArea.classList.remove('hidden'); [cite: 57]
-    [cite_start]dom.tabsContainer.classList.add('hidden'); [cite: 57]
-    [cite_start]['ranking-report-content', 'price-band-report-content', 'unit-price-report-content', 'parking-report-content', 'data-list-content'].forEach(id => document.getElementById(id).classList.remove('active')); [cite: 57]
-[cite_start]} [cite: 58]
+    dom.messageArea.innerHTML = `<div class="loader mx-auto"></div><p class="mt-4">${message}</p>`;
+    dom.messageArea.classList.remove('hidden');
+    dom.tabsContainer.classList.add('hidden');
+    // 【修改四】將新的 content 區塊加入隱藏列表
+    ['ranking-report-content', 'price-band-report-content', 'unit-price-report-content', 'parking-report-content', 'data-list-content'].forEach(id => document.getElementById(id).classList.remove('active'));
+}
 
 function showMessage(message, isError = false) {
-    [cite_start]const messageClass = isError ? [cite: 58]
-[cite_start]'bg-red-900/50 border border-red-700 text-red-200 p-4 rounded-lg' : ''; [cite: 59]
-    [cite_start]dom.messageArea.innerHTML = `<div class="${messageClass}">${message}</div>`; [cite: 59]
-    [cite_start]dom.messageArea.classList.remove('hidden'); [cite: 59]
-    [cite_start]dom.tabsContainer.classList.add('hidden'); [cite: 59]
-[cite_start]} [cite: 60]
+    const messageClass = isError ?
+'bg-red-900/50 border border-red-700 text-red-200 p-4 rounded-lg' : '';
+    dom.messageArea.innerHTML = `<div class="${messageClass}">${message}</div>`;
+    dom.messageArea.classList.remove('hidden');
+    dom.tabsContainer.classList.add('hidden');
+}
 
 function formatDate(date) {
-    [cite_start]return date.toISOString().split('T')[0]; [cite: 60]
+    return date.toISOString().split('T')[0];
 }
 
 function handleDateRangeChange() {
-    [cite_start]const value = dom.dateRangeSelect.value; [cite: 60]
-    [cite_start]if (value === 'custom') return; [cite: 61]
-    [cite_start]const endDate = new Date(); [cite: 61]
-    [cite_start]let startDate = new Date(); [cite: 61]
-    [cite_start]switch (value) { [cite: 62]
-        [cite_start]case '7d': startDate.setDate(endDate.getDate() - 7); break; [cite: 62]
-        [cite_start]case '14d': startDate.setDate(endDate.getDate() - 14); break; [cite: 63]
-        [cite_start]case '30d': startDate.setDate(endDate.getDate() - 30); break; [cite: 63]
-        [cite_start]case '1q': startDate.setMonth(endDate.getMonth() - 3); break; [cite: 63]
-        [cite_start]case '2q': startDate.setMonth(endDate.getMonth() - 6); break; [cite: 64]
-        [cite_start]case '3q': startDate.setMonth(endDate.getMonth() - 9); break; [cite: 64]
-        [cite_start]case '1y': startDate.setFullYear(endDate.getFullYear() - 1); break; [cite: 64]
-        [cite_start]case 'this_year': startDate = new Date(endDate.getFullYear(), 0, 1); break; [cite: 65]
-        [cite_start]case 'last_2_years': startDate = new Date(endDate.getFullYear() - 1, 0, 1); break; [cite: 65]
-        [cite_start]case 'last_3_years': startDate = new Date(endDate.getFullYear() - 2, 0, 1); break; [cite: 66]
+    const value = dom.dateRangeSelect.value;
+    if (value === 'custom') return;
+    const endDate = new Date();
+    let startDate = new Date();
+    switch (value) {
+        case '7d': startDate.setDate(endDate.getDate() - 7); break;
+        case '14d': startDate.setDate(endDate.getDate() - 14); break;
+        case '30d': startDate.setDate(endDate.getDate() - 30); break;
+        case '1q': startDate.setMonth(endDate.getMonth() - 3); break;
+        case '2q': startDate.setMonth(endDate.getMonth() - 6); break;
+        case '3q': startDate.setMonth(endDate.getMonth() - 9); break;
+        case '1y': startDate.setFullYear(endDate.getFullYear() - 1); break;
+        case 'this_year': startDate = new Date(endDate.getFullYear(), 0, 1); break;
+        case 'last_2_years': startDate = new Date(endDate.getFullYear() - 1, 0, 1); break;
+        case 'last_3_years': startDate = new Date(endDate.getFullYear() - 2, 0, 1); break;
     }
-    [cite_start]dom.dateStartInput.value = formatDate(startDate); [cite: 66]
-    [cite_start]dom.dateEndInput.value = formatDate(endDate); [cite: 67]
+    dom.dateStartInput.value = formatDate(startDate);
+    dom.dateEndInput.value = formatDate(endDate);
 }
 
 // --- Data Fetching & Analysis ---
 async function analyzeData() {
-  [cite_start]if (!dom.countySelect.value) return showMessage('請先選擇一個縣市再進行分析。'); [cite: 67]
-  [cite_start]showLoading('分析中，請稍候...'); [cite: 67]
-  [cite_start]try { [cite: 68]
-    [cite_start]const response = await fetch(RANKING_ANALYSIS_ENDPOINT, { [cite: 68]
-      [cite_start]method: 'POST', [cite: 68]
-      [cite_start]headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4Ym1iYmZyemJ0dXVleXNpY29jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA2ODg5ODksImV4cCI6MjA2NjI2NDk4OX0.1IUynv5eK1xF_3pb-oasqaTrPvbeAOC4Sc1oykPBy4M' }, [cite: 68]
-      [cite_start]body: JSON.stringify({ filters: getFilters() }) [cite: 68]
+  if (!dom.countySelect.value) return showMessage('請先選擇一個縣市再進行分析。');
+  showLoading('分析中，請稍候...');
+  try {
+    const response = await fetch(RANKING_ANALYSIS_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4Ym1iYmZyemJ0dXVleXNpY29jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA2ODg5ODksImV4cCI6MjA2NjI2NDk4OX0.1IUynv5eK1xF_3pb-oasqaTrPvbeAOC4Sc1oykPBy4M' },
+      body: JSON.stringify({ filters: getFilters() })
     });
-    [cite_start]if (!response.ok) { [cite: 69]
-      [cite_start]const err = await response.json().catch(() => ({ error: `分析請求失敗: ${response.status}` })); [cite: 69]
-      [cite_start]throw new Error(err.error); [cite: 70]
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({ error: `分析請求失敗: ${response.status}` }));
+      throw new Error(err.error);
     }
-    [cite_start]analysisDataCache = await response.json(); [cite: 70]
-    [cite_start]if (!analysisDataCache.coreMetrics) return showMessage('找不到符合條件的分析資料。'); [cite: 70]
+    analysisDataCache = await response.json();
+    if (!analysisDataCache.coreMetrics) return showMessage('找不到符合條件的分析資料。');
     
-    [cite_start]dom.messageArea.classList.add('hidden'); [cite: 70]
-    [cite_start]dom.tabsContainer.classList.remove('hidden'); [cite: 70]
-    [cite_start]currentSort = { key: 'saleAmountSum', order: 'desc' }; [cite: 71]
+    dom.messageArea.classList.add('hidden');
+    dom.tabsContainer.classList.remove('hidden');
+    currentSort = { key: 'saleAmountSum', order: 'desc' };
     
-    [cite_start]renderRankingReport(); [cite: 71]
-    [cite_start]renderPriceBandReport(); [cite: 71]
-    [cite_start]renderUnitPriceReport(); [cite: 71]
+    renderRankingReport();
+    renderPriceBandReport();
+    renderUnitPriceReport();
+    // 【修改五】呼叫新的渲染函式
     renderParkingAnalysisReport();
     
-    [cite_start]switchTab('ranking-report'); [cite: 71]
+    switchTab('ranking-report');
   } catch(error) {
-    [cite_start]console.error("數據分析失敗:", error); [cite: 71]
-    [cite_start]showMessage(`數據分析失敗: ${error.message}`, true); [cite: 72]
-    [cite_start]analysisDataCache = null; [cite: 72]
+    console.error("數據分析失敗:", error);
+    showMessage(`數據分析失敗: ${error.message}`, true);
+    analysisDataCache = null;
   }
 }
 
 async function fetchData() {
-  [cite_start]showLoading('查詢中，請稍候...'); [cite: 72]
-  [cite_start]try { [cite: 73]
-    [cite_start]const response = await fetch(EDGE_FUNCTION_ENDPOINT, { [cite: 73]
-      [cite_start]method: 'POST', [cite: 73]
-      [cite_start]headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4Ym1iYmZyemJ0dXVleXNpY29jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA2ODg5ODksImV4cCI6MjA2NjI2NDk4OX0.1IUynv5eK1xF_3pb-oasqaTrPvbeAOC4Sc1oykPBy4M' }, [cite: 73]
-      [cite_start]body: JSON.stringify({ filters: getFilters(), pagination: { page: currentPage, limit: pageSize } }) [cite: 73]
+  showLoading('查詢中，請稍候...');
+  try {
+    const response = await fetch(EDGE_FUNCTION_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4Ym1iYmZyemJ0dXVleXNpY29jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA2ODg5ODksImV4cCI6MjA2NjI2NDk4OX0.1IUynv5eK1xF_3pb-oasqaTrPvbeAOC4Sc1oykPBy4M' },
+      body: JSON.stringify({ filters: getFilters(), pagination: { page: currentPage, limit: pageSize } })
     });
-    [cite_start]if (!response.ok) { [cite: 74]
-      [cite_start]const err = await response.json().catch(() => ({ error: '無法解析伺服器回應' })); [cite: 74]
-      [cite_start]throw new Error(err.error); [cite: 75]
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({ error: '無法解析伺服器回應' }));
+      throw new Error(err.error);
     }
-    [cite_start]const result = await response.json(); [cite: 75]
-    totalRecords = result.count || [cite_start]0; [cite: 75]
-    [cite_start]if (!result.data || result.data.length === 0) { [cite: 76]
-      [cite_start]showMessage('找不到符合條件的資料。'); [cite: 76]
-      [cite_start]renderPagination(); [cite: 76]
+    const result = await response.json();
+    totalRecords = result.count || 0;
+    if (!result.data || result.data.length === 0) {
+      showMessage('找不到符合條件的資料。');
+      renderPagination();
       return;
     }
-    [cite_start]renderTable(result.data); [cite: 76]
-    [cite_start]renderPagination(); [cite: 77]
-    [cite_start]dom.messageArea.classList.add('hidden'); [cite: 77]
-    [cite_start]dom.tabsContainer.classList.remove('hidden'); [cite: 77]
-    [cite_start]switchTab('data-list'); [cite: 77]
+    renderTable(result.data);
+    renderPagination();
+    dom.messageArea.classList.add('hidden');
+    dom.tabsContainer.classList.remove('hidden');
+    switchTab('data-list');
   } catch (error) {
-    [cite_start]console.error('查詢錯誤:', error); [cite: 77]
-    [cite_start]showMessage(`查詢錯誤: ${error.message}`, true); [cite: 77]
-    [cite_start]totalRecords = 0; [cite: 77]
-    [cite_start]renderPagination(); [cite: 77]
-  [cite_start]} [cite: 78]
+    console.error('查詢錯誤:', error);
+    showMessage(`查詢錯誤: ${error.message}`, true);
+    totalRecords = 0;
+    renderPagination();
+  }
 }
 
 // --- Rendering Functions ---
 function formatNumber(num, decimals = 2) {
-    [cite_start]if (typeof num !== 'number' || isNaN(num)) return '-'; [cite: 78]
-    [cite_start]return num.toLocaleString('zh-TW', { minimumFractionDigits: decimals, maximumFractionDigits: decimals }); [cite: 79]
+    if (typeof num !== 'number' || isNaN(num)) return '-';
+    return num.toLocaleString('zh-TW', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
 }
 
 function renderRankingReport() {
-    [cite_start]if (!analysisDataCache || !analysisDataCache.coreMetrics) return; [cite: 79]
-    [cite_start]const { coreMetrics, projectRanking } = analysisDataCache; [cite: 80]
+    if (!analysisDataCache || !analysisDataCache.coreMetrics) return;
+    const { coreMetrics, projectRanking } = analysisDataCache;
     dom.metricCardsContainer.innerHTML = `
         <div class="metric-card"><div class="metric-card-title">市場去化總銷售金額</div><div><span class="metric-card-value">${formatNumber(coreMetrics.totalSaleAmount, 0)}</span><span class="metric-card-unit">萬</span></div></div>
         <div class="metric-card"><div class="metric-card-title">總銷去化房屋坪數</div><div><span class="metric-card-value">${formatNumber(coreMetrics.totalHouseArea, 2)}</span><span class="metric-card-unit">坪</span></div></div>
         <div class="metric-card"><div class="metric-card-title">總平均單價</div><div><span class="metric-card-value">${formatNumber(coreMetrics.overallAveragePrice, 2)}</span><span class="metric-card-unit">萬/坪</span></div></div>
         <div class="metric-card"><div class="metric-card-title">總交易筆數</div><div><span class="metric-card-value">${coreMetrics.transactionCount.toLocaleString()}</span><span class="metric-card-unit">筆</span></div></div>
-    [cite_start]`; [cite: 80]
-    [cite_start]projectRanking.sort((a, b) => { [cite: 81]
-        [cite_start]const valA = a[currentSort.key]; [cite: 81]
-        [cite_start]const valB = b[currentSort.key]; [cite: 81]
-        [cite_start]return currentSort.order === 'desc' ? valB - valA : valA - valB; [cite: 81]
+    `;
+    projectRanking.sort((a, b) => {
+        const valA = a[currentSort.key];
+        const valB = b[currentSort.key];
+        return currentSort.order === 'desc' ? valB - valA : valA - valB;
     });
-    [cite_start]const tableHeaders = [{ key: 'rank', label: '排名', sortable: false },{ key: 'projectName', label: '建案名稱', sortable: false },{ key: 'saleAmountSum', label: '交易總價(萬)', sortable: true },{ key: 'houseAreaSum', label: '房屋面積(坪)', sortable: true },{ key: 'transactionCount', label: '資料筆數', sortable: true },{ key: 'marketShare', label: '市場佔比(%)', sortable: true },{ key: 'averagePrice', label: '平均單價(萬)', sortable: true },{ key: 'minPrice', label: '最低單價(萬)', sortable: true },{ key: 'maxPrice', label: '最高單價(萬)', sortable: true },{ key: 'medianPrice', label: '單價中位數(萬)', sortable: true },{ key: 'avgParkingPrice', label: '車位平均單價', sortable: true }]; [cite: 82]
-    [cite_start]let headerHtml = '<thead><tr>'; [cite: 83]
-    [cite_start]tableHeaders.forEach(h => { [cite: 83]
-        [cite_start]if (h.sortable) { [cite: 83]
-            [cite_start]const sortClass = currentSort.key === h.key ? currentSort.order : ''; [cite: 83]
-            [cite_start]headerHtml += `<th class="sortable-th ${sortClass}" data-sort-key="${h.key}">${h.label}<span class="sort-icon">▼</span></th>`; [cite: 83]
-        } else { headerHtml += `<th>${h.label}</th>`; [cite_start]} [cite: 83]
+    const tableHeaders = [{ key: 'rank', label: '排名', sortable: false },{ key: 'projectName', label: '建案名稱', sortable: false },{ key: 'saleAmountSum', label: '交易總價(萬)', sortable: true },{ key: 'houseAreaSum', label: '房屋面積(坪)', sortable: true },{ key: 'transactionCount', label: '資料筆數', sortable: true },{ key: 'marketShare', label: '市場佔比(%)', sortable: true },{ key: 'averagePrice', label: '平均單價(萬)', sortable: true },{ key: 'minPrice', label: '最低單價(萬)', sortable: true },{ key: 'maxPrice', label: '最高單價(萬)', sortable: true },{ key: 'medianPrice', label: '單價中位數(萬)', sortable: true },{ key: 'avgParkingPrice', label: '車位平均單價', sortable: true }];
+    let headerHtml = '<thead><tr>';
+    tableHeaders.forEach(h => {
+        if (h.sortable) {
+            const sortClass = currentSort.key === h.key ? currentSort.order : '';
+            headerHtml += `<th class="sortable-th ${sortClass}" data-sort-key="${h.key}">${h.label}<span class="sort-icon">▼</span></th>`;
+        } else { headerHtml += `<th>${h.label}</th>`; }
     });
-    [cite_start]headerHtml += '</tr></thead>'; [cite: 84]
-    [cite_start]let bodyHtml = '<tbody>'; [cite: 84]
-    [cite_start]projectRanking.slice(0, 15).forEach((proj, index) => { [cite: 84]
-        [cite_start]bodyHtml += `<tr class="hover:bg-dark-card transition-colors"><td>${index + 1}</td><td>${proj.projectName}</td><td>${formatNumber(proj.saleAmountSum, 0)}</td><td>${formatNumber(proj.houseAreaSum)}</td><td>${proj.transactionCount.toLocaleString()}</td><td>${formatNumber(proj.marketShare)}%</td><td>${formatNumber(proj.averagePrice)}</td><td>${formatNumber(proj.minPrice)}</td><td>${formatNumber(proj.maxPrice)}</td><td>${formatNumber(proj.medianPrice)}</td><td>${formatNumber(proj.avgParkingPrice, 0)}</td></tr>`; [cite: 84]
+    headerHtml += '</tr></thead>';
+    let bodyHtml = '<tbody>';
+    projectRanking.slice(0, 15).forEach((proj, index) => {
+        bodyHtml += `<tr class="hover:bg-dark-card transition-colors"><td>${index + 1}</td><td>${proj.projectName}</td><td>${formatNumber(proj.saleAmountSum, 0)}</td><td>${formatNumber(proj.houseAreaSum)}</td><td>${proj.transactionCount.toLocaleString()}</td><td>${formatNumber(proj.marketShare)}%</td><td>${formatNumber(proj.averagePrice)}</td><td>${formatNumber(proj.minPrice)}</td><td>${formatNumber(proj.maxPrice)}</td><td>${formatNumber(proj.medianPrice)}</td><td>${formatNumber(proj.avgParkingPrice, 0)}</td></tr>`;
     });
-    [cite_start]bodyHtml += '</tbody>'; [cite: 85]
-    [cite_start]let footerHtml = `<tfoot class="bg-dark-card font-bold"><tr class="border-t-2 border-gray-600"><td colspan="2">總計</td><td>${formatNumber(coreMetrics.totalSaleAmount, 0)}</td><td>${formatNumber(coreMetrics.totalHouseArea)}</td><td>${coreMetrics.transactionCount.toLocaleString()}</td><td colspan="6"></td></tr></tfoot>`; [cite: 85]
-    [cite_start]dom.rankingTable.innerHTML = headerHtml + bodyHtml + footerHtml; [cite: 86]
+    bodyHtml += '</tbody>';
+    let footerHtml = `<tfoot class="bg-dark-card font-bold"><tr class="border-t-2 border-gray-600"><td colspan="2">總計</td><td>${formatNumber(coreMetrics.totalSaleAmount, 0)}</td><td>${formatNumber(coreMetrics.totalHouseArea)}</td><td>${coreMetrics.transactionCount.toLocaleString()}</td><td colspan="6"></td></tr></tfoot>`;
+    dom.rankingTable.innerHTML = headerHtml + bodyHtml + footerHtml;
 }
 
 function renderPriceBandReport() {
-    [cite_start]if (!analysisDataCache || !analysisDataCache.priceBandAnalysis) return; [cite: 86]
-    [cite_start]const { priceBandAnalysis } = analysisDataCache; [cite: 87]
-    [cite_start]priceBandAnalysis.sort((a, b) => { [cite: 87]
-        [cite_start]if (a.rooms !== b.rooms) return a.rooms - b.rooms; [cite: 87]
-        [cite_start]return a.bathrooms - b.bathrooms; [cite: 87]
+    if (!analysisDataCache || !analysisDataCache.priceBandAnalysis) return;
+    const { priceBandAnalysis } = analysisDataCache;
+    priceBandAnalysis.sort((a, b) => {
+        if (a.rooms !== b.rooms) return a.rooms - b.rooms;
+        return a.bathrooms - b.bathrooms;
     });
-    [cite_start]const tableHeaders = ['房數', '衛浴數', '筆數', '平均房屋總價', '最低房屋總價', '1/4分位房屋總價', '中位數房屋總價', '3/4分位房屋總價', '最高房屋總價']; [cite: 88]
-    [cite_start]let headerHtml = '<thead><tr>' + tableHeaders.map(h => `<th>${h}</th>`).join('') + '</tr></thead>'; [cite: 89]
-    [cite_start]let bodyHtml = '<tbody>'; [cite: 89]
-    [cite_start]priceBandAnalysis.forEach(item => { [cite: 90]
+    const tableHeaders = ['房數', '衛浴數', '筆數', '平均房屋總價', '最低房屋總價', '1/4分位房屋總價', '中位數房屋總價', '3/4分位房屋總價', '最高房屋總價'];
+    let headerHtml = '<thead><tr>' + tableHeaders.map(h => `<th>${h}</th>`).join('') + '</tr></thead>';
+    let bodyHtml = '<tbody>';
+    priceBandAnalysis.forEach(item => {
         bodyHtml += `<tr class="hover:bg-dark-card transition-colors">
             <td>${item.rooms}</td><td>${item.bathrooms}</td><td>${item.count.toLocaleString()}</td>
             <td>${formatNumber(item.avgPrice, 0)}</td><td>${formatNumber(item.minPrice, 0)}</td>
             <td>${formatNumber(item.q1Price, 0)}</td><td>${formatNumber(item.medianPrice, 0)}</td>
             <td>${formatNumber(item.q3Price, 0)}</td><td>${formatNumber(item.maxPrice, 0)}</td>
-        [cite_start]</tr>`; [cite: 90]
+        </tr>`;
     });
-    [cite_start]bodyHtml += '</tbody>'; [cite: 91]
-    [cite_start]dom.priceBandTable.innerHTML = headerHtml + bodyHtml; [cite: 91]
+    bodyHtml += '</tbody>';
+    dom.priceBandTable.innerHTML = headerHtml + bodyHtml;
 }
 
 function renderUnitPriceReport() {
-    [cite_start]if (!analysisDataCache || !analysisDataCache.unitPriceAnalysis) return; [cite: 91]
-    [cite_start]const { residentialStats, typeComparison } = analysisDataCache.unitPriceAnalysis; [cite: 92]
+    if (!analysisDataCache || !analysisDataCache.unitPriceAnalysis) return;
+    const { residentialStats, typeComparison } = analysisDataCache.unitPriceAnalysis;
 
     // 渲染住宅單價統計表格
-    [cite_start]const statsContainer = dom.residentialStatsTableContainer; [cite: 92]
-    [cite_start]if (residentialStats && residentialStats.avgPrice) { [cite: 93]
-        [cite_start]const avgPriceToShow = residentialStats.avgPrice[currentAverageType]; [cite: 93]
+    const statsContainer = dom.residentialStatsTableContainer;
+    if (residentialStats && residentialStats.avgPrice) {
+        const avgPriceToShow = residentialStats.avgPrice[currentAverageType];
         statsContainer.innerHTML = `<table class="min-w-full divide-y divide-gray-800">
             <thead><tr><th class="w-1/2">統計項目</th><th class="w-1/2">房屋單價 (萬/坪)</th></tr></thead>
             <tbody>
@@ -520,50 +522,58 @@ function renderUnitPriceReport() {
                 <tr class="hover:bg-dark-card"><td class="font-medium text-gray-300">最低單價</td><td>${formatNumber(residentialStats.minPrice)}</td></tr>
                 <tr class="hover:bg-dark-card"><td class="font-medium text-gray-300">1/4分位數單價</td><td>${formatNumber(residentialStats.q1Price)}</td></tr>
            
-             [cite_start]<tr class="hover:bg-dark-card"><td class="font-medium text-gray-300">中位數單價</td><td>${formatNumber(residentialStats.medianPrice)}</td></tr> [cite: 95]
+             <tr class="hover:bg-dark-card"><td class="font-medium text-gray-300">中位數單價</td><td>${formatNumber(residentialStats.medianPrice)}</td></tr>
                 <tr class="hover:bg-dark-card"><td class="font-medium text-gray-300">3/4分位數單價</td><td>${formatNumber(residentialStats.q3Price)}</td></tr>
                 <tr class="hover:bg-dark-card"><td class="font-medium text-gray-300">最高單價</td><td>${formatNumber(residentialStats.maxPrice)}</td></tr>
-            [cite_start]</tbody></table>`; [cite: 95]
+            </tbody></table>`;
         dom.residentialStatsExtraInfo.innerHTML = `
-            [cite_start]<p><span class="font-semibold text-cyan-400">最低房屋單價建案：</span>${residentialStats.minPriceProject || [cite: 96]
-[cite_start]'N/A'}</p> [cite: 97]
-            <p><span class="font-semibold text-purple-400">最高房屋單價建案：</span>${residentialStats.maxPriceProject || [cite_start]'N/A'}</p>`; [cite: 97]
-    [cite_start]} else { [cite: 98]
-        [cite_start]statsContainer.innerHTML = '<p class="text-gray-500">無符合條件的住宅交易資料可供分析。</p>'; [cite: 98]
-        [cite_start]dom.residentialStatsExtraInfo.innerHTML = ''; [cite: 98]
-    [cite_start]} [cite: 99]
+            <p><span class="font-semibold text-cyan-400">最低房屋單價建案：</span>${residentialStats.minPriceProject ||
+'N/A'}</p>
+            <p><span class="font-semibold text-purple-400">最高房屋單價建案：</span>${residentialStats.maxPriceProject || 'N/A'}</p>`;
+    } else {
+        statsContainer.innerHTML = '<p class="text-gray-500">無符合條件的住宅交易資料可供分析。</p>';
+        dom.residentialStatsExtraInfo.innerHTML = '';
+    }
 
     // 渲染建案類型比較表格
-    [cite_start]const comparisonContainer = dom.typeComparisonTableContainer; [cite: 99]
-    [cite_start]if (typeComparison && typeComparison.length > 0) { [cite: 100]
+    const comparisonContainer = dom.typeComparisonTableContainer;
+    if (typeComparison && typeComparison.length > 0) {
         let comparisonHtml = `<table class="min-w-full divide-y divide-gray-800">
             <thead><tr><th>建案名稱</th><th>住宅均價(萬/坪)</th><th>店舖均價(萬/坪)</th><th>店舖對住宅倍數</th><th>事務所均價(萬/坪)</th><th>事務所對住宅倍數</th></tr></thead>
-            [cite_start]<tbody>`; [cite: 100]
-        [cite_start]typeComparison.forEach(item => { [cite: 101]
-            [cite_start]const residentialAvgToShow = (item.residentialAvg && typeof item.residentialAvg === 'object') ? item.residentialAvg[currentAverageType] : 0; [cite: 101]
-            [cite_start]const shopAvgToShow = (item.shopAvg && typeof item.shopAvg === 'object') ? item.shopAvg[currentAverageType] : 0; [cite: 101]
-            [cite_start]const officeAvgToShow = (item.officeAvg && typeof item.officeAvg === 'object') ? item.officeAvg[currentAverageType] : 0; [cite: 101]
+            <tbody>`;
+        typeComparison.forEach(item => {
+            const residentialAvgToShow = (item.residentialAvg && typeof item.residentialAvg === 'object') ? item.residentialAvg[currentAverageType] : 0;
+            const shopAvgToShow = (item.shopAvg && typeof item.shopAvg === 'object') ? item.shopAvg[currentAverageType] : 0;
+            const officeAvgToShow = (item.officeAvg && typeof item.officeAvg === 'object') ? item.officeAvg[currentAverageType] : 0;
 
             comparisonHtml += `<tr class="hover:bg-dark-card">
            
-             [cite_start]<td>${item.projectName}</td> [cite: 102]
+             <td>${item.projectName}</td>
                 <td>${residentialAvgToShow > 0 ? formatNumber(residentialAvgToShow) : '-'}</td>
                 <td>${shopAvgToShow > 0 ? formatNumber(shopAvgToShow) : '-'}</td>
                 <td>${item.shopMultiple > 0 ? formatNumber(item.shopMultiple) + ' 倍' : '-'}</td>
                 <td>${officeAvgToShow > 0 ? formatNumber(officeAvgToShow) : '-'}</td>
     
-                [cite_start]<td>${item.officeMultiple > 0 ? formatNumber(item.officeMultiple) + ' 倍' : '-'}</td> [cite: 103]
+                <td>${item.officeMultiple > 0 ? formatNumber(item.officeMultiple) + ' 倍' : '-'}</td>
             </tr>`;
-        [cite_start]}); [cite: 104]
-        [cite_start]comparisonHtml += `</tbody></table>`; [cite: 104]
-        [cite_start]comparisonContainer.innerHTML = comparisonHtml; [cite: 104]
+        });
+        comparisonHtml += `</tbody></table>`;
+        comparisonContainer.innerHTML = comparisonHtml;
     } else {
-        [cite_start]comparisonContainer.innerHTML = '<p class="text-gray-500">無符合條件的建案可進行類型比較。</p>'; [cite: 104]
-    [cite_start]} [cite: 105]
+        comparisonContainer.innerHTML = '<p class="text-gray-500">無符合條件的建案可進行類型比較。</p>';
+    }
 }
 
+// 【修改六】新增車位分析報表的渲染函式
 function renderParkingAnalysisReport() {
-    if (!analysisDataCache || !analysisDataCache.parkingAnalysis) return;
+    if (!analysisDataCache || !analysisDataCache.parkingAnalysis) {
+        // 如果沒有資料，可以選擇清空或顯示提示
+        dom.parkingRatioTableContainer.innerHTML = '<p class="text-gray-500">無車位配比資料可供分析。</p>';
+        dom.avgPriceByTypeTableContainer.innerHTML = '<p class="text-gray-500">無車位類型資料可供分析。</p>';
+        dom.rampPlanePriceByFloorTableContainer.innerHTML = '<p class="text-gray-500">無坡道平面車位資料可供分析。</p>';
+        return;
+    }
+
     const { parkingRatio, avgPriceByType, rampPlanePriceByFloor } = analysisDataCache.parkingAnalysis;
 
     // 1. 渲染房車配比表格
@@ -594,7 +604,7 @@ function renderParkingAnalysisReport() {
     }
 
     // 3. 渲染坡道平面車位分層價格表格
-    if (rampPlanePriceByFloor) {
+    if (rampPlanePriceByFloor && rampPlanePriceByFloor.some(item => item.count > 0)) {
         const floorMapping = {
             'B1': '地下一樓', 'B2': '地下二樓', 'B3': '地下三樓', 'B4': '地下四樓', 'B5_below': '地下五樓含以下'
         };
@@ -604,7 +614,7 @@ function renderParkingAnalysisReport() {
         rampPlanePriceByFloor.forEach(item => {
             if (item.count > 0) {
                 floorPriceHtml += `<tr class="hover:bg-dark-card">
-                    <td>${floorMapping[item.floor]}</td>
+                    <td>${floorMapping[item.floor] || item.floor}</td>
                     <td>${item.count.toLocaleString()}</td>
                     <td>${formatNumber(item.avgPrice, 0)}</td>
                     <td>${formatNumber(item.maxPrice, 0)}</td>
@@ -619,18 +629,19 @@ function renderParkingAnalysisReport() {
     }
 }
 
-[cite_start]function renderTable(data){if(!data||data.length===0)return;const isPresale=data[0]['交易類型']==='預售交易';const hiddenColumns=['編號','縣市代碼','交易類型','戶型'];const headers=Object.keys(data[0]);const headerRow=document.createElement('tr');headerRow.innerHTML='<th>操作</th>';headers.forEach(headerText=>{if(!hiddenColumns.includes(headerText)){const th=document.createElement('th');th.textContent=headerText;headerRow.appendChild(th);if(isPresale&&headerText==='戶別'){const newTh=document.createElement('th');newTh.textContent='戶型';headerRow.appendChild(newTh)}}});const thead=document.createElement('thead');thead.appendChild(headerRow);const tbody=document.createElement('tbody');data.forEach(row=>{const tr=document.createElement('tr');tr.className='hover:bg-dark-card transition-colors';tr.innerHTML=`<td><button class="details-btn bg-purple-600 hover:bg-purple-500 text-white text-xs px-3 py-1 rounded-md" data-id="${row['編號']}" data-type="${row['交易類型']}" data-county="${row['縣市代碼']}">附表</button></td>`;headers.forEach(header=>{if(!hiddenColumns.includes(header)){const td=document.createElement('td');let value=row[header];if(header==='地址'||header==='備註'){td.innerHTML=`<div class="scrollable-cell">${value??"-"}</div>`}else{td.textContent=(typeof value==='number'&&!Number.isInteger(value))?formatNumber(value):(value??"-")}tr.appendChild(td);if(isPresale&&header==='戶別'){const unitTypeTd=document.createElement('td');unitTypeTd.textContent=row['戶型']||'-';tr.appendChild(unitTypeTd)}}});tbody.appendChild(tr)});dom.resultsTable.innerHTML='';dom.resultsTable.append(thead,tbody)} [cite: 105]
+
+function renderTable(data){if(!data||data.length===0)return;const isPresale=data[0]['交易類型']==='預售交易';const hiddenColumns=['編號','縣市代碼','交易類型','戶型'];const headers=Object.keys(data[0]);const headerRow=document.createElement('tr');headerRow.innerHTML='<th>操作</th>';headers.forEach(headerText=>{if(!hiddenColumns.includes(headerText)){const th=document.createElement('th');th.textContent=headerText;headerRow.appendChild(th);if(isPresale&&headerText==='戶別'){const newTh=document.createElement('th');newTh.textContent='戶型';headerRow.appendChild(newTh)}}});const thead=document.createElement('thead');thead.appendChild(headerRow);const tbody=document.createElement('tbody');data.forEach(row=>{const tr=document.createElement('tr');tr.className='hover:bg-dark-card transition-colors';tr.innerHTML=`<td><button class="details-btn bg-purple-600 hover:bg-purple-500 text-white text-xs px-3 py-1 rounded-md" data-id="${row['編號']}" data-type="${row['交易類型']}" data-county="${row['縣市代碼']}">附表</button></td>`;headers.forEach(header=>{if(!hiddenColumns.includes(header)){const td=document.createElement('td');let value=row[header];if(header==='地址'||header==='備註'){td.innerHTML=`<div class="scrollable-cell">${value??"-"}</div>`}else{td.textContent=(typeof value==='number'&&!Number.isInteger(value))?formatNumber(value):(value??"-")}tr.appendChild(td);if(isPresale&&header==='戶別'){const unitTypeTd=document.createElement('td');unitTypeTd.textContent=row['戶型']||'-';tr.appendChild(unitTypeTd)}}});tbody.appendChild(tr)});dom.resultsTable.innerHTML='';dom.resultsTable.append(thead,tbody)}
 function renderPagination(){dom.paginationControls.innerHTML='';if(totalRecords===0&&currentPage===1){dom.paginationControls.innerHTML=`<span>共 0 筆資料</span>`;return}const totalPages=Math.ceil(totalRecords/pageSize);dom.paginationControls.innerHTML=`<div>共 ${totalRecords} 筆資料</div><div class="flex items-center space-x-2"><button id="prev-page" class="bg-gray-700 hover:bg-cyan-600 text-white font-bold py-2 px-4 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors">上一頁</button><span class="px-4">第 ${currentPage} / ${totalPages>0?totalPages:1} 頁</span><button id="next-page" class="bg-gray-700 hover:bg-cyan-600 text-white font-bold py-2 px-4 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors">下一頁</button></div>`;const prevBtn=document.getElementById('prev-page');const nextBtn=document.getElementById('next-page');prevBtn.disabled=currentPage===1;nextBtn.disabled=currentPage>=totalPages;prevBtn.onclick=()=>{currentPage--;fetchData()};nextBtn.onclick=()=>{currentPage++;fetchData()}}
 async function showSubTableDetails(btn){const{id,type,county}=btn.dataset;dom.modalTitle.textContent=`附表詳細資料 (編號: ${id})`;dom.modalContent.innerHTML='<div class="loader mx-auto"></div>';dom.modal.classList.remove('hidden');try{if(!id||!type||!county||county==='undefined'){throw new Error(`前端參數不足，無法查詢附表。 (編號: ${id}, 類型: ${type}, 縣市: ${county})`)}const response=await fetch(SUB_DATA_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4Ym1iYmZyemJ0dXVleXNpY29jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA2ODg5ODksImV4cCI6MjA2NjI2NDk4OX0.1IUynv5eK1xF_3pb-oasqaTrPvbeAOC4Sc1oykPBy4M'},body:JSON.stringify({id,type,county})});if(!response.ok){const errorResult=await response.json().catch(()=>({error:'無法從伺服器獲取附表資料'}));throw new Error(errorResult.error)}const result=await response.json();let contentHTML='<div class="space-y-6">';if(type!=='預售交易')contentHTML+=renderSubTable('建物資料',result.build);contentHTML+=renderSubTable('土地資料',result.land);contentHTML+=renderSubTable('車位資料',result.park);contentHTML=(contentHTML==='<div class="space-y-6">')?'<p>此筆紀錄沒有對應的附表資料。</p>':contentHTML+'</div>';dom.modalContent.innerHTML=contentHTML}catch(error){dom.modalContent.innerHTML=`<p class="text-red-400">查詢失敗: ${error.message}</p>`}}
 function renderSubTable(title,records){if(!records||!Array.isArray(records)||records.length===0){return`<div class="mb-4"><h3 class="text-lg font-semibold text-cyan-400 mb-2">${title}</h3><p 
-[cite_start]class="text-sm text-gray-500">無資料</p></div>`}const headers=Object.keys(records[0]).filter(h=>h!=='id'&&h!=='編號');let html=`<div><h3 class="text-lg font-semibold text-cyan-400 mb-2">${title}</h3><div class="overflow-x-auto"><table class="w-full text-sm text-left"><thead><tr class="border-b border-gray-600">`;headers.forEach(header=>{html+=`<th class="py-2 pr-2 font-medium text-gray-400">${header}</th>`});html+='</tr></thead><tbody>';records.forEach(record=>{html+='<tr class="border-b border-gray-700 last:border-b-0">';headers.forEach(header=>{html+=`<td class="py-2 pr-2">${record[header]??"-"}</td>`});html+='</tr>'});html+='</tbody></table></div></div>';return html} [cite: 106]
+class="text-sm text-gray-500">無資料</p></div>`}const headers=Object.keys(records[0]).filter(h=>h!=='id'&&h!=='編號');let html=`<div><h3 class="text-lg font-semibold text-cyan-400 mb-2">${title}</h3><div class="overflow-x-auto"><table class="w-full text-sm text-left"><thead><tr class="border-b border-gray-600">`;headers.forEach(header=>{html+=`<th class="py-2 pr-2 font-medium text-gray-400">${header}</th>`});html+='</tr></thead><tbody>';records.forEach(record=>{html+='<tr class="border-b border-gray-700 last:border-b-0">';headers.forEach(header=>{html+=`<td class="py-2 pr-2">${record[header]??"-"}</td>`});html+='</tr>'});html+='</tbody></table></div></div>';return html}
 
 // ====================【第二處修改】====================
 function toggleAnalyzeButtonState(){
-    [cite_start]const isCountySelected = !!dom.countySelect.value; [cite: 106]
-    const isValidType = dom.typeSelect.value === '預售交易'; [cite_start]// 只允許預售交易 [cite: 107]
-    [cite_start]dom.analyzeBtn.disabled = !(isCountySelected && isValidType); [cite: 107]
-[cite_start]} [cite: 108]
+    const isCountySelected = !!dom.countySelect.value;
+    const isValidType = dom.typeSelect.value === '預售交易'; // 只允許預售交易
+    dom.analyzeBtn.disabled = !(isCountySelected && isValidType);
+}
 // =======================================================
 
 function updateDistrictOptions(){const selectedCounty=dom.countySelect.value;dom.districtSelect.innerHTML='<option value="">全部</option>';if(selectedCounty&&districtData[selectedCounty]){districtData[selectedCounty].forEach(districtName=>{const option=document.createElement('option');option.value=districtName;option.textContent=districtName;dom.districtSelect.appendChild(option)});dom.districtSelect.disabled=false;dom.projectNameInput.disabled=false;dom.projectNameInput.placeholder="輸入建案名稱搜尋..."}else{dom.districtSelect.disabled=true;dom.projectNameInput.disabled=true;dom.projectNameInput.placeholder="請先選縣市..."}toggleAnalyzeButtonState();clearSelectedProjects()}
@@ -644,6 +655,6 @@ function removeProject(name){selectedProjects=selectedProjects.filter(p=>p!==nam
 function renderProjectTags(){const tags=dom.projectNameContainer.querySelectorAll('.project-tag');tags.forEach(tag=>tag.remove());dom.projectNameContainer.insertBefore(dom.projectNameInput,dom.projectNameContainer.firstChild);selectedProjects.forEach(name=>{const tagElement=document.createElement('span');tagElement.className='project-tag';tagElement.textContent=name;const removeBtn=document.createElement('span');removeBtn.className='project-tag-remove';removeBtn.innerHTML='&times;';removeBtn.dataset.name=name;tagElement.appendChild(removeBtn);dom.projectNameContainer.insertBefore(tagElement,dom.projectNameInput)});dom.clearProjectsBtn.classList.toggle('hidden',selectedProjects.length===0)}
 
 initialize();
-[cite_start]</script> [cite: 109]
+</script>
 </body>
 </html>
