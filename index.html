@@ -122,6 +122,32 @@ border-bottom: 1px solid #374151;}
     background-color: #252836;
     color: #e5e7eb;
 }
+.has-tooltip {
+  position: relative;
+  cursor: help;
+}
+.has-tooltip::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-8px);
+  background-color: #06b6d4;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  white-space: nowrap;
+  z-index: 100;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s, visibility 0.2s;
+  pointer-events: none;
+}
+.has-tooltip:hover::after {
+  opacity: 1;
+  visibility: visible;
+}
 </style>
 </head>
 <body class="p-4 md:p-8">
@@ -151,7 +177,7 @@ border-bottom: 1px solid #374151;}
         <div><label for="building-type" class="block text-sm font-medium text-gray-300">建物型態</label><select id="building-type" class="form-select mt-1 block w-full pl-3 pr-10 py-2 text-base rounded-md"><option value="">全部</option><option value="住宅大樓(11層含以上有電梯)">住宅大樓</option><option value="華廈(10層含以下有電梯)">華廈</option><option value="公寓(5層含以下無電梯)">公寓</option><option value="套房(1房(1廳)1衛)">套房</option><option value="透天厝">透天厝</option><option value="店面(店鋪)">店面</option><option value="辦公商業大樓">辦公商業大樓</option><option value="工廠">工廠</option><option value="倉庫">倉庫</option><option value="其他">其他</option></select></div>
         <div class="xl:col-span-2"><div class="flex justify-between items-center"><label for="project-name-input" class="block text-sm font-medium text-gray-300">建案名稱 (可複選)</label><button id="clear-projects-btn" class="text-xs text-cyan-400 hover:text-cyan-300 hidden transition-opacity">清除選取</button></div><div class="relative mt-1"><div id="project-name-container" class="form-input flex flex-nowrap items-center gap-2 p-1 min-h-[42px] rounded-md 
 overflow-x-auto"><input type="text" id="project-name-input" placeholder="請先選縣市..." class="bg-transparent flex-grow outline-none text-base py-1 px-2" disabled></div><div id="project-name-suggestions" class="absolute z-20 w-full mt-1 bg-dark-card border border-gray-600 rounded-md shadow-lg hidden"></div></div></div>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:col-span-2 lg:grid-cols-4 xl:col-span-4">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:col-span-2 lg:col-span-4 xl:col-span-4">
             <div>
                 <label for="date-range" class="block text-sm font-medium text-gray-300">快捷時間</label>
                 <select id="date-range" class="form-select mt-1 block w-full pl-3 pr-10 py-2 text-base rounded-md">
@@ -598,18 +624,18 @@ function renderUnitPriceReport() {
     if (residentialStats && residentialStats.avgPrice) {
         const avgPriceToShow = residentialStats.avgPrice[currentAverageType];
         
-        const minPriceTitle = residentialStats.minPriceProject ? `建案: ${residentialStats.minPriceProject}` : '';
-        const maxPriceTitle = residentialStats.maxPriceProject ? `建案: ${residentialStats.maxPriceProject}` : '';
+        const minPriceTooltip = residentialStats.minPriceProject ? `建案: ${residentialStats.minPriceProject}` : '';
+        const maxPriceTooltip = residentialStats.maxPriceProject ? `建案: ${residentialStats.maxPriceProject}` : '';
 
         statsContainer.innerHTML = `<table class="min-w-full divide-y divide-gray-800">
             <thead><tr><th class="w-1/2">統計項目</th><th class="w-1/2">房屋單價 (萬/坪)</th></tr></thead>
             <tbody>
                 <tr class="hover:bg-dark-card"><td class="font-medium text-gray-300">平均單價</td><td>${formatNumber(avgPriceToShow)}</td></tr>
-                <tr class="hover:bg-dark-card"><td class="font-medium text-gray-300">最低單價</td><td title="${minPriceTitle}">${formatNumber(residentialStats.minPrice)}</td></tr>
+                <tr class="hover:bg-dark-card"><td class="font-medium text-gray-300">最低單價</td><td class="has-tooltip" data-tooltip="${minPriceTooltip}">${formatNumber(residentialStats.minPrice)}</td></tr>
                 <tr class="hover:bg-dark-card"><td class="font-medium text-gray-300">1/4分位數單價</td><td>${formatNumber(residentialStats.q1Price)}</td></tr>
                 <tr class="hover:bg-dark-card"><td class="font-medium text-gray-300">中位數單價</td><td>${formatNumber(residentialStats.medianPrice)}</td></tr>
                 <tr class="hover:bg-dark-card"><td class="font-medium text-gray-300">3/4分位數單價</td><td>${formatNumber(residentialStats.q3Price)}</td></tr>
-                <tr class="hover:bg-dark-card"><td class="font-medium text-gray-300">最高單價</td><td title="${maxPriceTitle}">${formatNumber(residentialStats.maxPrice)}</td></tr>
+                <tr class="hover:bg-dark-card"><td class="font-medium text-gray-300">最高單價</td><td class="has-tooltip" data-tooltip="${maxPriceTooltip}">${formatNumber(residentialStats.maxPrice)}</td></tr>
             </tbody></table>`;
         
         dom.residentialStatsExtraInfo.innerHTML = `
@@ -690,15 +716,15 @@ function renderParkingAnalysisReport() {
         
         rampPlanePriceByFloor.forEach(item => {
             if (item && item.count > 0) {
-                const maxPriceTitle = item.maxPriceProject ? `建案: ${item.maxPriceProject}` : '';
-                const minPriceTitle = item.minPriceProject ? `建案: ${item.minPriceProject}` : '';
+                const maxPriceTooltip = item.maxPriceProject ? `建案: ${item.maxPriceProject}` : '';
+                const minPriceTooltip = item.minPriceProject ? `建案: ${item.minPriceProject}` : '';
 
                 floorPriceHtml += `<tr class="hover:bg-dark-card">
                     <td>${floorMapping[item.floor] || item.floor}</td>
                     <td>${item.count.toLocaleString()}</td>
                     <td>${formatNumber(item.avgPrice, 0)}</td>
-                    <td title="${maxPriceTitle}">${formatNumber(item.maxPrice, 0)}</td>
-                    <td title="${minPriceTitle}">${formatNumber(item.minPrice, 0)}</td>
+                    <td class="has-tooltip" data-tooltip="${maxPriceTooltip}">${formatNumber(item.maxPrice, 0)}</td>
+                    <td class="has-tooltip" data-tooltip="${minPriceTooltip}">${formatNumber(item.minPrice, 0)}</td>
                 </tr>`;
             }
         });
