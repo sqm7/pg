@@ -151,7 +151,7 @@ border-bottom: 1px solid #374151;}
         <div><label for="building-type" class="block text-sm font-medium text-gray-300">建物型態</label><select id="building-type" class="form-select mt-1 block w-full pl-3 pr-10 py-2 text-base rounded-md"><option value="">全部</option><option value="住宅大樓(11層含以上有電梯)">住宅大樓</option><option value="華廈(10層含以下有電梯)">華廈</option><option value="公寓(5層含以下無電梯)">公寓</option><option value="套房(1房(1廳)1衛)">套房</option><option value="透天厝">透天厝</option><option value="店面(店鋪)">店面</option><option value="辦公商業大樓">辦公商業大樓</option><option value="工廠">工廠</option><option value="倉庫">倉庫</option><option value="其他">其他</option></select></div>
         <div class="xl:col-span-2"><div class="flex justify-between items-center"><label for="project-name-input" class="block text-sm font-medium text-gray-300">建案名稱 (可複選)</label><button id="clear-projects-btn" class="text-xs text-cyan-400 hover:text-cyan-300 hidden transition-opacity">清除選取</button></div><div class="relative mt-1"><div id="project-name-container" class="form-input flex flex-nowrap items-center gap-2 p-1 min-h-[42px] rounded-md 
 overflow-x-auto"><input type="text" id="project-name-input" placeholder="請先選縣市..." class="bg-transparent flex-grow outline-none text-base py-1 px-2" disabled></div><div id="project-name-suggestions" class="absolute z-20 w-full mt-1 bg-dark-card border border-gray-600 rounded-md shadow-lg hidden"></div></div></div>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:col-span-2 lg:col-span-4 xl:col-span-4">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:col-span-2 lg:grid-cols-4 xl:col-span-4">
             <div>
                 <label for="date-range" class="block text-sm font-medium text-gray-300">快捷時間</label>
                 <select id="date-range" class="form-select mt-1 block w-full pl-3 pr-10 py-2 text-base rounded-md">
@@ -584,9 +584,13 @@ function renderPriceBandReport() {
     dom.priceBandTable.innerHTML = headerHtml + bodyHtml;
 }
 
+/**
+ * 【已修改】渲染房屋單價分析報表，為最高/最低價加上 title 屬性
+ */
 function renderUnitPriceReport() {
     if (!analysisDataCache || !analysisDataCache.unitPriceAnalysis) return;
     const { residentialStats, typeComparison } = analysisDataCache.unitPriceAnalysis;
+    
     const statsContainer = dom.residentialStatsTableContainer;
     if (residentialStats && residentialStats.avgPrice) {
         const avgPriceToShow = residentialStats.avgPrice[currentAverageType];
@@ -594,11 +598,11 @@ function renderUnitPriceReport() {
             <thead><tr><th class="w-1/2">統計項目</th><th class="w-1/2">房屋單價 (萬/坪)</th></tr></thead>
             <tbody>
                 <tr class="hover:bg-dark-card"><td class="font-medium text-gray-300">平均單價</td><td>${formatNumber(avgPriceToShow)}</td></tr>
-                <tr class="hover:bg-dark-card"><td class="font-medium text-gray-300">最低單價</td><td>${formatNumber(residentialStats.minPrice)}</td></tr>
+                <tr class="hover:bg-dark-card"><td class="font-medium text-gray-300">最低單價</td><td title="建案: ${residentialStats.minPriceProject || 'N/A'}">${formatNumber(residentialStats.minPrice)}</td></tr>
                 <tr class="hover:bg-dark-card"><td class="font-medium text-gray-300">1/4分位數單價</td><td>${formatNumber(residentialStats.q1Price)}</td></tr>
                 <tr class="hover:bg-dark-card"><td class="font-medium text-gray-300">中位數單價</td><td>${formatNumber(residentialStats.medianPrice)}</td></tr>
                 <tr class="hover:bg-dark-card"><td class="font-medium text-gray-300">3/4分位數單價</td><td>${formatNumber(residentialStats.q3Price)}</td></tr>
-                <tr class="hover:bg-dark-card"><td class="font-medium text-gray-300">最高單價</td><td>${formatNumber(residentialStats.maxPrice)}</td></tr>
+                <tr class="hover:bg-dark-card"><td class="font-medium text-gray-300">最高單價</td><td title="建案: ${residentialStats.maxPriceProject || 'N/A'}">${formatNumber(residentialStats.maxPrice)}</td></tr>
             </tbody></table>`;
         dom.residentialStatsExtraInfo.innerHTML = `
             <p><span class="font-semibold text-cyan-400">最低房屋單價建案：</span>${residentialStats.minPriceProject || 'N/A'}</p>
@@ -607,6 +611,7 @@ function renderUnitPriceReport() {
         statsContainer.innerHTML = '<p class="text-gray-500">無符合條件的住宅交易資料可供分析。</p>';
         dom.residentialStatsExtraInfo.innerHTML = '';
     }
+
     const comparisonContainer = dom.typeComparisonTableContainer;
     if (typeComparison && typeComparison.length > 0) {
         let comparisonHtml = `<table class="min-w-full divide-y divide-gray-800">
@@ -632,6 +637,9 @@ function renderUnitPriceReport() {
     }
 }
 
+/**
+ * 【已修改】渲染車位單價分析報表，為最高/最低價加上 title 屬性
+ */
 function renderParkingAnalysisReport() {
     if (!analysisDataCache || !analysisDataCache.parkingAnalysis) {
         dom.parkingRatioTableContainer.innerHTML = '<p class="text-gray-500">無車位配比資料可供分析。</p>';
@@ -640,6 +648,7 @@ function renderParkingAnalysisReport() {
         return;
     }
     const { parkingRatio, avgPriceByType, rampPlanePriceByFloor } = analysisDataCache.parkingAnalysis;
+    
     if (parkingRatio) {
         let ratioHtml = `<table class="min-w-full divide-y divide-gray-800">
             <thead><tr><th>配置類型</th><th>交易筆數</th><th>佔比(%)</th></tr></thead><tbody>
@@ -648,6 +657,7 @@ function renderParkingAnalysisReport() {
             </tbody></table>`;
         dom.parkingRatioTableContainer.innerHTML = ratioHtml;
     }
+
     if (avgPriceByType && avgPriceByType.length > 0) {
         let avgPriceHtml = `<table class="min-w-full divide-y divide-gray-800">
             <thead><tr><th>車位類型</th><th>交易筆數</th><th>車位平均單價(萬)</th></tr></thead><tbody>`;
@@ -663,20 +673,22 @@ function renderParkingAnalysisReport() {
     } else {
         dom.avgPriceByTypeTableContainer.innerHTML = '<p class="text-gray-500">無含車位的交易資料可供分析。</p>';
     }
+
     if (rampPlanePriceByFloor && rampPlanePriceByFloor.some(item => item.count > 0)) {
         const floorMapping = {
             'B1': '地下一樓', 'B2': '地下二樓', 'B3': '地下三樓', 'B4': '地下四樓', 'B5_below': '地下五樓含以下'
         };
         let floorPriceHtml = `<table class="min-w-full divide-y divide-gray-800">
             <thead><tr><th>樓層</th><th>筆數</th><th>均價(萬)</th><th>最高價(萬)</th><th>最低價(萬)</th></tr></thead><tbody>`;
+        
         rampPlanePriceByFloor.forEach(item => {
             if (item.count > 0) {
                 floorPriceHtml += `<tr class="hover:bg-dark-card">
                     <td>${floorMapping[item.floor] || item.floor}</td>
                     <td>${item.count.toLocaleString()}</td>
                     <td>${formatNumber(item.avgPrice, 0)}</td>
-                    <td>${formatNumber(item.maxPrice, 0)}</td>
-                    <td>${formatNumber(item.minPrice, 0)}</td>
+                    <td title="建案: ${item.maxPriceProject || 'N/A'}">${formatNumber(item.maxPrice, 0)}</td>
+                    <td title="建案: ${item.minPriceProject || 'N/A'}">${formatNumber(item.minPrice, 0)}</td>
                 </tr>`;
             }
         });
