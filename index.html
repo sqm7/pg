@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>不動產數據查詢平台 (最終整合版)</title>
+<title>不動產數據查詢平台 (真正最終版)</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -228,6 +228,7 @@ thead th { background-color: #252836; position: sticky; top: 0; z-index: 10; fon
             </p>
           </div>
         </div>
+        
         <div>
             <h3 class="report-section-title">銷控表</h3>
             <div id="unit-color-legend-container" class="flex flex-wrap gap-x-4 gap-y-2 my-4 text-sm"></div>
@@ -327,7 +328,7 @@ const countyCodeMap = { "臺北市": "A", "新北市": "F", "桃園市": "H", "�
 
 
 // ========================================================================
-// ========== 【新增】價差熱力圖分析核心功能 ==========
+// ========== 【新增/修改】價差熱力圖分析核心功能 ==========
 // ========================================================================
 
 /**
@@ -336,7 +337,7 @@ const countyCodeMap = { "臺北市": "A", "新北市": "F", "桃園市": "H", "�
  * @returns {string} - CSS 背景色字串
  */
 function getHeatmapColor(premium) {
-  if (premium === null) return 'transparent'; // 無數據或非分析對象
+  if (premium === null) return 'transparent'; // 無法計算或非分析對象
   if (premium === 0) return 'rgba(6, 182, 212, 0.2)';   // 基準戶 (青色系)
   if (premium > 5) return 'rgba(244, 63, 94, 0.4)';     // 顯著調漲 (紅色系)
   if (premium > 2) return 'rgba(234, 179, 8, 0.3)';      // 溫和調漲 (黃色系)
@@ -370,7 +371,6 @@ function renderPriceGapHeatmap() {
       const cellDataArray = horizontalGrid[floor] ? horizontalGrid[floor][unit] : null;
       if (cellDataArray && cellDataArray.length > 0) {
           const cellContent = cellDataArray.map(tx => {
-            // 後端已完成所有計算，前端只需根據 `premium` 欄位決定顏色
             const bgColor = getHeatmapColor(tx.premium);
             const isAnchor = tx.premium === 0;
             const anchorIcon = isAnchor ? '★ ' : '';
@@ -435,21 +435,27 @@ function initialize() {
   dom.velocitySubTabsContainer.addEventListener('click', handleVelocitySubTabClick);
   dom.priceGridProjectFilterContainer.addEventListener('click', handlePriceGridProjectFilterClick);
   
-  // ========== 【修改】綁定熱力圖按鈕的「切換」事件 ==========
+  // ========== 【修正】綁定熱力圖按鈕的「切換」事件 ==========
   dom.toggleHeatmapBtn.addEventListener('click', () => {
     const btn = dom.toggleHeatmapBtn;
     const currentView = btn.dataset.view || 'default';
 
     if (currentView === 'default') {
-      // 如果是預設狀態，就執行熱力圖分析
-      renderPriceGapHeatmap(); 
-      // 執行後，更新按鈕狀態以便切換回來
-      btn.dataset.view = 'heatmap';
-      btn.innerHTML = `<i class="fas fa-palette mr-2"></i>切換回預設`;
+      // 顯示載入狀態
+      btn.disabled = true;
+      btn.innerHTML = `<div class="loader mx-auto" style="width:20px; height:20px; border-width:2px;"></div>`;
+      
+      // 使用 setTimeout 確保載入動畫有時間渲染
+      setTimeout(() => {
+          renderPriceGapHeatmap(); 
+          btn.dataset.view = 'heatmap';
+          btn.innerHTML = `<i class="fas fa-palette mr-2"></i>切換回預設`;
+          btn.disabled = false;
+      }, 50);
+
     } else {
-      // 如果是熱力圖狀態，就呼叫原本的函式來畫預設圖
+      // 切換回預設圖，displayCurrentPriceGrid 內部會重置按鈕
       displayCurrentPriceGrid(); 
-      // `displayCurrentPriceGrid` 內部會自動重置按鈕狀態
     }
   });
 
@@ -821,7 +827,7 @@ function displayCurrentPriceGrid() {
         return;
     }
     
-    // 重置熱力圖切換按鈕的狀態
+    // 【修正】重置熱力圖切換按鈕的狀態
     const btn = dom.toggleHeatmapBtn;
     if (btn) {
         btn.dataset.view = 'default';
@@ -877,7 +883,6 @@ function renderHorizontalPriceGrid(grid, floors, units, colorMap) {
                 const bgColor = colorMap[unit] || '#374151';
                 let cellContent = cellData.map(tx => {
                     const parkingIcon = tx.hasParking ? ` <i class="fas fa-parking parking-icon" title="含車位"></i>` : '';
-                    // 預設的 tooltip 只顯示基本資訊
                     const tooltipText = `交易總價: ${formatNumber(tx.tooltipInfo['交易總價(萬)'], 0)} 萬 | 房屋總價: ${formatNumber(tx.tooltipInfo['房屋總價(萬)'], 0)} 萬`;
                     return `<div class="has-tooltip py-1" data-tooltip="${tooltipText}"><span>${formatNumber(tx.unitPrice, 1)}萬</span>${parkingIcon}<br><span class="text-xs text-gray-400">(${tx.transactionDate})</span></div>`;
                 }).join('');
