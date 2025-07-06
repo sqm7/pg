@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>不動產數據查詢平台 (含調價熱力圖分析)</title>
+<title>不動產數據查詢平台 (最終整合版)</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -71,7 +71,7 @@ thead th { background-color: #252836; position: sticky; top: 0; z-index: 10; fon
 .sub-tab-btn { padding: 0.5rem 1rem; border-radius: 0.5rem; color: #9ca3af; font-weight: 500; cursor: pointer; transition: background-color 0.2s; }
 .sub-tab-btn.active, .sub-tab-btn:hover { background-color: #252836; color: #e5e7eb; }
 .has-tooltip { position: relative; cursor: help; display: inline-block; }
-.has-tooltip::after { content: attr(data-tooltip); position: absolute; top: 100%; left: 50%; transform: translateX(-50%) translateY(8px); background-color: #06b6d4; color: white; padding: 6px 12px; border-radius: 6px; font-size: 0.875rem; z-index: 100; opacity: 0; visibility: hidden; transition: opacity 0.2s, visibility 0.2s; pointer-events: none; white-space: nowrap; }
+.has-tooltip::after { content: attr(data-tooltip); position: absolute; top: 100%; left: 50%; transform: translateX(-50%) translateY(8px); background-color: #06b6d4; color: white; padding: 6px 12px; border-radius: 6px; font-size: 0.875rem; z-index: 100; opacity: 0; visibility: hidden; transition: opacity 0.2s, visibility 0.2s; pointer-events: none; white-space: nowrap; max-width: 300px; text-align: left; }
 .has-tooltip:hover::after { opacity: 1; visibility: visible; }
 .parking-icon { color: #a5b4fc; margin-left: 4px; font-size: 0.75rem; }
 .grid-cell-content { line-height: 1.6; display: flex; flex-direction: column; align-items: flex-start; }
@@ -207,16 +207,26 @@ thead th { background-color: #252836; position: sticky; top: 0; z-index: 10; fon
             <div id="price-grid-project-filter-container" class="flex flex-nowrap gap-2 overflow-x-auto py-2 scrollable-filter-container"></div>
         </div>
         
-        <div class="my-4 p-4 bg-dark-card border border-gray-700 rounded-lg flex items-center justify-between flex-wrap gap-4">
-          <div>
-            <h4 class="font-bold text-gray-200">進階分析：建案調價熱力圖</h4>
-            <p class="text-sm text-gray-400 mt-1">
-              啟用此功能可分析建案的調價軌跡。顏色越深，代表該戶成交價相比開盤時的漲幅越大。
+        <div class="my-4 p-4 bg-dark-card border border-gray-700 rounded-lg">
+          <div class="flex items-start sm:items-center justify-between flex-col sm:flex-row gap-4">
+            <div>
+              <h4 class="font-bold text-gray-200">進階分析：建案調價熱力圖</h4>
+              <p class="text-sm text-gray-400 mt-1">
+                啟用此功能可分析建案的調價軌跡。顏色越深，代表漲幅越大。
+              </p>
+            </div>
+            <button id="toggle-heatmap-btn" class="bg-purple-600 hover:bg-purple-500 text-white font-bold py-2 px-6 rounded-lg shadow-lg hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0">
+              <i class="fas fa-fire mr-2"></i>開始分析
+            </button>
+          </div>
+          <div class="mt-4 pt-4 border-t border-gray-700 text-xs text-gray-400 space-y-2">
+            <p>
+              <strong class="text-cyan-400">樓層調整：</strong>指因樓層高低不同，所應該產生的合理價差。用以排除樓層的先天影響。
+            </p>
+            <p>
+              <strong class="text-purple-400">純粹時間溢價：</strong>指在排除了樓層等先天因素後，一個單位真正的價格上漲部分，這反映了市場熱度與建商的調價策略。
             </p>
           </div>
-          <button id="toggle-heatmap-btn" class="bg-purple-600 hover:bg-purple-500 text-white font-bold py-2 px-6 rounded-lg shadow-lg hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
-            <i class="fas fa-fire mr-2"></i>開始分析
-          </button>
         </div>
         <div>
             <h3 class="report-section-title">銷控表</h3>
@@ -327,90 +337,22 @@ const countyCodeMap = { "臺北市": "A", "新北市": "F", "桃園市": "H", "�
  * @returns {string} - CSS 背景色字串
  */
 function getHeatmapColor(premium) {
-  // 未售出或無數據的儲存格，使用基礎背景色
-  if (premium === null) return '#1f2937'; 
-
-  // 基準戶的特殊顏色，使用主題的青色系
-  if (premium === 0) return 'rgba(6, 182, 212, 0.2)'; 
-
-  // 根據溢價程度返回不同顏色
-  if (premium > 5) return 'rgba(244, 63, 94, 0.4)';   // 明顯調漲 (紅色系)
-  if (premium > 2) return 'rgba(234, 179, 8, 0.3)';    // 溫和調漲 (黃色系)
-  
-  return 'rgba(34, 197, 94, 0.2)'; // 接近開盤價 (綠色系)
-}
-
-/**
- * 【注意】此函式為前端模擬後端計算，用於展示。
- * 在最終版本中，這些計算應在 `analyze-project-ranking.ts` 中完成。
- * @param {Array<Object>} allTransactions - 從分析快取中提取的單一建案所有交易紀錄
- * @returns {Promise<Object>} - 包含更新後交易紀錄的物件
- */
-async function calculatePremiumsForProject(allTransactions) {
-  await new Promise(resolve => setTimeout(resolve, 50));
-
-  const averageFloorPremium = 0.3; 
-  const anchorPrices = new Map();
-  const sortedData = [...allTransactions].sort((a, b) => new Date(a['transactionDate']) - new Date(b['transactionDate']));
-  
-  for (const record of sortedData) {
-    const unitType = record['unitType'];
-    if (unitType && !anchorPrices.has(unitType)) {
-      anchorPrices.set(unitType, {
-        price: record['unitPrice'],
-        floor: parseInt(record['floor'], 10)
-      });
-    }
-  }
-
-  const dataWithPremium = allTransactions.map(record => {
-    const unitType = record['unitType'];
-    const anchor = anchorPrices.get(unitType);
-    const currentFloor = parseInt(record['floor'], 10);
-    const currentPrice = record['unitPrice'];
-
-    if (!anchor || (currentFloor === anchor.floor && currentPrice === anchor.price)) {
-      const tooltipText = `此為 ${unitType} 戶型基準戶`;
-      return { ...record, premium: 0, tooltip: tooltipText };
-    }
-
-    const floorDifference = currentFloor - anchor.floor;
-    const floorPriceAdjustment = floorDifference * averageFloorPremium;
-    const theoreticalOpeningPrice = anchor.price + floorPriceAdjustment;
-    const timePremiumValue = currentPrice - theoreticalOpeningPrice;
-    const timePremiumPercentage = (timePremiumValue / theoreticalOpeningPrice) * 100;
-    
-    const tooltipText = `成交價: ${currentPrice.toFixed(1)}萬 | 基準價(${unitType}): ${anchor.price.toFixed(1)}萬 | 樓層調整: ${floorPriceAdjustment.toFixed(1)}萬 | 純粹時間溢價: ${timePremiumPercentage.toFixed(1)}%`;
-
-    return { ...record, premium: timePremiumPercentage, tooltip: tooltipText };
-  });
-
-  return { dataWithPremium };
+  if (premium === null) return 'transparent';
+  if (premium === 0) return 'rgba(6, 182, 212, 0.2)';
+  if (premium > 5) return 'rgba(244, 63, 94, 0.4)';
+  if (premium > 2) return 'rgba(234, 179, 8, 0.3)';
+  return 'rgba(34, 197, 94, 0.2)';
 }
 
 /**
  * 渲染包含「價差熱力圖」的銷控表
+ * 這個函式現在只負責渲染，所有計算都由後端 `analyze-project-ranking.ts` 完成
  */
-async function renderPriceGapHeatmap() {
+function renderPriceGapHeatmap() {
   const container = dom.horizontalPriceGridContainer;
-  const btn = dom.toggleHeatmapBtn;
-  
-  if (!analysisDataCache || !analysisDataCache.priceGridAnalysis || !selectedPriceGridProject) {
-    container.innerHTML = '<p class="text-gray-500 p-4 text-center">請先選擇一個建案再進行分析。</p>';
-    return;
-  }
-
-  btn.disabled = true;
-  btn.innerHTML = `<div class="loader mx-auto" style="width:20px; height:20px; border-width:2px;"></div><span class="ml-2">分析中...</span>`;
-  container.innerHTML = `<div class="text-center p-8 text-gray-400">正在分析調價軌跡，請稍候...</div>`;
-
   const projectAnalysisData = analysisDataCache.priceGridAnalysis.byProject[selectedPriceGridProject];
   
-  // 【關鍵】前端直接使用後端已算好的 premium 和 tooltip 欄位
-  // 這使得前端的負擔變得很輕，只需專注於渲染
-  const heatmapGrid = projectAnalysisData.horizontalGrid; 
-  
-  const { sortedFloors, sortedUnits, unitColorMap } = projectAnalysisData;
+  const { horizontalGrid, sortedFloors, sortedUnits, unitColorMap } = projectAnalysisData;
   let tableHtml = '<table class="min-w-full divide-y divide-gray-800 border-collapse">';
   
   let headerHtml = '<thead><tr><th class="sticky left-0 bg-dark-card z-10 p-2">樓層 \\ 戶別</th>';
@@ -423,7 +365,7 @@ async function renderPriceGapHeatmap() {
   sortedFloors.forEach(floor => {
     bodyHtml += `<tr class="hover:bg-gray-800/50"><td class="font-bold sticky left-0 bg-dark-card z-10 p-2">${floor}</td>`;
     sortedUnits.forEach(unit => {
-      const cellDataArray = heatmapGrid[floor] ? heatmapGrid[floor][unit] : null;
+      const cellDataArray = horizontalGrid[floor] ? horizontalGrid[floor][unit] : null;
       if (cellDataArray && cellDataArray.length > 0) {
           const cellContent = cellDataArray.map(tx => {
             const bgColor = getHeatmapColor(tx.premium);
@@ -447,9 +389,6 @@ async function renderPriceGapHeatmap() {
 
   tableHtml += headerHtml + bodyHtml + '</table>';
   container.innerHTML = tableHtml;
-
-  btn.disabled = false;
-  btn.innerHTML = `<i class="fas fa-sync-alt mr-2"></i>重新分析`;
 }
 
 
@@ -493,8 +432,21 @@ function initialize() {
   dom.velocitySubTabsContainer.addEventListener('click', handleVelocitySubTabClick);
   dom.priceGridProjectFilterContainer.addEventListener('click', handlePriceGridProjectFilterClick);
   
-  // ========== 【新增】綁定熱力圖分析按鈕的點擊事件 ==========
-  dom.toggleHeatmapBtn.addEventListener('click', renderPriceGapHeatmap);
+  // ========== 【修改】綁定熱力圖按鈕的「切換」事件 ==========
+  dom.toggleHeatmapBtn.addEventListener('click', () => {
+    const btn = dom.toggleHeatmapBtn;
+    const currentView = btn.dataset.view || 'default';
+
+    if (currentView === 'default') {
+      renderPriceGapHeatmap(); 
+      btn.dataset.view = 'heatmap';
+      btn.innerHTML = `<i class="fas fa-palette mr-2"></i>切換回預設`;
+    } else {
+      displayCurrentPriceGrid(); 
+      btn.dataset.view = 'default';
+      btn.innerHTML = `<i class="fas fa-fire mr-2"></i>開始分析`;
+    }
+  });
 
   toggleAnalyzeButtonState();
 }
@@ -595,7 +547,7 @@ async function analyzeData() {
     renderUnitPriceReport();
     renderParkingAnalysisReport();
     renderSalesVelocityReport();
-    renderPriceGridAnalysis(); // <-- This now includes the debug code
+    renderPriceGridAnalysis();
     
     switchTab('ranking-report');
   } catch(error) {
@@ -826,22 +778,14 @@ function handleVelocitySubTabClick(e) {
     renderVelocityTable();
 }
 
-// 【偵錯版】此函式已加入詳細的 console.log
 function renderPriceGridAnalysis() {
-    console.log('======= 偵錯模式：進入 renderPriceGridAnalysis 函式 =======');
-    console.log('目前的分析快取資料 (analysisDataCache):', analysisDataCache);
-
-    const reportContent = dom.priceGridReportContent;
-
     if (!analysisDataCache || !analysisDataCache.priceGridAnalysis || !analysisDataCache.priceGridAnalysis.projectNames || analysisDataCache.priceGridAnalysis.projectNames.length === 0) {
-        console.error('【問題點找到了！】priceGridAnalysis 物件無效，或裡面的建案列表是空的。因此無法渲染銷控表頁籤的任何內容（包含按鈕）。');
-        reportContent.innerHTML = '<p class="text-gray-500 p-4 text-center">【偵錯訊息】無垂直水平分析資料可供分析，因此無法顯示熱力圖按鈕。</p>';
+        dom.priceGridReportContent.innerHTML = '<p class="text-gray-500 p-4 text-center">無垂直水平分析資料可供分析。</p>';
         return;
     }
     
-    console.log('【偵錯成功】priceGridAnalysis 資料有效，準備渲染頁籤內容。建案列表為:', analysisDataCache.priceGridAnalysis.projectNames);
-    
     const { projectNames } = analysisDataCache.priceGridAnalysis;
+    
     if (projectNames && projectNames.length > 0) {
         selectedPriceGridProject = projectNames[0];
         const filterHtml = projectNames.map(name => 
@@ -872,8 +816,13 @@ function displayCurrentPriceGrid() {
         return;
     }
     
-    dom.toggleHeatmapBtn.disabled = false;
-    dom.toggleHeatmapBtn.innerHTML = `<i class="fas fa-fire mr-2"></i>開始分析`;
+    // 【修改】重置熱力圖切換按鈕的狀態
+    const btn = dom.toggleHeatmapBtn;
+    if (btn) {
+        btn.dataset.view = 'default';
+        btn.innerHTML = `<i class="fas fa-fire mr-2"></i>開始分析`;
+        btn.disabled = false;
+    }
     
     renderUnitColorLegend(data.unitColorMap);
     renderHorizontalPriceGrid(data.horizontalGrid, data.sortedFloors, data.sortedUnits, data.unitColorMap);
@@ -901,7 +850,6 @@ function renderUnitColorLegend(unitColorMap) {
     dom.unitColorLegendContainer.innerHTML = legendHtml;
 }
 
-// This function renders the DEFAULT price grid
 function renderHorizontalPriceGrid(grid, floors, units, colorMap) {
     if (!grid || !floors || !units || floors.length === 0 || units.length === 0) {
         dom.horizontalPriceGridContainer.innerHTML = '<p class="text-gray-500">無水平價盤資料。</p>';
@@ -923,13 +871,12 @@ function renderHorizontalPriceGrid(grid, floors, units, colorMap) {
                 const bgColor = colorMap[unit] || '#374151';
                 let cellContent = cellData.map(tx => {
                     const parkingIcon = tx.hasParking ? ` <i class="fas fa-parking parking-icon" title="含車位"></i>` : '';
-                    // 使用後端傳來的詳細 tooltip
                     const tooltipText = tx.tooltip || `交易總價: ${formatNumber(tx.tooltipInfo.totalPrice, 0)} 萬`;
                     return `<div class="has-tooltip py-1" data-tooltip="${tooltipText}"><span>${formatNumber(tx.unitPrice, 1)}萬</span>${parkingIcon}<br><span class="text-xs text-gray-400">(${tx.transactionDate})</span></div>`;
                 }).join('');
                 bodyHtml += `<td style="background-color: ${bgColor}40; vertical-align: top; padding: 4px 8px; border-left: 1px solid #374151;"><div class="grid-cell-content">${cellContent}</div></td>`;
             } else {
-                bodyHtml += `<td class="bg-dark-card/50" style="border-left: 1px solid #374151;">-</td>`;
+                bodyHtml += `<td style="background-color: #1a1d29; border-left: 1px solid #374151;">-</td>`;
             }
         });
         bodyHtml += `</tr>`;
