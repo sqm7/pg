@@ -777,7 +777,6 @@ function renderPriceGridAnalysis() {
     }
 }
 
-// 【已修改】此函式會分別渲染兩個銷控表
 function displayCurrentPriceGrid() {
     if (!analysisDataCache || !analysisDataCache.priceGridAnalysis || !selectedPriceGridProject) {
         dom.horizontalPriceGridContainer.innerHTML = '<p class="text-gray-500 p-4 text-center">請從上方選擇建案以查看銷控表。</p>';
@@ -826,7 +825,6 @@ function handlePriceGridProjectFilterClick(e) {
     displayCurrentPriceGrid();
 }
 
-// 【已修改】此函式接受容器參數
 function renderUnitColorLegend(container, unitColorMap) {
     if (!container) return;
     if (!unitColorMap || Object.keys(unitColorMap).length === 0) {
@@ -839,7 +837,6 @@ function renderUnitColorLegend(container, unitColorMap) {
     container.innerHTML = legendHtml;
 }
 
-// 【已修改】此函式現在接受容器和一個包含所有網格資料的物件
 function renderHorizontalPriceGrid(container, gridData) {
     if (!container) return;
     
