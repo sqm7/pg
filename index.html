@@ -286,7 +286,6 @@ const SUB_DATA_ENDPOINT = 'https://zxbmbbfrzbtuueysicoc.supabase.co/functions/v1
 const PROJECT_NAMES_ENDPOINT = 'https://zxbmbbfrzbtuueysicoc.supabase.co/functions/v1/query-names';
 const RANKING_ANALYSIS_ENDPOINT = 'https://zxbmbbfrzbtuueysicoc.supabase.co/functions/v1/analyze-project-ranking';
 
-// 【已修改】更新 DOM 元素列表
 const dom = {
   countySelect: document.getElementById('county'),
   districtSelect: document.getElementById('district'),
@@ -800,7 +799,7 @@ function displayCurrentPriceGrid() {
     // 渲染主要的 (住宅/事務所) 銷控表
     if (residentialGrid && residentialGrid.sortedFloors && residentialGrid.sortedFloors.length > 0) {
         renderUnitColorLegend(dom.unitColorLegendContainer, residentialGrid.unitColorMap);
-        renderHorizontalPriceGrid(dom.horizontalPriceGridContainer, residentialGrid.horizontalGrid, residentialGrid.sortedFloors, residentialGrid.sortedUnits, residentialGrid.unitColorMap);
+        renderHorizontalPriceGrid(dom.horizontalPriceGridContainer, residentialGrid);
     } else {
         dom.unitColorLegendContainer.innerHTML = '';
         dom.horizontalPriceGridContainer.innerHTML = '<p class="text-gray-500 p-4 text-center">無符合條件的住宅/事務所銷控表資料。</p>';
@@ -810,7 +809,7 @@ function displayCurrentPriceGrid() {
     if (storefrontGrid && storefrontGrid.sortedFloors && storefrontGrid.sortedFloors.length > 0) {
         dom.storefrontGridSection.classList.remove('hidden');
         renderUnitColorLegend(dom.storefrontUnitColorLegendContainer, storefrontGrid.unitColorMap);
-        renderHorizontalPriceGrid(dom.storefrontPriceGridContainer, storefrontGrid.horizontalGrid, storefrontGrid.sortedFloors, storefrontGrid.sortedUnits, storefrontGrid.unitColorMap);
+        renderHorizontalPriceGrid(dom.storefrontPriceGridContainer, storefrontGrid);
     } else {
         dom.storefrontGridSection.classList.add('hidden');
     }
@@ -840,27 +839,31 @@ function renderUnitColorLegend(container, unitColorMap) {
     container.innerHTML = legendHtml;
 }
 
-// 【已修改】此函式接受容器參數
-function renderHorizontalPriceGrid(container, grid, floors, units, colorMap) {
+// 【已修改】此函式現在接受容器和一個包含所有網格資料的物件
+function renderHorizontalPriceGrid(container, gridData) {
     if (!container) return;
-    if (!grid || !floors || !units || floors.length === 0 || units.length === 0) {
+    
+    const { horizontalGrid, sortedFloors, sortedUnits, unitColorMap } = gridData;
+
+    if (!horizontalGrid || !sortedFloors || !sortedUnits || sortedFloors.length === 0 || sortedUnits.length === 0) {
         container.innerHTML = '<p class="text-gray-500 p-4 text-center">無水平價盤資料。</p>';
         return;
     }
+    
     let tableHtml = '<table class="min-w-full divide-y divide-gray-800 border-collapse">';
     let headerHtml = '<thead><tr><th class="sticky left-0 bg-dark-card z-10">樓層 \\ 戶別</th>';
-    units.forEach(unit => {
-        headerHtml += `<th class="text-center" style="background-color:${colorMap[unit] || '#4b5563'}80;">${unit}</th>`;
+    sortedUnits.forEach(unit => {
+        headerHtml += `<th class="text-center" style="background-color:${unitColorMap[unit] || '#4b5563'}80;">${unit}</th>`;
     });
     headerHtml += '</tr></thead>';
 
     let bodyHtml = '<tbody>';
-    floors.forEach(floor => {
+    sortedFloors.forEach(floor => {
         bodyHtml += `<tr class="hover:bg-gray-800/50"><td class="font-bold sticky left-0 bg-dark-card z-10">${floor}</td>`;
-        units.forEach(unit => {
-            const cellData = grid[floor] ? grid[floor][unit] : null;
+        sortedUnits.forEach(unit => {
+            const cellData = horizontalGrid[floor] ? horizontalGrid[floor][unit] : null;
             if (cellData && cellData.length > 0) {
-                const bgColor = colorMap[unit] || '#374151';
+                const bgColor = unitColorMap[unit] || '#374151';
        
                 let cellContent = cellData.map(tx => {
                     const parkingIcon = tx.hasParking ? ` <i class="fas fa-parking parking-icon" title="含車位"></i>` : '';
