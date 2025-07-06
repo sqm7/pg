@@ -219,7 +219,7 @@ thead th { background-color: #252836; position: sticky; top: 0; z-index: 10; fon
               <i class="fas fa-fire mr-2"></i>開始分析
             </button>
           </div>
-          <div id="heatmap-legend" class="mt-4 pt-4 border-t border-gray-700 text-xs text-gray-400 space-y-2">
+          <div class="mt-4 pt-4 border-t border-gray-700 text-xs text-gray-400 space-y-2">
             <p>
               <strong class="text-cyan-400">樓層調整：</strong>指因樓層高低不同，所應該產生的合理價差。用以排除樓層的先天影響。
             </p>
@@ -345,7 +345,7 @@ function getHeatmapColor(premium) {
 
 /**
  * 渲染包含「價差熱力圖」的銷控表
- * 這個函式現在只負責渲染，所有計算都由後端 `analyze-project-ranking.ts` 完成
+ * 此函式現在只負責渲染，所有計算都由後端 `analyze-project-ranking.ts` 完成
  */
 function renderPriceGapHeatmap() {
   const container = dom.horizontalPriceGridContainer;
@@ -448,8 +448,8 @@ function initialize() {
       btn.innerHTML = `<i class="fas fa-palette mr-2"></i>切換回預設`;
     } else {
       // 如果是熱力圖狀態，就呼叫原本的函式來畫預設圖
-      displayCurrentPriceGrid();
-      // 此函式內部會自動重置按鈕狀態
+      displayCurrentPriceGrid(); 
+      // `displayCurrentPriceGrid` 內部會自動重置按鈕狀態
     }
   });
 
@@ -855,6 +855,7 @@ function renderUnitColorLegend(unitColorMap) {
     dom.unitColorLegendContainer.innerHTML = legendHtml;
 }
 
+// 渲染「預設」銷控表的函式
 function renderHorizontalPriceGrid(grid, floors, units, colorMap) {
     if (!grid || !floors || !units || floors.length === 0 || units.length === 0) {
         dom.horizontalPriceGridContainer.innerHTML = '<p class="text-gray-500">無水平價盤資料。</p>';
@@ -876,7 +877,8 @@ function renderHorizontalPriceGrid(grid, floors, units, colorMap) {
                 const bgColor = colorMap[unit] || '#374151';
                 let cellContent = cellData.map(tx => {
                     const parkingIcon = tx.hasParking ? ` <i class="fas fa-parking parking-icon" title="含車位"></i>` : '';
-                    const tooltipText = tx.tooltip || `交易總價: ${formatNumber(tx.tooltipInfo.totalPrice, 0)} 萬`;
+                    // 預設的 tooltip 只顯示基本資訊
+                    const tooltipText = `交易總價: ${formatNumber(tx.tooltipInfo['交易總價(萬)'], 0)} 萬 | 房屋總價: ${formatNumber(tx.tooltipInfo['房屋總價(萬)'], 0)} 萬`;
                     return `<div class="has-tooltip py-1" data-tooltip="${tooltipText}"><span>${formatNumber(tx.unitPrice, 1)}萬</span>${parkingIcon}<br><span class="text-xs text-gray-400">(${tx.transactionDate})</span></div>`;
                 }).join('');
                 bodyHtml += `<td style="background-color: ${bgColor}40; vertical-align: top; padding: 4px 8px; border-left: 1px solid #374151;"><div class="grid-cell-content">${cellContent}</div></td>`;
