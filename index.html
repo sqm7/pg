@@ -853,7 +853,7 @@ function renderFloorPremiumBasis(basis) {
         return;
     }
 
-    let html = '<p class="mb-4">系統採用「同戶型配對法」，根據以下時間相近的交易樣本，計算出樓層價差的中位數。顯示前5組樣本：</p>';
+    let html = '<p class="mb-4">系統採用「價差一致性驗證法」，根據以下交易樣本，計算出最穩定一致的樓層價差。顯示前5組樣本：</p>';
     html += '<div class="space-y-4">';
     
     basis.forEach((pair, index) => {
