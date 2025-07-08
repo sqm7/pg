@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>不動產數據查詢平台 (前端修復版 v3.7)</title>
+<title>不動產數據查詢平台 (前端修復版 v3.8)</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -685,9 +685,6 @@ function renderHorizontalAnalysisTable(analysisData) {
     `;
     container.innerHTML = tableHtml;
 }
-
-// All other functions from initialize() downwards remain the same as the previous correct version...
-// I will paste them here to provide the complete file.
 
 function initialize() {
   Object.keys(districtData).forEach(name => dom.countySelect.add(new Option(name, name)));
