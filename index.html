@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>不動產數據查詢平台 (含調價熱力圖分析)</title>
+<title>不動產數據查詢平台 (優化版 v29)</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -75,6 +75,9 @@ thead th { background-color: #252836; position: sticky; top: 0; z-index: 10; fon
 .has-tooltip:hover::after { opacity: 1; visibility: visible; }
 .parking-icon { color: #a5b4fc; margin-left: 4px; font-size: 0.75rem; }
 .grid-cell-content { line-height: 1.6; display: flex; flex-direction: column; align-items: flex-start; }
+/* 【新增】特殊備註列的醒目提示樣式 */
+.special-remark-row { background-color: rgba(139, 92, 246, 0.1); }
+.special-remark-row:hover { background-color: rgba(139, 92, 246, 0.2) !important; }
 </style>
 </head>
 <body class="p-4 md:p-8">
@@ -114,16 +117,7 @@ thead th { background-color: #252836; position: sticky; top: 0; z-index: 10; fon
         </div>
 
         <div class="xl:col-span-3 sm:col-span-2 flex items-end gap-4">
-            <div>
-                <label for="floor-premium-input" class="block text-sm font-medium text-gray-300">
-                    錨定樓層價差
-                    <span class="has-tooltip text-xs text-gray-500" data-tooltip="輸入每高一層樓，房屋每坪單價增加的萬數。例如：0.3">
-                        <i class="fas fa-info-circle"></i>
-                    </span>
-                </label>
-                <input type="number" id="floor-premium-input" class="form-input mt-1 block w-full pl-3 pr-2 py-2 text-base rounded-md" value="0.3" step="0.05" min="0">
-            </div>
-        
+            <!-- 【移除】錨定樓層價差輸入框從此處移除 -->
             <div class="flex items-center gap-4 flex-grow justify-end">
                 <button id="analyze-btn" class="bg-purple-600 hover:bg-purple-500 text-white font-bold py-2 px-6 rounded-lg shadow-lg hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed">分析報表</button>
                 <button id="search-btn" class="bg-gradient-to-r from-cyan-accent to-purple-accent text-white font-bold py-2 px-6 rounded-lg shadow-lg hover:opacity-90 transition-all">查詢資料列表</button>
@@ -170,7 +164,8 @@ thead th { background-color: #252836; position: sticky; top: 0; z-index: 10; fon
         </div>
         <div class="mb-8">
             <h3 class="report-section-title">住宅單價統計 (住宅大樓/華廈)</h3>
-            <div id="residential-stats-table-container" class="overflow-x-auto"></div>
+            <!-- 【修改】移除 overflow-x-auto 讓表格自然展開 -->
+            <div id="residential-stats-table-container"></div>
             <div id="residential-stats-extra-info" class="text-sm text-gray-400 mt-4 space-y-1"></div>
         </div>
         <div>
@@ -195,7 +190,8 @@ thead th { background-color: #252836; position: sticky; top: 0; z-index: 10; fon
         </div>
         <div>
             <h3 class="report-section-title">坡道平面車位分層價格</h3>
-            <div id="ramp-plane-price-by-floor-table-container" class="overflow-x-auto"></div>
+            <!-- 【修改】移除 overflow-x-auto 讓表格自然展開 -->
+            <div id="ramp-plane-price-by-floor-table-container"></div>
             <p class="text-sm text-gray-500 mt-2">* 此數據僅統計主表中「車位類別」為「坡道平面」的交易，並根據其附表中的車位資料進行彙總。</p>
         </div>
       </div>
@@ -222,6 +218,7 @@ thead th { background-color: #252836; position: sticky; top: 0; z-index: 10; fon
             <div id="price-grid-project-filter-container" class="flex flex-nowrap gap-2 overflow-x-auto py-2 scrollable-filter-container"></div>
         </div>
         
+        <!-- 【修改】將樓層價差輸入框移到此處，並與分析按鈕整合 -->
         <div class="my-4 p-4 bg-dark-card border border-gray-700 rounded-lg flex items-center justify-between flex-wrap gap-4">
           <div>
             <h4 class="font-bold text-gray-200">進階分析：建案調價熱力圖</h4>
@@ -229,9 +226,20 @@ thead th { background-color: #252836; position: sticky; top: 0; z-index: 10; fon
               啟用此功能可分析建案的調價軌跡。顏色越深，代表該戶成交價相比開盤時的漲幅越大。
             </p>
           </div>
-          <button id="toggle-heatmap-btn" class="bg-purple-600 hover:bg-purple-500 text-white font-bold py-2 px-6 rounded-lg shadow-lg hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
-            <i class="fas fa-fire mr-2"></i>開始分析
-          </button>
+          <div class="flex items-center gap-4">
+            <div>
+                <label for="floor-premium-input" class="block text-xs font-medium text-gray-300 mb-1">
+                    錨定樓層價差
+                    <span class="has-tooltip text-gray-500" data-tooltip="輸入每高一層樓，房屋每坪單價增加的萬數。例如：0.3">
+                        <i class="fas fa-info-circle"></i>
+                    </span>
+                </label>
+                <input type="number" id="floor-premium-input" class="form-input w-28 pl-3 pr-2 py-2 text-base rounded-md" value="0.3" step="0.05" min="0">
+            </div>
+            <button id="toggle-heatmap-btn" class="bg-purple-600 hover:bg-purple-500 text-white font-bold py-2 px-6 rounded-lg shadow-lg hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed self-end">
+              <i class="fas fa-fire mr-2"></i>開始分析
+            </button>
+          </div>
         </div>
         <div>
             <h3 class="report-section-title">銷控表</h3>
@@ -326,6 +334,7 @@ let currentAverageType = 'arithmetic';
 let currentVelocityView = 'monthly';
 let selectedVelocityRooms = [];
 let selectedPriceGridProject = null;
+let isHeatmapActive = false; // 【新增】熱力圖激活狀態
 
 // Data
 const districtData = {"臺北市":["中正區","大同區","中山區","松山區","大安區","萬華區","信義區","士林區","北投區","內湖區","南港區","文山區"],"新北市":["板橋區","三重區","中和區","永和區","新莊區","新店區","樹林區","鶯歌區","三峽區","淡水區","汐止區","瑞芳區","土城區","蘆洲區","五股區","泰山區","林口區","深坑區","石碇區","坪林區","三芝區","石門區","八里區","平溪區","雙溪區","貢寮區","金山區","萬里區","烏來區"],"桃園市":["桃園區","中壢區","大溪區","楊梅區","蘆竹區","大園區","龜山區","八德區","龍潭區","平鎮區","新屋區","觀音區","復興區"],"臺中市":["中區","東區","南區","西區","北區","北屯區","西屯區","南屯區","太平區","大里區","霧峰區","烏日區","豐原區","后里區","石岡區","東勢區","和平區","新社區","潭子區","大雅區","神岡區","大肚區","沙鹿區","龍井區","梧棲區","清水區","大甲區","外埔區","大安區"],"臺南市":["中西區","東區","南區","北區","安平區","安南區","永康區","歸仁區","新化區","左鎮區","玉井區","楠西區","南化區","仁德區","關廟區","龍崎區","官田區","麻豆區","佳里區","西港區","七股區","將軍區","學甲區","北門區","新營區","後壁區","白河區","東山區","六甲區","下營區","柳營區","鹽水區","善化區","大內區","山上區","新市區","安定區"],"高雄市":["新興區","前金區","苓雅區","鹽埕區","鼓山區","旗津區","前鎮區","三民區","楠梓區","小港區","左營區","仁武區","大社區","岡山區","路竹區","阿蓮區","田寮區","燕巢區","橋頭區","梓官區","彌陀區","永安區","湖內區","鳳山區","大寮區","林園區","鳥松區","大樹區","旗山區","美濃區","六龜區","內門區","杉林區","甲仙區","桃源區","那瑪夏區","茂林區","茄萣區"],"基隆市":["仁愛區","信義區","中正區","中山區","安樂區","暖暖區","七堵區"],"新竹市":["東區","北區","香山區"],"嘉義市":["東區","西區"],"宜蘭縣":["宜蘭市","羅東鎮","蘇澳鎮","頭城鎮","礁溪鄉","壯圍鄉","員山鄉","冬山鄉","五結鄉","三星鄉","大同鄉","南澳鄉"],"新竹縣":["竹北市","竹東鎮","新埔鎮","關西鎮","湖口鄉","新豐鄉","芎林鄉","橫山鄉","北埔鄉","寶山鄉","峨眉鄉","尖石鄉","五峰鄉"],"苗栗縣":["苗栗市","苑裡鎮","通霄鎮","竹南鎮","頭份鎮","後龍鎮","卓蘭鎮","大湖鄉","公館鄉","銅鑼鄉","南庄鄉","頭屋鄉","三義鄉","西湖鄉","造橋鄉","三灣鄉","獅潭鄉","泰安鄉"],"彰化縣":["彰化市","鹿港鎮","和美鎮","線西鄉","伸港鄉","福興鄉","秀水鄉","花壇鄉","芬園鄉","員林鎮","溪湖鎮","田中鎮","大村鄉","埔鹽鄉","埔心鄉","永靖鄉","社頭鄉","二水鄉","北斗鎮","二林鎮","田尾鄉","埤頭鄉","芳苑鄉","大城鄉","竹塘鄉","溪州鄉"],"南投縣":["南投市","埔里鎮","草屯鎮","竹山鎮","集集鎮","名間鄉","鹿谷鄉","中寮鄉","魚池鄉","國姓鄉","水里鄉","信義鄉","仁愛鄉"],"雲林縣":["斗六市","斗南鎮","虎尾鎮","西螺鎮","土庫鎮","北港鎮","古坑鄉","大埤鄉","莿桐鄉","林內鄉","二崙鄉","崙背鄉","麥寮鄉","東勢鄉","褒忠鄉","台西鄉","元長鄉","四湖鄉","口湖鄉","水林鄉"],"嘉義縣":["太保市","朴子市","布袋鎮","大林鎮","民雄鄉","溪口鄉","新港鄉","六腳鄉","東石鄉","義竹鄉","鹿草鄉","水上鄉","中埔鄉","竹崎鄉","梅山鄉","番路鄉","大埔鄉","阿里山鄉"],"屏東縣":["屏東市","潮州鎮","東港鎮","恆春鎮","萬丹鄉","長治鄉","麟洛鄉","九如鄉","里港鄉","鹽埔鄉","高樹鄉","萬巒鄉","內埔鄉","竹田鄉","新埤鄉","枋寮鄉","新園鄉","崁頂鄉","林邊鄉","南州鄉","佳冬鄉","琉球鄉","車城鄉","滿州鄉","枋山鄉","霧台鄉","瑪家鄉","泰武鄉","來義鄉","春日鄉","獅子鄉","牡丹鄉","三地門鄉"],"花蓮縣":["花蓮市","鳳林鎮","玉里鎮","新城鄉","吉安鄉","壽豐鄉","光復鄉","豐濱鄉","瑞穗鄉","富里鄉","秀林鄉","萬榮鄉","卓溪鄉"],"臺東縣":["臺東市","成功鎮","關山鎮","卑南鄉","鹿野鄉","池上鄉","東河鄉","長濱鄉","太麻里鄉","大武鄉","綠島鄉","海端鄉","延平鄉","金峰鄉","達仁鄉","蘭嶼鄉"],"澎湖縣":["馬公市","湖西鄉","白沙鄉","西嶼鄉","望安鄉","七美鄉"],"金門縣":["金城鎮","金湖鎮","金沙鎮","金寧鄉","烈嶼鄉","烏坵鄉"],"連江縣":["南竿鄉","北竿鄉","莒光鄉","東引鄉"]};
@@ -342,15 +351,11 @@ function getHeatmapColor(premium) {
 
 function renderPriceGapHeatmap() {
   const container = dom.horizontalPriceGridContainer;
-  const btn = dom.toggleHeatmapBtn;
   if (!analysisDataCache || !analysisDataCache.priceGridAnalysis || !selectedPriceGridProject) {
     container.innerHTML = '<p class="text-gray-500 p-4 text-center">請先選擇一個建案再進行分析。</p>';
     return;
   }
 
-  btn.disabled = true;
-  btn.innerHTML = `<div class="loader mx-auto" style="width:20px; height:20px; border-width:2px;"></div><span class="ml-2">渲染中...</span>`;
-  
   const projectAnalysisData = analysisDataCache.priceGridAnalysis.byProject[selectedPriceGridProject];
   
   const heatmapGrid = projectAnalysisData.horizontalGrid;
@@ -391,9 +396,6 @@ function renderPriceGapHeatmap() {
 
   tableHtml += headerHtml + bodyHtml + '</table>';
   container.innerHTML = tableHtml;
-
-  btn.disabled = false;
-  btn.innerHTML = `<i class="fas fa-sync-alt mr-2"></i>重新分析`;
 }
 
 
@@ -436,9 +438,36 @@ function initialize() {
   dom.velocityRoomFilterContainer.addEventListener('click', handleVelocityRoomFilterClick);
   dom.velocitySubTabsContainer.addEventListener('click', handleVelocitySubTabClick);
   dom.priceGridProjectFilterContainer.addEventListener('click', handlePriceGridProjectFilterClick);
-  dom.toggleHeatmapBtn.addEventListener('click', renderPriceGapHeatmap);
+  // 【修改】熱力圖按鈕事件監聽
+  dom.toggleHeatmapBtn.addEventListener('click', handleToggleHeatmap);
   toggleAnalyzeButtonState();
 }
+
+// 【新增】熱力圖切換處理函式
+function handleToggleHeatmap() {
+    isHeatmapActive = !isHeatmapActive; // 切換狀態
+    const btn = dom.toggleHeatmapBtn;
+
+    if (isHeatmapActive) {
+        // 執行分析並渲染熱力圖
+        btn.disabled = true;
+        btn.innerHTML = `<div class="loader mx-auto" style="width:20px; height:20px; border-width:2px;"></div><span class="ml-2">渲染中...</span>`;
+        // 重新執行一次分析以確保樓層價差是最新
+        analyzeData(true).then(() => {
+            renderPriceGapHeatmap();
+            btn.disabled = false;
+            btn.innerHTML = `<i class="fas fa-table mr-2"></i>返回銷控表`;
+        }).catch(() => {
+            btn.disabled = false;
+            btn.innerHTML = `<i class="fas fa-exclamation-triangle mr-2"></i>分析失敗`;
+        });
+    } else {
+        // 返回原始銷控表
+        displayCurrentPriceGrid();
+        btn.innerHTML = `<i class="fas fa-fire mr-2"></i>開始分析`;
+    }
+}
+
 
 function switchAverageType(type) {
     if (currentAverageType === type || !type) return;
@@ -511,9 +540,13 @@ function handleDateRangeChange() {
     dom.dateEndInput.value = formatDate(endDate);
 }
 
-async function analyzeData() {
+// 【修改】增加一個參數 isForHeatmapUpdate，避免重複渲染
+async function analyzeData(isForHeatmapUpdate = false) {
   if (!dom.countySelect.value) return showMessage('請先選擇一個縣市再進行分析。');
-  showLoading('分析中，請稍候...');
+  
+  if (!isForHeatmapUpdate) {
+      showLoading('分析中，請稍候...');
+  }
 
   const userFloorPremium = parseFloat(dom.floorPremiumInput.value) || 0.3;
   console.log(`【前端】將使用樓層價差: ${userFloorPremium} 進行分析`);
@@ -536,9 +569,15 @@ async function analyzeData() {
     analysisDataCache = await response.json();
     if (!analysisDataCache.coreMetrics) {
         const msg = analysisDataCache.message || '找不到符合條件的分析資料。';
-        return showMessage(msg);
+        showMessage(msg);
+        return Promise.reject(msg);
     }
     
+    // 如果只是為了更新熱力圖，就不需要重新渲染所有報告
+    if (isForHeatmapUpdate) {
+        return Promise.resolve();
+    }
+
     dom.messageArea.classList.add('hidden');
     dom.tabsContainer.classList.remove('hidden');
     currentSort = { key: 'saleAmountSum', order: 'desc' };
@@ -551,10 +590,15 @@ async function analyzeData() {
     renderPriceGridAnalysis();
     
     switchTab('ranking-report');
+    return Promise.resolve();
+
   } catch(error) {
     console.error("數據分析失敗:", error);
-    showMessage(`數據分析失敗: ${error.message}`, true);
+    if (!isForHeatmapUpdate) {
+        showMessage(`數據分析失敗: ${error.message}`, true);
+    }
     analysisDataCache = null;
+    return Promise.reject(error);
   }
 }
 
@@ -780,11 +824,17 @@ function handleVelocitySubTabClick(e) {
 }
 
 function renderPriceGridAnalysis() {
+    isHeatmapActive = false; // 重置熱力圖狀態
+    dom.toggleHeatmapBtn.innerHTML = `<i class="fas fa-fire mr-2"></i>開始分析`;
+
     const reportContent = dom.priceGridReportContent;
     if (!analysisDataCache || !analysisDataCache.priceGridAnalysis || !analysisDataCache.priceGridAnalysis.projectNames || analysisDataCache.priceGridAnalysis.projectNames.length === 0) {
-        reportContent.innerHTML = '<p class="text-gray-500 p-4 text-center">無垂直水平分析資料可供分析，因此無法顯示熱力圖按鈕。</p>';
+        reportContent.querySelector('.my-4.p-4').classList.add('hidden'); // 隱藏熱力圖控制區
+        dom.horizontalPriceGridContainer.innerHTML = '<p class="text-gray-500 p-4 text-center">無垂直水平分析資料。</p>';
         return;
     }
+    
+    reportContent.querySelector('.my-4.p-4').classList.remove('hidden'); // 顯示熱力圖控制區
     
     const { projectNames } = analysisDataCache.priceGridAnalysis;
     if (projectNames && projectNames.length > 0) {
@@ -818,7 +868,6 @@ function displayCurrentPriceGrid() {
     }
     
     dom.toggleHeatmapBtn.disabled = false;
-    dom.toggleHeatmapBtn.innerHTML = `<i class="fas fa-fire mr-2"></i>開始分析`;
     
     renderUnitColorLegend(data.unitColorMap);
     renderHorizontalPriceGrid(data.horizontalGrid, data.sortedFloors, data.sortedUnits, data.unitColorMap);
@@ -832,6 +881,10 @@ function handlePriceGridProjectFilterClick(e) {
       dom.priceGridProjectFilterContainer.querySelector('.active').classList.remove('active');
     }
     button.classList.add('active');
+    
+    // 【修改】切換建案時，重置熱力圖狀態並顯示原始銷控表
+    isHeatmapActive = false;
+    dom.toggleHeatmapBtn.innerHTML = `<i class="fas fa-fire mr-2"></i>開始分析`;
     displayCurrentPriceGrid();
 }
 
@@ -913,6 +966,13 @@ function renderTable(data) {
     data.forEach(row => {
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-dark-card transition-colors';
+        
+        // 【新增】檢查備註並添加特殊樣式
+        const remark = row['備註'] || '';
+        if (remark.includes('露台') || remark.includes('親友') || remark.includes('員工')) {
+            tr.classList.add('special-remark-row');
+        }
+
         tr.innerHTML = `<td><button class="details-btn bg-purple-600 hover:bg-purple-500 text-white text-xs px-3 py-1 rounded-md" data-id="${row['編號']}" data-type="${row['交易類型']}" data-county="${row['縣市代碼']}">附表</button></td>`;
         headers.forEach(header => {
             if (!hiddenColumns.includes(header)) {
@@ -961,7 +1021,31 @@ async function fetchProjectNameSuggestions(query){const county=dom.countySelect.
 
 function renderSuggestions(names){if(names.length===0){dom.projectNameSuggestions.innerHTML='<div class="p-2 text-gray-500">無相符建案</div>'}else{dom.projectNameSuggestions.innerHTML=names.map(name=>{const isChecked=selectedProjects.includes(name);return`<label class="suggestion-item" data-name="${name}"><input type="checkbox" ${isChecked?'checked':''}><span class="flex-grow">${name}</span></label>`}).join('')}dom.projectNameSuggestions.classList.remove('hidden')}
 
-function onSuggestionClick(e){const target=e.target.closest('.suggestion-item');if(!target)return;const name=target.dataset.name;const checkbox=target.querySelector('input[type="checkbox"]');if(!name||!checkbox)return;setTimeout(()=>{if(checkbox.checked){if(!selectedProjects.includes(name))selectedProjects.push(name)}else{selectedProjects=selectedProjects.filter(p=>p!==name)}renderProjectTags()},0)}
+function onSuggestionClick(e){
+    const target = e.target.closest('.suggestion-item');
+    if (!target) return;
+    const name = target.dataset.name;
+    const checkbox = target.querySelector('input[type="checkbox"]');
+    if (!name || !checkbox) return;
+
+    // 使用 setTimeout 確保 checkbox 的狀態已經更新
+    setTimeout(() => {
+        if (checkbox.checked) {
+            if (!selectedProjects.includes(name)) {
+                selectedProjects.push(name);
+            }
+        } else {
+            selectedProjects = selectedProjects.filter(p => p !== name);
+        }
+        renderProjectTags();
+        
+        // 【新增】選取後清空輸入框並隱藏建議列表
+        if (selectedProjects.length > 0) {
+            dom.projectNameInput.value = '';
+            dom.projectNameSuggestions.classList.add('hidden');
+        }
+    }, 0);
+}
 
 function onTagRemove(e){if(e.target.classList.contains('project-tag-remove')){removeProject(e.target.dataset.name)}}
 
