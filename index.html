@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>不動產數據查詢平台 (前端修復版 v2)</title>
+<title>不動產數據查詢平台 (前端修復版 v3)</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -32,7 +32,6 @@ table { width: 100%; border-collapse: collapse; }
 th, td { border-bottom: 1px solid #374151; padding: 0.75rem 1rem; text-align: left; font-size: 0.875rem; white-space: nowrap; }
 thead th { background-color: #252836; position: sticky; top: 0; z-index: 10; font-weight: 600; color: #9ca3af; }
 .loader { border: 4px solid #374151; border-top: 4px solid #06b6d4; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
-/* 【新增】按鈕內的小尺寸讀取圖示 */
 .loader-sm { border: 2px solid #374151; border-top: 2px solid #06b6d4; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; }
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.7); display: flex; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(5px); transition: opacity 0.3s ease; }
@@ -79,9 +78,7 @@ thead th { background-color: #252836; position: sticky; top: 0; z-index: 10; fon
 .grid-cell-content { line-height: 1.6; display: flex; flex-direction: column; align-items: flex-start; }
 .special-remark-row { background-color: rgba(139, 92, 246, 0.1); }
 .special-remark-row:hover { background-color: rgba(139, 92, 246, 0.2) !important; }
-/* 【新增】特殊備註圖示樣式 */
 .special-remark-icon { color: #facc15; /* yellow-400 */ margin-right: 4px; }
-/* 【新增】修正分析中按鈕變形問題 */
 .btn-loading { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; }
 </style>
 </head>
@@ -108,14 +105,21 @@ thead th { background-color: #252836; position: sticky; top: 0; z-index: 10; fon
             </select>
         </div>
         <div><label for="building-type" class="block text-sm font-medium text-gray-300">建物型態</label><select id="building-type" class="form-select mt-1 block w-full pl-3 pr-10 py-2 text-base rounded-md"><option value="">全部</option><option value="住宅大樓(11層含以上有電梯)">住宅大樓</option><option value="華廈(10層含以下有電梯)">華廈</option><option value="公寓(5層含以下無電梯)">公寓</option><option value="套房(1房(1廳)1衛)">套房</option><option value="透天厝">透天厝</option><option value="店面(店鋪)">店面</option><option value="辦公商業大樓">辦公商業大樓</option><option value="工廠">工廠</option><option value="倉庫">倉庫</option><option value="其他">其他</option></select></div>
-        <!-- 【修改】為輸入框加上 autocomplete="off" -->
         <div class="xl:col-span-3"><div class="flex justify-between items-center"><label for="project-name-input" class="block text-sm font-medium text-gray-300">建案名稱 (可複選)</label><button id="clear-projects-btn" class="text-xs text-cyan-400 hover:text-cyan-300 hidden transition-opacity">清除選取</button></div><div class="relative mt-1"><div id="project-name-container" class="form-input flex flex-nowrap items-center gap-2 p-1 min-h-[42px] rounded-md overflow-x-auto"><input type="text" id="project-name-input" placeholder="請先選縣市..." class="bg-transparent flex-grow outline-none text-base py-1 px-2" disabled autocomplete="off"></div><div id="project-name-suggestions" class="absolute z-20 w-full mt-1 bg-dark-card border border-gray-600 rounded-md shadow-lg hidden"></div></div></div>
         
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 xl:col-span-4 sm:col-span-2">
             <div>
                 <label for="date-range" class="block text-sm font-medium text-gray-300">快捷時間</label>
+                <!-- 【修改】移除近7/14/30天選項 -->
                 <select id="date-range" class="form-select mt-1 block w-full pl-3 pr-10 py-2 text-base rounded-md">
-                    <option value="custom">自訂範圍</option><option value="7d">近7天</option><option value="14d">近14天</option><option value="30d">近30天</option><option value="1q">近一季 (3個月)</option><option value="2q">近兩季 (6個月)</option><option value="3q">近三季 (9個月)</option><option value="1y">近一年 (12個月)</option><option value="this_year">今年以來</option><option value="last_2_years">去年＋今年</option><option value="last_3_years">前年＋去年＋今年</option>
+                    <option value="custom">自訂範圍</option>
+                    <option value="1q">近一季 (3個月)</option>
+                    <option value="2q">近兩季 (6個月)</option>
+                    <option value="3q">近三季 (9個月)</option>
+                    <option value="1y">近一年 (12個月)</option>
+                    <option value="this_year">今年以來</option>
+                    <option value="last_2_years">去年＋今年</option>
+                    <option value="last_3_years">前年＋去年＋今年</option>
                 </select>
             </div>
             <div><label for="date-start" class="block text-sm font-medium text-gray-300">起始日期</label><input type="date" id="date-start" class="form-input mt-1 block w-full pl-3 pr-2 py-2 text-base rounded-md"></div>
@@ -228,7 +232,8 @@ thead th { background-color: #252836; position: sticky; top: 0; z-index: 10; fon
               啟用此功能可分析建案的調價軌跡。顏色越深，代表該戶成交價相比開盤時的漲幅越大。
             </p>
           </div>
-          <div class="flex items-center gap-4">
+          <!-- 【修改】按鈕與輸入框對齊 -->
+          <div class="flex items-end gap-4">
             <div>
                 <label for="floor-premium-input" class="block text-xs font-medium text-gray-300 mb-1">
                     錨定樓層價差
@@ -238,11 +243,8 @@ thead th { background-color: #252836; position: sticky; top: 0; z-index: 10; fon
                 </label>
                 <input type="number" id="floor-premium-input" class="form-input w-28 pl-3 pr-2 py-2 text-base rounded-md" value="0.3" step="0.05" min="0">
             </div>
-            <!-- 【修改】按鈕佈局調整 -->
-            <div class="flex items-end gap-2">
-                <button id="back-to-grid-btn" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-lg shadow-lg transition-all hidden"><i class="fas fa-table mr-2"></i>返回銷控表</button>
-                <button id="analyze-heatmap-btn" class="bg-purple-600 hover:bg-purple-500 text-white font-bold py-2 px-4 rounded-lg shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"><i class="fas fa-fire mr-2"></i>開始分析</button>
-            </div>
+            <button id="back-to-grid-btn" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-lg shadow-lg transition-all hidden"><i class="fas fa-table mr-2"></i>返回銷控表</button>
+            <button id="analyze-heatmap-btn" class="bg-purple-600 hover:bg-purple-500 text-white font-bold py-2 px-4 rounded-lg shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"><i class="fas fa-fire mr-2"></i>開始分析</button>
           </div>
         </div>
         <div>
@@ -325,7 +327,6 @@ const dom = {
   projectNameSuggestions: document.getElementById('project-name-suggestions'),
   clearProjectsBtn: document.getElementById('clear-projects-btn'),
   avgTypeToggle: document.getElementById('avg-type-toggle'),
-  // 【修改】按鈕 DOM 元素更新
   analyzeHeatmapBtn: document.getElementById('analyze-heatmap-btn'),
   backToGridBtn: document.getElementById('back-to-grid-btn'),
   floorPremiumInput: document.getElementById('floor-premium-input'),
@@ -574,9 +575,6 @@ function handleDateRangeChange() {
     const endDate = new Date();
     let startDate = new Date();
     switch (value) {
-        case '7d': startDate.setDate(endDate.getDate() - 7); break;
-        case '14d': startDate.setDate(endDate.getDate() - 14); break;
-        case '30d': startDate.setDate(endDate.getDate() - 30); break;
         case '1q': startDate.setMonth(endDate.getMonth() - 3); break;
         case '2q': startDate.setMonth(endDate.getMonth() - 6); break;
         case '3q': startDate.setMonth(endDate.getMonth() - 9); break;
