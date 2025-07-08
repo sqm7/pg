@@ -348,13 +348,19 @@ const districtData = {"臺北市":["中正區","大同區","中山區","松山�
 const countyCodeMap = { "臺北市": "A", "新北市": "F", "桃園市": "H", "臺中市": "B", "臺南市": "D", "高雄市": "E", "基隆市": "C", "新竹市": "O", "嘉義市": "I", "新竹縣": "J", "苗栗縣": "K", "彰化縣": "N", "南投縣": "M", "雲林縣": "P", "嘉義縣": "Q", "屏東縣": "T", "宜蘭縣": "G", "花蓮縣": "U", "臺東縣": "V", "澎湖縣": "X", "金門縣": "W", "連江縣": "Z" };
 
 // --- 熱力圖相關函式 ---
+// 【修改】更新熱力圖顏色邏輯
 function getHeatmapColor(premium) {
-  if (premium === null) return '#1f2937';
-  if (premium === 0) return 'rgba(6, 182, 212, 0.2)';
-  if (premium > 5) return 'rgba(244, 63, 94, 0.4)';
-  if (premium > 2) return 'rgba(234, 179, 8, 0.3)';
-  return 'rgba(34, 197, 94, 0.2)';
+    if (premium === null) return 'rgba(31, 41, 55, 0.5)'; // gray-700/50
+    if (premium < 0) return 'rgba(59, 130, 246, 0.3)';    // blue-500/30
+    if (premium === 0) return 'rgba(6, 182, 212, 0.2)';   // cyan-500/20 (基準戶)
+    if (premium < 1) return 'rgba(163, 230, 53, 0.2)';   // lime-400/20
+    if (premium < 2) return 'rgba(163, 230, 53, 0.35)';  // lime-400/35
+    if (premium < 3) return 'rgba(234, 179, 8, 0.3)';    // yellow-500/30
+    if (premium < 4) return 'rgba(249, 115, 22, 0.3)';   // orange-500/30
+    if (premium < 5) return 'rgba(239, 68, 68, 0.3)';    // red-500/30
+    return 'rgba(239, 68, 68, 0.5)';                     // red-500/50
 }
+
 
 function renderPriceGapHeatmap() {
   const container = dom.horizontalPriceGridContainer;
@@ -391,7 +397,10 @@ function renderPriceGapHeatmap() {
                 ? `<i class="fas fa-star special-remark-icon" title="${remarkText}"></i>`
                 : '';
 
-            return `<div class="has-tooltip py-1" data-tooltip="${tx.tooltip}" style="border-radius: 4px; margin-bottom: 4px; padding: 2px 4px; background-color: ${bgColor}; border: ${isAnchor ? '1px solid #06b6d4' : 'none'};">
+            // 【修改】更新 tooltip 文字
+            const tooltipText = tx.tooltip.replace('純粹時間溢價', '時間溢價');
+
+            return `<div class="has-tooltip py-1" data-tooltip="${tooltipText}" style="border-radius: 4px; margin-bottom: 4px; padding: 2px 4px; background-color: ${bgColor}; border: ${isAnchor ? '1px solid #06b6d4' : 'none'};">
                         <span class="font-semibold">${specialIcon}${anchorIcon}${tx.unitPrice.toFixed(1)}萬</span>
                         <br>
                         <span class="text-xs text-gray-400">(${tx.transactionDate})</span>
@@ -426,7 +435,6 @@ function initialize() {
   dom.projectNameInput.addEventListener('input', onProjectInput);
   dom.projectNameSuggestions.addEventListener('click', onSuggestionClick);
   dom.projectNameContainer.addEventListener('click', onTagRemove);
-  // 【修改】優化建案複選下拉框的關閉邏輯
   document.addEventListener('click', e => {
       const isClickInside = dom.projectNameContainer.parentElement.contains(e.target);
       if (!isClickInside) {
@@ -459,13 +467,11 @@ function initialize() {
   dom.velocityRoomFilterContainer.addEventListener('click', handleVelocityRoomFilterClick);
   dom.velocitySubTabsContainer.addEventListener('click', handleVelocitySubTabClick);
   dom.priceGridProjectFilterContainer.addEventListener('click', handlePriceGridProjectFilterClick);
-  // 【修改】更新熱力圖按鈕的事件監聽
   dom.analyzeHeatmapBtn.addEventListener('click', analyzeHeatmap);
   dom.backToGridBtn.addEventListener('click', handleBackToGrid);
   toggleAnalyzeButtonState();
 }
 
-// 【修改】熱力圖分析函式
 async function analyzeHeatmap() {
     isHeatmapActive = true;
     const btn = dom.analyzeHeatmapBtn;
@@ -510,10 +516,9 @@ async function analyzeHeatmap() {
     }
 }
 
-// 【新增】返回銷控表函式
 function handleBackToGrid() {
     isHeatmapActive = false;
-    displayCurrentPriceGrid(); // 重新渲染原始銷控表
+    displayCurrentPriceGrid();
     dom.backToGridBtn.classList.add('hidden');
     dom.analyzeHeatmapBtn.innerHTML = `<i class="fas fa-fire mr-2"></i>開始分析`;
 }
@@ -949,7 +954,7 @@ function renderHorizontalPriceGrid(grid, floors, units, colorMap) {
       
                 let cellContent = cellData.map(tx => {
                     const parkingIcon = tx.hasParking ? ` <i class="fas fa-parking parking-icon" title="含車位"></i>` : '';
-                    const tooltipText = tx.tooltip || `交易總價: ${formatNumber(tx.tooltipInfo.totalPrice, 0)} 萬`;
+                    const tooltipText = tx.tooltip.replace('純粹時間溢價', '時間溢價') || `交易總價: ${formatNumber(tx.tooltipInfo.totalPrice, 0)} 萬`;
    
                     return `<div class="has-tooltip py-1" data-tooltip="${tooltipText}"><span>${formatNumber(tx.unitPrice, 1)}萬</span>${parkingIcon}<br><span class="text-xs text-gray-400">(${tx.transactionDate})</span></div>`;
                 }).join('');
