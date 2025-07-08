@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>不動產數據查詢平台 (前端修復版 v3.4)</title>
+<title>不動產數據查詢平台 (前端修復版 v3.5)</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -121,8 +121,8 @@ thead th { background-color: #252836; position: sticky; top: 0; z-index: 10; fon
 .legend-item.active, .legend-item:hover { background-color: #06b6d4; border-color: #06b6d4; color: white; }
 .legend-item .icon-legend-symbol { width: 1.5rem; text-align: center; margin-right: 0.5rem; }
 .legend-item .color-legend-swatch { width: 1rem; height: 1rem; border-radius: 0.25rem; margin-right: 0.5rem; border: 1px solid rgba(255,255,255,0.2); flex-shrink: 0; }
-.summary-table { border-collapse: separate; border-spacing: 0; }
-.summary-table th, .summary-table td { padding: 0.75rem; }
+.summary-table { border-collapse: separate; border-spacing: 0; width: 100%; }
+.summary-table th, .summary-table td { padding: 0.75rem; text-align: center; }
 .summary-table th { background-color: #1f2937; }
 .summary-table td { background-color: #252836; }
 .summary-table tr:first-child th:first-child { border-top-left-radius: 0.5rem; }
@@ -131,7 +131,6 @@ thead th { background-color: #252836; position: sticky; top: 0; z-index: 10; fon
 .summary-table tr:last-child td:last-child { border-bottom-right-radius: 0.5rem; }
 .summary-value-positive { color: #f87171; }
 .summary-value-negative { color: #4ade80; }
-
 </style>
 </head>
 <body class="p-4 md:p-8">
@@ -322,6 +321,7 @@ thead th { background-color: #252836; position: sticky; top: 0; z-index: 10; fon
             <div id="unit-color-legend-container" class="flex flex-wrap gap-x-4 gap-y-2 my-4 text-sm"></div>
             <div id="horizontal-price-grid-container" class="w-full overflow-x-auto"></div>
             <div id="heatmap-summary-table-container" class="mt-8 hidden"></div>
+            <div id="horizontal-analysis-table-container" class="mt-8 hidden"></div>
         </div>
       </div>
 
@@ -405,6 +405,7 @@ const dom = {
   heatmapColorLegend: document.getElementById('heatmap-color-legend'),
   heatmapIconLegend: document.getElementById('heatmap-icon-legend'),
   heatmapSummaryTableContainer: document.getElementById('heatmap-summary-table-container'),
+  horizontalAnalysisTableContainer: document.getElementById('horizontal-analysis-table-container'),
 };
 // State variables
 let currentPage = 1, pageSize = 30, totalRecords = 0;
@@ -513,7 +514,7 @@ function renderPriceGapHeatmap() {
   renderHeatmapLegends();
   currentLegendFilter = { type: null, value: null };
 
-  const { horizontalGrid, sortedFloors, sortedUnits, unitColorMap, summary } = projectAnalysisData;
+  const { horizontalGrid, sortedFloors, sortedUnits, unitColorMap, summary, horizontalAnalysis } = projectAnalysisData;
   let tableHtml = '<table class="min-w-full divide-y divide-gray-800 border-collapse">';
   let headerHtml = '<thead><tr><th class="sticky left-0 bg-dark-card z-10 p-2">樓層 \\ 戶別</th>';
   sortedUnits.forEach(unit => {
@@ -538,7 +539,7 @@ function renderPriceGapHeatmap() {
             if (isStorefront) {
                 specialType = 'storefront';
                 iconHtml = `<span class="has-tooltip" data-tooltip="${specialTypeMapping[specialType].label}">${specialTypeMapping[specialType].icon}</span> `;
-                bgColor = '#1f2937'; // Use a neutral dark color for storefronts in the grid
+                bgColor = '#1f2937';
             } else if (premium === 0) {
                 specialType = 'anchor';
                 iconHtml = `<span class="has-tooltip" data-tooltip="${specialTypeMapping[specialType].label}">${specialTypeMapping[specialType].icon}</span> `;
@@ -571,24 +572,27 @@ function renderPriceGapHeatmap() {
   container.innerHTML = tableHtml;
   
   renderHeatmapSummaryTable(summary);
+  renderHorizontalAnalysisTable(horizontalAnalysis);
   dom.heatmapSummaryTableContainer.classList.remove('hidden');
+  dom.horizontalAnalysisTableContainer.classList.remove('hidden');
 }
 
 function renderHeatmapSummaryTable(summary) {
+    const container = dom.heatmapSummaryTableContainer;
     if (!summary || summary.transactionCount === 0) {
-        dom.heatmapSummaryTableContainer.innerHTML = '';
+        container.innerHTML = '';
         return;
     }
     
     const { totalBaselineHousePrice, totalPricePremiumValue, totalSoldArea } = summary;
-    const premiumPercentage = (totalPricePremiumValue / totalBaselineHousePrice) * 100;
-    const avgPriceAdjustment = totalPricePremiumValue / totalSoldArea;
+    const premiumPercentage = safeDivide(totalPricePremiumValue, totalBaselineHousePrice) * 100;
+    const avgPriceAdjustment = safeDivide(totalPricePremiumValue, totalSoldArea);
 
     const formatValue = (value, unit = '', decimals = 2) => {
         const num = formatNumber(value, decimals);
-        return value > 0 
-            ? `<span class="summary-value-positive">+${num} ${unit}</span>` 
-            : `<span class="summary-value-negative">${num} ${unit}</span>`;
+        const colorClass = value >= 0 ? 'summary-value-positive' : 'summary-value-negative';
+        const sign = value >= 0 ? '+' : '';
+        return `<span class="${colorClass}">${sign}${num} ${unit}</span>`;
     };
 
     const tableHtml = `
@@ -616,7 +620,59 @@ function renderHeatmapSummaryTable(summary) {
             </table>
         </div>
     `;
-    dom.heatmapSummaryTableContainer.innerHTML = tableHtml;
+    container.innerHTML = tableHtml;
+}
+
+function renderHorizontalAnalysisTable(analysisData) {
+    const container = dom.horizontalAnalysisTableContainer;
+    if (!analysisData || !analysisData.tableData || analysisData.tableData.length === 0) {
+        container.innerHTML = '';
+        return;
+    }
+    
+    const { referenceFloor, tableData } = analysisData;
+
+    const formatValue = (value, unit = '', decimals = 2) => {
+        const num = formatNumber(value, decimals);
+        if (value === 0) return `${num} ${unit}`;
+        const colorClass = value > 0 ? 'summary-value-positive' : 'summary-value-negative';
+        const sign = value > 0 ? '+' : '';
+        return `<span class="${colorClass}">${sign}${num} ${unit}</span>`;
+    };
+
+    let tableRowsHtml = '';
+    tableData.forEach(item => {
+        tableRowsHtml += `
+            <tr class="hover:bg-dark-card/50">
+                <td class="font-mono font-bold">${item.unitType}</td>
+                <td>${formatValue(item.horizontalDifferential, '萬/坪')}</td>
+                <td>${item.soldCount.toLocaleString()} 戶</td>
+                <td>${formatValue(item.totalPremiumValue, '萬', 0)}</td>
+                <td>${formatNumber(item.premiumContributionPercentage, 1)} %</td>
+                <td>${formatValue(item.avgPriceAdjustmentPerPing, '萬/坪')}</td>
+            </tr>
+        `;
+    });
+
+    const tableHtml = `
+        <h3 class="report-section-title mt-8">戶型水平價差與溢價貢獻分析 (基準樓層: ${referenceFloor}F)</h3>
+        <div class="overflow-x-auto">
+            <table class="min-w-full summary-table">
+                <thead>
+                    <tr>
+                        <th>戶型</th>
+                        <th class="has-tooltip" data-tooltip="在基準樓層上，與最便宜戶型的理論單價差異">水平價差</th>
+                        <th class="has-tooltip" data-tooltip="該戶型已售出的總戶數">去化戶數</th>
+                        <th class="has-tooltip" data-tooltip="該戶型所有交易累積的時間溢價總金額">時間溢價貢獻</th>
+                        <th class="has-tooltip" data-tooltip="該戶型的溢價貢獻佔全案總溢價金額的比例">佔總溢價比例</th>
+                        <th class="has-tooltip" data-tooltip="該戶型因時間溢價，平均每坪單價的調整金額">平均單價調價</th>
+                    </tr>
+                </thead>
+                <tbody>${tableRowsHtml}</tbody>
+            </table>
+        </div>
+    `;
+    container.innerHTML = tableHtml;
 }
 
 function initialize() {
@@ -713,6 +769,7 @@ async function analyzeHeatmap() {
         isHeatmapActive = false;
         dom.heatmapInfoContainer.classList.add('hidden');
         dom.heatmapSummaryTableContainer.classList.add('hidden');
+        dom.horizontalAnalysisTableContainer.classList.add('hidden');
         btn.innerHTML = `<i class="fas fa-exclamation-triangle mr-2"></i>分析失敗`;
     } finally {
         btn.disabled = false;
@@ -726,6 +783,7 @@ function handleBackToGrid() {
     dom.backToGridBtn.classList.add('hidden');
     dom.heatmapInfoContainer.classList.add('hidden');
     dom.heatmapSummaryTableContainer.classList.add('hidden');
+    dom.horizontalAnalysisTableContainer.classList.add('hidden');
     dom.analyzeHeatmapBtn.innerHTML = `<i class="fas fa-fire mr-2"></i>開始分析`;
 }
 
@@ -1065,6 +1123,7 @@ function renderPriceGridAnalysis() {
     dom.backToGridBtn.classList.add('hidden');
     dom.heatmapInfoContainer.classList.add('hidden');
     dom.heatmapSummaryTableContainer.classList.add('hidden');
+    dom.horizontalAnalysisTableContainer.classList.add('hidden');
 
     const reportContent = dom.priceGridReportContent;
     if (!analysisDataCache || !analysisDataCache.priceGridAnalysis || !analysisDataCache.priceGridAnalysis.projectNames || analysisDataCache.priceGridAnalysis.projectNames.length === 0) {
@@ -1125,6 +1184,7 @@ function handlePriceGridProjectFilterClick(e) {
     dom.backToGridBtn.classList.add('hidden');
     dom.heatmapInfoContainer.classList.add('hidden');
     dom.heatmapSummaryTableContainer.classList.add('hidden');
+    dom.horizontalAnalysisTableContainer.classList.add('hidden');
     displayCurrentPriceGrid();
 }
 
