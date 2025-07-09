@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>不動產數據查詢平台 (v3.8 - 最終體驗修正)</title>
+<title>不動產數據查詢平台 (v3.9 - 介面層級修正)</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -96,10 +96,10 @@ thead th { background-color: #252836; position: sticky; top: 0; z-index: 10; fon
 .summary-table tr:last-child td:last-child { border-bottom-right-radius: 0.5rem; }
 .summary-value-positive { color: #f87171; }
 .summary-value-negative { color: #4ade80; }
-/* 【修正】新增 class 用於提升選單的顯示層級 */
-.z-elevated { 
+/* 【修正】新增 class 用於提升整個篩選器區塊的顯示層級 */
+.z-elevate-filters { 
   position: relative;
-  z-index: 20;
+  z-index: 30; /* 確保高於結果區塊 */
 }
 </style>
 </head>
@@ -112,7 +112,7 @@ thead th { background-color: #252836; position: sticky; top: 0; z-index: 10; fon
   </header>
 
   <main>
-    <div class="glass-card p-6 rounded-xl shadow-lg mb-8">
+    <div id="filter-card" class="glass-card p-6 rounded-xl shadow-lg mb-8">
       <div id="filter-form" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-4 items-end">
         <div>
             <label for="county" class="block text-sm font-medium text-gray-300">縣市</label>
@@ -144,7 +144,7 @@ thead th { background-color: #252836; position: sticky; top: 0; z-index: 10; fon
         </div>
         <div><label for="building-type" class="block text-sm font-medium text-gray-300">建物型態</label><select id="building-type" class="form-select mt-1 block w-full pl-3 pr-10 py-2 text-base rounded-md"><option value="">全部</option><option value="住宅大樓(11層含以上有電梯)">住宅大樓</option><option value="華廈(10層含以下有電梯)">華廈</option><option value="公寓(5層含以下無電梯)">公寓</option><option value="套房(1房(1廳)1衛)">套房</option><option value="透天厝">透天厝</option><option value="店面(店鋪)">店面</option><option value="辦公商業大樓">辦公商業大樓</option><option value="工廠">工廠</option><option value="倉庫">倉庫</option><option value="其他">其他</option></select></div>
         
-        <div class="xl:col-span-3">
+        <div id="project-filter-wrapper" class="xl:col-span-3">
             <div class="flex justify-between items-center">
                 <label for="project-name-input" class="block text-sm font-medium text-gray-300">建案名稱 (可複選)</label>
                 <button id="clear-projects-btn" class="text-xs text-cyan-400 hover:text-cyan-300 hidden transition-opacity">清除選取</button>
@@ -346,11 +346,13 @@ const RANKING_ANALYSIS_ENDPOINT = 'https://zxbmbbfrzbtuueysicoc.supabase.co/func
 // DOM Elements
 const dom = {
   countySelect: document.getElementById('county'),
+  filterCard: document.getElementById('filter-card'),
   districtFilterWrapper: document.getElementById('district-filter-wrapper'),
   districtContainer: document.getElementById('district-container'),
   districtInputArea: document.getElementById('district-input-area'),
   districtSuggestions: document.getElementById('district-suggestions'),
   clearDistrictsBtn: document.getElementById('clear-districts-btn'),
+  projectFilterWrapper: document.getElementById('project-filter-wrapper'),
   typeSelect: document.getElementById('type'),
   buildingTypeSelect: document.getElementById('building-type'),
   dateRangeSelect: document.getElementById('date-range'),
@@ -446,21 +448,27 @@ function initialize() {
   dom.dateEndInput.addEventListener('input', () => { if (document.activeElement === dom.dateEndInput) dom.dateRangeSelect.value = 'custom'; });
   dom.modalCloseBtn.addEventListener('click', () => dom.modal.classList.add('hidden'));
   dom.resultsTable.addEventListener('click', e => { if (e.target.closest('.details-btn')) showSubTableDetails(e.target.closest('.details-btn')); });
+  dom.projectNameInput.addEventListener('focus', () => dom.filterCard.classList.add('z-elevate-filters'));
   dom.projectNameInput.addEventListener('input', onProjectInput);
   dom.projectNameSuggestions.addEventListener('click', onSuggestionClick);
   dom.projectNameContainer.addEventListener('click', e => { if (e.target.classList.contains('multi-tag-remove')) removeProject(e.target.dataset.name); });
   
   document.addEventListener('click', e => {
-      const isClickInsideProject = dom.projectNameContainer.parentElement.contains(e.target);
+      const isClickInsideProject = dom.projectFilterWrapper.contains(e.target);
       if (!isClickInsideProject) {
           dom.projectNameSuggestions.classList.add('hidden');
           if (dom.projectNameInput.value.trim() !== '') dom.projectNameInput.value = '';
       }
+      
       const isClickInsideDistrict = dom.districtFilterWrapper.contains(e.target);
       if (!isClickInsideDistrict) {
           dom.districtSuggestions.classList.add('hidden');
-          dom.districtFilterWrapper.classList.remove('z-elevated');
       }
+
+      if (!isClickInsideDistrict && !isClickInsideProject) {
+          dom.filterCard.classList.remove('z-elevate-filters');
+      }
+
       const isClickInsideHeatmap = dom.horizontalPriceGridContainer.contains(e.target) || dom.heatmapLegendContainer.contains(e.target);
       if (currentLegendFilter.type && !isClickInsideHeatmap) {
           dom.heatmapLegendContainer.querySelectorAll('.legend-item.active').forEach(item => item.classList.remove('active'));
@@ -589,8 +597,8 @@ function renderDistrictTags() {
 function onDistrictContainerClick(e) {
     if (dom.districtContainer.classList.contains('disabled')) return;
     if (!e.target.classList.contains('multi-tag-remove')) {
-        dom.districtSuggestions.classList.toggle('hidden');
-        dom.districtFilterWrapper.classList.toggle('z-elevated', !dom.districtSuggestions.classList.contains('hidden'));
+        const isHidden = dom.districtSuggestions.classList.toggle('hidden');
+        dom.filterCard.classList.toggle('z-elevate-filters', !isHidden);
     }
 }
 
@@ -652,9 +660,11 @@ async function fetchProjectNameSuggestions(query) {
     const countyCode = countyCodeMap[county];
     if (!query.trim() || !countyCode) {
         dom.projectNameSuggestions.classList.add('hidden');
+        dom.filterCard.classList.remove('z-elevate-filters');
         return;
     }
     try {
+        dom.filterCard.classList.add('z-elevate-filters');
         const payload = {
             countyCode,
             query,
