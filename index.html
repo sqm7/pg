@@ -96,11 +96,7 @@ thead th { background-color: #252836; position: sticky; top: 0; z-index: 10; fon
 .summary-table tr:last-child td:last-child { border-bottom-right-radius: 0.5rem; }
 .summary-value-positive { color: #f87171; }
 .summary-value-negative { color: #4ade80; }
-/* 【修正】新增 class 用於提升整個篩選器區塊的顯示層級 */
-.z-elevate-filters { 
-  position: relative;
-  z-index: 30; /* 確保高於結果區塊 */
-}
+.z-elevate-filters { position: relative; z-index: 30; }
 </style>
 </head>
 <body class="p-4 md:p-8">
@@ -176,7 +172,7 @@ thead th { background-color: #252836; position: sticky; top: 0; z-index: 10; fon
         </div>
 
         <div class="xl:col-span-3 sm:col-span-2 flex items-end gap-4">
-           <div class="flex items-center gap-4 flex-grow justify-end">
+            <div class="flex items-center gap-4 flex-grow justify-end">
              <button id="analyze-btn" class="bg-purple-600 hover:bg-purple-500 text-white font-bold py-2 px-6 rounded-lg shadow-lg hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed">分析報表</button>
                 <button id="search-btn" class="bg-gradient-to-r from-cyan-accent to-purple-accent text-white font-bold py-2 px-6 rounded-lg shadow-lg hover:opacity-90 transition-all">查詢資料列表</button>
             </div>
@@ -197,6 +193,7 @@ thead th { background-color: #252836; position: sticky; top: 0; z-index: 10; fon
             </nav>
         </div>
         <div id="message-area" class="text-center p-8 text-gray-400">請設定篩選條件後點擊查詢或分析。</div>
+        
         <div id="ranking-report-content" class="tab-content">
            <div id="metric-cards-container" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-8"></div>
             <div class="overflow-x-auto">
@@ -205,7 +202,7 @@ thead th { background-color: #252836; position: sticky; top: 0; z-index: 10; fon
         </div>
         <div id="price-band-report-content" class="tab-content">
              <div class="overflow-x-auto">
-                 <table id="price-band-table" class="min-w-full divide-y divide-gray-800"></table>
+                  <table id="price-band-table" class="min-w-full divide-y divide-gray-800"></table>
             </div>
         </div>
         <div id="unit-price-report-content" class="tab-content">
@@ -222,13 +219,13 @@ thead th { background-color: #252836; position: sticky; top: 0; z-index: 10; fon
                 <div id="residential-stats-extra-info" class="text-sm text-gray-400 mt-4 space-y-1"></div>
              </div>
             <div>
-                <h3 class="report-section-title">建案類型比較 (店舖/事務所 vs. 住宅)</h3>
+                 <h3 class="report-section-title">建案類型比較 (店舖/事務所 vs. 住宅)</h3>
                   <div id="type-comparison-table-container" class="overflow-x-auto"></div>
             </div>
             <div id="average-type-explanation" class="mt-8 p-4 bg-dark-card border border-gray-700 rounded-lg text-sm text-gray-400 space-y-3">
                  <h4 class="font-bold text-gray-200">名詞解釋</h4>
                 <p><strong class="text-cyan-400">算術平均數 (Arithmetic Mean):</strong> 將每一筆交易的單價直接相加後，除以總筆數。它能反映「一筆典型交易」的單價，不受房屋坪數大小影響，適合了解普遍行情。</p>
-                <p><strong class="text-purple-400">加權平均數 (Weighted Average):</strong> 以「總房屋總價 ÷ 總房屋面積」計算。坪數越大的交易，對平均價格的影響力就越大。它更能反映市場的「整體價值」與資金結構。</p>
+                <p><strong class="text-purple-400">加權平均數 (Weighted Average):</strong> 以「總房屋總價  總房屋面積」計算。坪數越大的交易，對平均價格的影響力就越大。它更能反映市場的「整體價值」與資金結構。</p>
             </div>
         </div>
         <div id="parking-report-content" class="tab-content">
@@ -241,7 +238,7 @@ thead th { background-color: #252836; position: sticky; top: 0; z-index: 10; fon
                 <div id="avg-price-by-type-table-container" class="overflow-x-auto"></div>
              </div>
             <div>
-                <h3 class="report-section-title">坡道平面車位分層價格</h3>
+                 <h3 class="report-section-title">坡道平面車位分層價格</h3>
                  <div id="ramp-plane-price-by-floor-table-container"></div>
                 <p class="text-sm text-gray-500 mt-2">* 此數據僅統計主表中「車位類別」為「坡道平面」的交易，並根據其附表中的車位資料進行彙總。</p>
              </div>
@@ -271,7 +268,7 @@ thead th { background-color: #252836; position: sticky; top: 0; z-index: 10; fon
                  <div>
                     <h4 class="font-bold text-gray-200">進階分析：建案調價熱力圖</h4>
                     <p class="text-sm text-gray-400 mt-1">
-                    啟用此功能可分析建案的調價軌跡。顏色越深，代表該戶成交價相比開盤時的漲幅越大。
+                     啟用此功能可分析建案的調價軌跡。顏色越深，代表該戶成交價相比開盤時的漲幅越大。
                    </p>
                 </div>
                 <div class="flex items-end gap-4">
@@ -293,7 +290,7 @@ thead th { background-color: #252836; position: sticky; top: 0; z-index: 10; fon
             <div id="heatmap-info-container" class="hidden my-4 space-y-4">
                 <div class="p-4 bg-dark-card border border-gray-700 rounded-lg text-sm text-gray-400 space-y-3">
                     <h4 class="font-bold text-gray-200">名詞解釋</h4>
-                     <p><strong class="text-cyan-400">樓層調整:</strong> <code>(成交樓層 - 基準樓層) * 樓層價差</code>。此數值模擬了因樓層不同而產生的理論價差。</p>
+                    <p><strong class="text-cyan-400">樓層調整:</strong> <code>(成交樓層 - 基準樓層) * 樓層價差</code>。此數值模擬了因樓層不同而產生的理論價差。</p>
                     <p><strong class="text-purple-400">時間溢價 (%):</strong> <code>(成交單價 - 基準單價 - 樓層調整) / (基準單價 + 樓層調整)</code>。此數值反映了相較於「開盤基準」，該戶在特定時間點成交時的價格漲跌幅。正值代表漲價，負值代表跌價。背景顏色深淺即代表此數值。</p>
                 </div>
                 <div id="heatmap-legend-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -305,21 +302,21 @@ thead th { background-color: #252836; position: sticky; top: 0; z-index: 10; fon
                         <h4 class="font-bold text-gray-200 mb-2">特殊交易圖例 (點擊可篩選)</h4>
                          <div id="heatmap-icon-legend" class="flex flex-wrap gap-x-4 gap-y-2 text-sm"></div>
                      </div>
-                </div>
+                 </div>
             </div>
 
             <div>
                 <h3 class="report-section-title">銷控表</h3>
                 <div id="unit-color-legend-container" class="flex flex-wrap gap-x-4 gap-y-2 my-4 text-sm"></div>
                  <div id="horizontal-price-grid-container" class="w-full overflow-x-auto"></div>
-                <div id="heatmap-summary-table-container" class="mt-8 hidden"></div>
+                 <div id="heatmap-summary-table-container" class="mt-8 hidden"></div>
                 <div id="heatmap-horizontal-comparison-table-container" class="mt-8 hidden"></div>
             </div>
         </div>
         <div id="data-list-content" class="tab-content">
              <div id="table-container" class="table-container overflow-x-auto">
                 <table id="results-table" class="min-w-full divide-y divide-gray-800"></table>
-            </div>
+             </div>
             <div id="pagination-controls" class="flex justify-between items-center mt-4 text-sm text-gray-400"></div>
         </div>
     </div>
@@ -337,13 +334,41 @@ thead th { background-color: #252836; position: sticky; top: 0; z-index: 10; fon
 </div>
 
 <script type="module">
-// API Endpoints
+// 【修改】 1. 加入 Supabase Client 初始化
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+const SUPABASE_URL = 'https://zxbmbbfrzbtuueysicoc.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4Ym1iYmZyemJ0dXVleXNpY29jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA2ODg5ODksImV4cCI6MjA2NjI2NDk4OX0.1IUynv5eK1xF_3pb-oasqaTrPvbeAOC4Sc1oykPBy4M';
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// 【修改】 2. API Endpoints
 const EDGE_FUNCTION_ENDPOINT = 'https://zxbmbbfrzbtuueysicoc.supabase.co/functions/v1/query-data';
 const SUB_DATA_ENDPOINT = 'https://zxbmbbfrzbtuueysicoc.supabase.co/functions/v1/query-sub-data';
 const PROJECT_NAMES_ENDPOINT = 'https://zxbmbbfrzbtuueysicoc.supabase.co/functions/v1/query-names';
 const RANKING_ANALYSIS_ENDPOINT = 'https://zxbmbbfrzbtuueysicoc.supabase.co/functions/v1/analyze-project-ranking';
 
-// DOM Elements
+// 【新增】 3. 新增認證輔助函數
+async function getAuthHeaders() {
+    const { data: { session }, error } = await supabase.auth.getSession();
+    if (error || !session) {
+        console.error('無法獲取 Session，將跳轉回登入頁面');
+        window.location.href = 'login.html'; // 使用相對路徑以相容 GitHub Pages
+        return null;
+    }
+    return {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session.access_token}`,
+    };
+}
+
+async function checkAuthOnLoad() {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+        window.location.href = 'login.html';
+    }
+}
+
+// DOM Elements (維持不變)
 const dom = {
   countySelect: document.getElementById('county'),
   filterCard: document.getElementById('filter-card'),
@@ -406,7 +431,7 @@ const dom = {
   heatmapHorizontalComparisonTableContainer: document.getElementById('heatmap-horizontal-comparison-table-container'),
 };
 
-// State variables
+// State variables (維持不變)
 let currentPage = 1, pageSize = 30, totalRecords = 0;
 let selectedDistricts = [], selectedProjects = [], suggestionDebounceTimer;
 let analysisDataCache = null;
@@ -418,11 +443,11 @@ let selectedPriceGridProject = null;
 let isHeatmapActive = false;
 let currentLegendFilter = { type: null, value: null };
 
-// Data
-const districtData = {"臺北市":["中正區","大同區","中山區","松山區","大安區","萬華區","信義區","士林區","北投區","內湖區","南港區","文山區"],"新北市":["板橋區","三重區","中和區","永和區","新莊區","新店區","樹林區","鶯歌區","三峽區","淡水區","汐止區","瑞芳區","土城區","蘆洲區","五股區","泰山區","林口區","深坑區","石碇區","坪林區","三芝區","石門區","八里區","平溪區","雙溪區","貢寮區","金山區","萬里區","烏來區"],"桃園市":["桃園區","中壢區","大溪區","楊梅區","蘆竹區","大園區","龜山區","八德區","龍潭區","平鎮區","新屋區","觀音區","復興區"],"臺中市":["中區","東區","南區","西區","北區","北屯區","西屯區","南屯區","太平區","大里區","霧峰區","烏日區","豐原區","后里區","石岡區","東勢區","和平區","新社區","潭子區","大雅區","神岡區","大肚區","沙鹿區","龍井區","梧棲區","清水區","大甲區","外埔區","大安區"],"臺南市":["中西區","東區","南區","北區","安平區","安南區","永康區","歸仁區","新化區","左鎮區","玉井區","楠西區","南化區","仁德區","關廟區","龍崎區","官田區","麻豆區","佳里區","西港區","七股區","將軍區","學甲區","北門區","新營區","後壁區","白河區","東山區","六甲區","下營區","柳營區","鹽水區","善化區","大內區","山上區","新市區","安定區"],"高雄市":["新興區","前金區","苓雅區","鹽埕區","鼓山區","旗津區","前鎮區","三民區","楠梓區","小港區","左營區","仁武區","大社區","岡山區","路竹區","阿蓮區","田寮區","燕巢區","橋頭區","梓官區","彌陀區","永安區","湖內區","鳳山區","大寮區","林園區","鳥松區","大樹區","旗山區","美濃區","六龜區","內門區","杉林區","甲仙區","桃源區","那瑪夏區","茂林區","茄萣區"],"基隆市":["仁愛區","信義區","中正區","中山區","安樂區","暖暖區","七堵區"],"新竹市":["東區","北區","香山區"],"嘉義市":["東區","西區"],"宜蘭縣":["宜蘭市","羅東鎮","蘇澳鎮","頭城鎮","礁溪鄉","壯圍鄉","員山鄉","冬山鄉","五結鄉","三星鄉","大同鄉","南澳鄉"],"新竹縣":["竹北市","竹東鎮","新埔鎮","關西鎮","湖口鄉","新豐鄉","芎林鄉","橫山鄉","北埔鄉","寶山鄉","峨眉鄉","尖石鄉","五峰鄉"],"苗栗縣":["苗栗市","苑裡鎮","通霄鎮","竹南鎮","頭份鎮","後龍鎮","卓蘭鎮","大湖鄉","公館鄉","銅鑼鄉","南庄鄉","頭屋鄉","三義鄉","西湖鄉","造橋鄉","三灣鄉","獅潭鄉","泰安鄉"],"彰化縣":["彰化市","鹿港鎮","和美鎮","線西鄉","伸港鄉","福興鄉","秀水鄉","花壇鄉","芬園鄉","員林鎮","溪湖鎮","田中鎮","大村鄉","埔鹽鄉","埔心鄉","永靖鄉","社頭鄉","二水鄉","北斗鎮","二林鎮","田尾鄉","埤頭鄉","芳苑鄉","大城鄉","竹塘鄉","溪州鄉"],"南投縣":["南投市","埔里鎮","草屯鎮","竹山鎮","集集鎮","名間鄉","鹿谷鄉","中寮鄉","魚池鄉","國姓鄉","水里鄉","信義鄉","仁愛鄉"],"雲林縣":["斗六市","斗南鎮","虎尾鎮","西螺鎮","土庫鎮","北港鎮","古坑鄉","大埤鄉","莿桐鄉","林內鄉","二崙鄉","崙背鄉","麥寮鄉","東勢鄉","褒忠鄉","台西鄉","元長鄉","四湖鄉","口湖鄉","水林鄉"],"嘉義縣":["太保市","朴子市","布袋鎮","大林鎮","民雄鄉","溪口鄉","新港鄉","六腳鄉","東石鄉","義竹鄉","鹿草鄉","水上鄉","中埔鄉","竹崎鄉","梅山鄉","番路鄉","大埔鄉","阿里山鄉"],"屏東縣":["屏東市","潮州鎮","東港鎮","恆春鎮","萬丹鄉","長治鄉","麟洛鄉","九如鄉","里港鄉","鹽埔鄉","高樹鄉","萬巒鄉","內埔鄉","竹田鄉","新埤鄉","枋寮鄉","新園鄉","崁頂鄉","林邊鄉","南州鄉","佳冬鄉","琉球鄉","車城鄉","滿州鄉","枋山鄉","霧台鄉","瑪家鄉","泰武鄉","來義鄉","春日鄉","獅子鄉","牡丹鄉","三地門鄉"],"花蓮縣":["花蓮市","鳳林鎮","玉里鎮","新城鄉","吉安鄉","壽豐鄉","光復鄉","豐濱鄉","瑞穗鄉","富里鄉","秀林鄉","萬榮鄉","卓溪鄉"],"臺東縣":["臺東市","成功鎮","關山鎮","卑南鄉","鹿野鄉","池上鄉","東河鄉","長濱鄉","太麻里鄉","大武鄉","綠島鄉","海端鄉","延平鄉","金峰鄉","達仁鄉","蘭嶼鄉"],"澎湖縣":["馬公市","湖西鄉","白沙鄉","西嶼鄉","望安鄉","七美鄉"],"金門縣":["金城鎮","金湖鎮","金沙鎮","金寧鄉","烈嶼鄉","烏坵鄉"],"連江縣":["南竿鄉","北竿鄉","莒光鄉","東引鄉"]};
+// Data (維持不變)
+const districtData = {"臺北市":["中正區","大同區","中山區","松山區","大安區","萬華區","信義區","士林區","北投區","內湖區","南港區","文山區"],"新北市":["板橋區","三重區","中和區","永和區","新莊區","新店區","樹林區","鶯歌區","三峽區","淡水區","汐止區","瑞芳區","土城區","蘆洲區","五股區","泰山區","林口區","深坑區","石碇區","坪林區","三芝區","石門區","八里區","平溪區","雙溪區","貢寮區","金山區","萬里區","烏來區"],"桃園市":["桃園區","中壢區","大溪區","楊梅區","蘆竹區","大園區","龜山區","八德區","龍潭區","平鎮區","新屋區","觀音區","復興區"],"臺中市":["中區","東區","南區","西區","北區","北屯區","西屯區","南屯區","太平區","大里區","霧峰區","烏日區","豐原區","后里區","石岡區","東勢區","和平區","新社區","潭子區","大雅區","神岡區","大肚區","沙鹿區","龍井區","梧棲區","清水區","大甲區","外埔區","大安區"],"臺南市":["中西區","東區","南區","北區","安平區","安南區","永康區","歸仁區","新化區","左鎮區","玉井區","楠西區","南化區","仁德區","關廟區","龍崎區","官田區","麻豆區","佳里區","西港區","七股區","將軍區","學甲區","北門區","新營區","後壁區","白河區","東山區","六甲區","下營區","柳營區","鹽水區","善化區","大內區","山上區","新市區","安定區"],"高雄市":["新興區","前金區","苓雅區","鹽埕區","鼓山區","旗津區","前鎮區","三民區","楠梓區","小港區","左營區","仁武區","大社區","岡山區","路竹區","阿蓮區","田寮區","燕巢區","橋頭區","梓官區","彌陀區","永安區","湖內區","鳳山區","大寮區","林園區","鳥松區","大樹區","旗山區","美濃區","六龜區","內門區","杉林區","甲仙區","桃源區","那瑪夏區","茂林區","茄萣區"],"基隆市":["仁愛區","信義區","中正區","中山區","安樂區","暖暖區","七堵區"],"新竹市":["東區","北區","香山區"],"嘉義市":["東區","西區"],"宜蘭縣":["宜蘭市","羅東鎮","蘇澳鎮","頭城鎮","礁溪鄉","壯圍鄉","員山鄉","冬山鄉","五結鄉","三星鄉","大同鄉","南澳鄉"],"新竹縣":["竹北市","竹東鎮","新埔鎮","關西鎮","湖口鄉","新豐鄉","芎林鄉","橫山鄉","北埔鄉","寶山鄉","峨眉鄉","尖石鄉","五峰鄉"],"苗栗縣":["苗栗市","苑裡鎮","通霄鎮","竹南鎮","頭份鎮","後龍鎮","卓蘭鎮","大湖鄉","公館鄉","銅鑼鄉","南庄鄉","頭屋鄉","三義鄉","西湖鄉","造橋鄉","三灣鄉","獅潭鄉","泰安鄉"],"彰化縣":["彰化市","鹿港鎮","和美鎮","線西鄉","伸港鄉","福興鄉","秀水鄉","花壇鄉","芬園鄉","員林鎮","溪湖鎮","田中鎮","大村鄉","埔鹽鄉","埔心鄉","永靖鄉","社頭鄉","二水鄉","北斗鎮","二林鎮","田尾鄉","埤頭鄉","芳苑鄉","大城鄉","竹塘鄉","溪州鄉"],"南投縣":["南投市","埔里鎮","草屯鎮","竹山鎮","集集鎮","名間鄉","鹿谷鄉","中寮鄉","魚池鄉","國姓鄉","水里鄉","信義鄉","仁愛鄉"],"雲林縣":["斗六市","斗南鎮","虎尾鎮","西螺鎮","土庫鎮","北港鎮","古坑鄉","大埤鄉","莿桐鄉","林內鄉","二崙鄉","崙背鄉","麥寮鄉","東勢鄉","褒忠鄉","台西鄉","元長鄉","四湖鄉","口湖鄉","水林鄉"],"嘉-E市":["東區","西區"],"花蓮縣":["花蓮市","鳳林鎮","玉里鎮","新城鄉","吉安鄉","壽豐鄉","光復鄉","豐濱鄉","瑞穗鄉","富里鄉","秀林鄉","萬榮鄉","卓溪鄉"],"臺東縣":["臺東市","成功鎮","關山鎮","卑南鄉","鹿野鄉","池上鄉","東河鄉","長濱鄉","太麻里鄉","大武鄉","綠島鄉","海端鄉","延平鄉","金峰鄉","達仁鄉","蘭嶼鄉"],"澎湖縣":["馬公市","湖西鄉","白沙鄉","西嶼鄉","望安鄉","七美鄉"],"金門縣":["金城鎮","金湖鎮","金沙鎮","金寧鄉","烈嶼鄉","烏坵鄉"],"連江縣":["南竿鄉","北竿鄉","莒光鄉","東引鄉"]};
 const countyCodeMap = { "臺北市": "A", "新北市": "F", "桃園市": "H", "臺中市": "B", "臺南市": "D", "高雄市": "E", "基隆市": "C", "新竹市": "O", "嘉義市": "I", "新竹縣": "J", "苗栗縣": "K", "彰化縣": "N", "南投縣": "M", "雲林縣": "P", "嘉義縣": "Q", "屏東縣": "T", "宜蘭縣": "G", "花蓮縣": "U", "臺東縣": "V", "澎湖縣": "X", "金門縣": "W", "連江縣": "Z" };
 
-// --- Heatmap related functions ---
+// --- Heatmap related functions (維持不變) ---
 const heatmapColorMapping = { high: { label: '高度溢價 (> 5%)', color: 'rgba(244, 63, 94, 0.5)' }, medium: { label: '中度溢價 (2-5%)', color: 'rgba(234, 179, 8, 0.4)' }, low: { label: '微幅溢價 (0-2%)', color: 'rgba(34, 197, 94, 0.3)' }, discount: { label: '建案折價 (< 0%)', color: 'rgba(139, 92, 246, 0.4)' }, };
 const specialTypeMapping = { storefront: { label: '店舖類型', icon: '<i class="fas fa-store"></i>' }, anchor: { label: '基準戶', icon: '<i class="fas fa-anchor"></i>' }, terrace: { label: '露台戶', icon: '<i class="fas fa-seedling"></i>' }, insider: { label: '親友/員工', icon: '<i class="fas fa-users"></i>' }, };
 function getPremiumCategory(premium) { if (premium === null) return 'none'; if (premium < 0) return 'discount'; if (premium === 0) return 'anchor'; if (premium > 5) return 'high'; if (premium > 2) return 'medium'; return 'low'; }
@@ -435,6 +460,9 @@ function renderHeatmapSummaryTable(summary) { if (!summary || summary.transactio
 function renderHorizontalComparisonTable(projectData) { if (!projectData || !projectData.horizontalComparison || projectData.horizontalComparison.length === 0) { dom.heatmapHorizontalComparisonTableContainer.innerHTML = ''; return; } const { horizontalComparison, refFloorForComparison } = projectData; const formatValue = (value, unit = '', decimals = 2, addSign = false) => { if (typeof value !== 'number' || isNaN(value)) return '-'; const num = formatNumber(value, decimals); if (addSign) { return value > 0 ? `<span class="summary-value-positive">+${num} ${unit}</span>` : value < 0 ? `<span class="summary-value-negative">${num} ${unit}</span>` : `<span>${num} ${unit}</span>`; } return (unit === '%') ? num + unit : num + ' ' + unit; }; const tableHtml = ` <h3 class="report-section-title mt-8">戶型水平價差與溢價貢獻 (基準樓層: F${refFloorForComparison || 'N/A'})</h3> <p class="text-sm text-gray-500 mt-2 mb-4">* 水平價差是將各戶型基準價換算至共同基準樓層後的價差，以最低價戶型為 0 基準。</p> <div class="overflow-x-auto"> <table class="min-w-full summary-table"> <thead> <tr> <th>戶型</th> <th>基準戶 (樓/價)</th> <th>水平價差(萬/坪)</th> <th>去化戶數</th> <th>時間溢價貢獻</th> <th>貢獻佔比</th> <th>基準房屋總價</th> <th>平均單價調價</th> </tr> </thead> <tbody> ${horizontalComparison.map(item => ` <tr> <td>${item.unitType}</td> <td>${item.anchorInfo}</td> <td>${formatValue(item.horizontalPriceDiff, '萬/坪', 2, true)}</td> <td>${item.unitsSold.toLocaleString()} 戶</td> <td>${formatValue(item.timePremiumContribution, '萬', 0, true)}</td> <td>${formatValue(item.contributionPercentage, '%')}</td> <td>${formatNumber(item.baselineHousePrice, 0)} 萬</td> <td>${formatValue(item.avgPriceAdjustment, '萬/坪', 2, true)}</td> </tr> `).join('')} </tbody> </table> </div> `; dom.heatmapHorizontalComparisonTableContainer.innerHTML = tableHtml; }
 
 function initialize() {
+  // 【新增】 4. 在執行任何初始化操作前，先檢查登入狀態
+  checkAuthOnLoad();
+
   Object.keys(districtData).forEach(name => dom.countySelect.add(new Option(name, name)));
   dom.searchBtn.addEventListener('click', () => { currentPage = 1; fetchData(); });
   dom.analyzeBtn.addEventListener('click', analyzeData);
@@ -489,7 +517,47 @@ function initialize() {
   toggleAnalyzeButtonState();
 }
 
-async function analyzeHeatmap() { isHeatmapActive = true; const btn = dom.analyzeHeatmapBtn; btn.disabled = true; btn.innerHTML = `<div class="loader-sm"></div><span class="ml-2">分析中...</span>`; btn.classList.add('btn-loading'); try { const floorPremium = parseFloat(dom.floorPremiumInput.value); const payload = { filters: { ...getFilters(), floorPremium: (typeof floorPremium === 'number' && floorPremium >= 0) ? floorPremium : 0.3 } }; const response = await fetch(RANKING_ANALYSIS_ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4Ym1iYmZyemJ0dXVleXNpY29jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA2ODg5ODksImV4cCI6MjA2NjI2NDk4OX0.1IUynv5eK1xF_3pb-oasqaTrPvbeAOC4Sc1oykPBy4M' }, body: JSON.stringify(payload) }); if (!response.ok) { const err = await response.json().catch(() => ({ error: `熱力圖分析失敗: ${response.status}` })); throw new Error(err.error); } analysisDataCache = await response.json(); renderPriceGapHeatmap(); dom.heatmapInfoContainer.classList.remove('hidden'); btn.innerHTML = `<i class="fas fa-sync-alt mr-2"></i>重新分析`; dom.backToGridBtn.classList.remove('hidden'); } catch (error) { console.error("熱力圖分析失敗:", error); showMessage(`熱力圖分析失敗: ${error.message}`, true); isHeatmapActive = false; dom.heatmapInfoContainer.classList.add('hidden'); dom.heatmapSummaryTableContainer.classList.add('hidden'); dom.heatmapHorizontalComparisonTableContainer.classList.add('hidden'); btn.innerHTML = `<i class="fas fa-exclamation-triangle mr-2"></i>分析失敗`; } finally { btn.disabled = false; btn.classList.remove('btn-loading'); } }
+// 【修改】 5. 修改所有 fetch 請求
+async function analyzeHeatmap() {
+    isHeatmapActive = true;
+    const btn = dom.analyzeHeatmapBtn;
+    btn.disabled = true;
+    btn.innerHTML = `<div class="loader-sm"></div><span class="ml-2">分析中...</span>`;
+    btn.classList.add('btn-loading');
+    try {
+        const headers = await getAuthHeaders();
+        if (!headers) return;
+        
+        const floorPremium = parseFloat(dom.floorPremiumInput.value);
+        const payload = { filters: { ...getFilters(), floorPremium: (typeof floorPremium === 'number' && floorPremium >= 0) ? floorPremium : 0.3 } };
+        const response = await fetch(RANKING_ANALYSIS_ENDPOINT, {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify(payload)
+        });
+        if (!response.ok) {
+            const err = await response.json().catch(() => ({ error: `熱力圖分析失敗: ${response.status}` }));
+            throw new Error(err.error);
+        }
+        analysisDataCache = await response.json();
+        renderPriceGapHeatmap();
+        dom.heatmapInfoContainer.classList.remove('hidden');
+        btn.innerHTML = `<i class="fas fa-sync-alt mr-2"></i>重新分析`;
+        dom.backToGridBtn.classList.remove('hidden');
+    } catch (error) {
+        console.error("熱力圖分析失敗:", error);
+        showMessage(`熱力圖分析失敗: ${error.message}`, true);
+        isHeatmapActive = false;
+        dom.heatmapInfoContainer.classList.add('hidden');
+        dom.heatmapSummaryTableContainer.classList.add('hidden');
+        dom.heatmapHorizontalComparisonTableContainer.classList.add('hidden');
+        btn.innerHTML = `<i class="fas fa-exclamation-triangle mr-2"></i>分析失敗`;
+    } finally {
+        btn.disabled = false;
+        btn.classList.remove('btn-loading');
+    }
+}
+
 function handleBackToGrid() { isHeatmapActive = false; displayCurrentPriceGrid(); dom.backToGridBtn.classList.add('hidden'); dom.heatmapInfoContainer.classList.add('hidden'); dom.heatmapSummaryTableContainer.classList.add('hidden'); dom.heatmapHorizontalComparisonTableContainer.classList.add('hidden'); dom.analyzeHeatmapBtn.innerHTML = `<i class="fas fa-fire mr-2"></i>開始分析`; }
 function switchAverageType(type) { if (currentAverageType === type || !type) return; currentAverageType = type; dom.avgTypeToggle.querySelector('.avg-type-btn.active').classList.remove('active'); dom.avgTypeToggle.querySelector(`.avg-type-btn[data-type="${type}"]`).classList.add('active'); if (analysisDataCache) { renderUnitPriceReport(); } }
 function switchTab(targetTab) { document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active')); document.querySelectorAll('.tab-button').forEach(button => button.classList.remove('active')); document.getElementById(`${targetTab}-content`).classList.add('active'); document.querySelector(`button[data-tab="${targetTab}"]`).classList.add('active'); }
@@ -510,8 +578,81 @@ function showLoading(message) { dom.messageArea.innerHTML = `<div class="loader 
 function showMessage(message, isError = false) { const messageClass = isError ? 'bg-red-900/50 border border-red-700 text-red-200 p-4 rounded-lg' : ''; dom.messageArea.innerHTML = `<div class="${messageClass}">${message}</div>`; dom.messageArea.classList.remove('hidden'); dom.tabsContainer.classList.add('hidden'); }
 function formatDate(date) { return date.toISOString().split('T')[0]; }
 function handleDateRangeChange() { const value = dom.dateRangeSelect.value; if (value === 'custom') return; const endDate = new Date(); let startDate = new Date(); switch (value) { case '1q': startDate.setMonth(endDate.getMonth() - 3); break; case '2q': startDate.setMonth(endDate.getMonth() - 6); break; case '3q': startDate.setMonth(endDate.getMonth() - 9); break; case '1y': startDate.setFullYear(endDate.getFullYear() - 1); break; case 'this_year': startDate = new Date(endDate.getFullYear(), 0, 1); break; case 'last_2_years': startDate = new Date(endDate.getFullYear() - 1, 0, 1); break; case 'last_3_years': startDate = new Date(endDate.getFullYear() - 2, 0, 1); break; } dom.dateStartInput.value = formatDate(startDate); dom.dateEndInput.value = formatDate(endDate); }
-async function analyzeData() { if (!dom.countySelect.value) return showMessage('請先選擇一個縣市再進行分析。'); showLoading('分析中，請稍候...'); try { const response = await fetch(RANKING_ANALYSIS_ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4Ym1iYmZyemJ0dXVleXNpY29jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA2ODg5ODksImV4cCI6MjA2NjI2NDk4OX0.1IUynv5eK1xF_3pb-oasqaTrPvbeAOC4Sc1oykPBy4M' }, body: JSON.stringify({ filters: getFilters() }) }); if (!response.ok) { const err = await response.json().catch(() => ({ error: `分析請求失敗: ${response.status}` })); throw new Error(err.error); } analysisDataCache = await response.json(); if (!analysisDataCache.coreMetrics) { const msg = analysisDataCache.message || '找不到符合條件的分析資料。'; showMessage(msg); return; } dom.messageArea.classList.add('hidden'); dom.tabsContainer.classList.remove('hidden'); currentSort = { key: 'saleAmountSum', order: 'desc' }; renderRankingReport(); renderPriceBandReport(); renderUnitPriceReport(); renderParkingAnalysisReport(); renderSalesVelocityReport(); renderPriceGridAnalysis(); switchTab('ranking-report'); } catch(error) { console.error("數據分析失敗:", error); showMessage(`數據分析失敗: ${error.message}`, true); analysisDataCache = null; } }
-async function fetchData() { showLoading('查詢中，請稍候...'); try { const response = await fetch(EDGE_FUNCTION_ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4Ym1iYmZyemJ0dXVleXNpY29jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA2ODg5ODksImV4cCI6MjA2NjI2NDk4OX0.1IUynv5eK1xF_3pb-oasqaTrPvbeAOC4Sc1oykPBy4M' }, body: JSON.stringify({ filters: getFilters(), pagination: { page: currentPage, limit: pageSize } }) }); if (!response.ok) { const err = await response.json().catch(() => ({ error: '無法解析伺服器回應' })); throw new Error(err.error); } const result = await response.json(); totalRecords = result.count || 0; if (!result.data || result.data.length === 0) { showMessage('找不到符合條件的資料。'); renderPagination(); return; } renderTable(result.data); renderPagination(); dom.messageArea.classList.add('hidden'); dom.tabsContainer.classList.remove('hidden'); switchTab('data-list'); } catch (error) { console.error('查詢錯誤:', error); showMessage(`查詢錯誤: ${error.message}`, true); totalRecords = 0; renderPagination(); } }
+
+async function analyzeData() {
+    if (!dom.countySelect.value) return showMessage('請先選擇一個縣市再進行分析。');
+    showLoading('分析中，請稍候...');
+    try {
+        const headers = await getAuthHeaders();
+        if (!headers) return;
+        
+        const response = await fetch(RANKING_ANALYSIS_ENDPOINT, {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify({ filters: getFilters() })
+        });
+        if (!response.ok) {
+            const err = await response.json().catch(() => ({ error: `分析請求失敗: ${response.status}` }));
+            throw new Error(err.error);
+        }
+        analysisDataCache = await response.json();
+        if (!analysisDataCache.coreMetrics) {
+            const msg = analysisDataCache.message || '找不到符合條件的分析資料。';
+            showMessage(msg);
+            return;
+        }
+        dom.messageArea.classList.add('hidden');
+        dom.tabsContainer.classList.remove('hidden');
+        currentSort = { key: 'saleAmountSum', order: 'desc' };
+        renderRankingReport();
+        renderPriceBandReport();
+        renderUnitPriceReport();
+        renderParkingAnalysisReport();
+        renderSalesVelocityReport();
+        renderPriceGridAnalysis();
+        switchTab('ranking-report');
+    } catch(error) {
+        console.error("數據分析失敗:", error);
+        showMessage(`數據分析失敗: ${error.message}`, true);
+        analysisDataCache = null;
+    }
+}
+
+async function fetchData() {
+    showLoading('查詢中，請稍候...');
+    try {
+        const headers = await getAuthHeaders();
+        if (!headers) return;
+        
+        const response = await fetch(EDGE_FUNCTION_ENDPOINT, {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify({ filters: getFilters(), pagination: { page: currentPage, limit: pageSize } })
+        });
+        if (!response.ok) {
+            const err = await response.json().catch(() => ({ error: '無法解析伺服器回應' }));
+            throw new Error(err.error);
+        }
+        const result = await response.json();
+        totalRecords = result.count || 0;
+        if (!result.data || result.data.length === 0) {
+            showMessage('找不到符合條件的資料。');
+            renderPagination();
+            return;
+        }
+        renderTable(result.data);
+        renderPagination();
+        dom.messageArea.classList.add('hidden');
+        dom.tabsContainer.classList.remove('hidden');
+        switchTab('data-list');
+    } catch (error) {
+        console.error('查詢錯誤:', error);
+        showMessage(`查詢錯誤: ${error.message}`, true);
+        totalRecords = 0;
+        renderPagination();
+    }
+}
+
 function formatNumber(num, decimals = 2) { if (typeof num !== 'number' || isNaN(num)) return '-'; return num.toLocaleString('zh-TW', { minimumFractionDigits: decimals, maximumFractionDigits: decimals }); }
 function renderRankingReport() { if (!analysisDataCache || !analysisDataCache.coreMetrics) return; const { coreMetrics, projectRanking } = analysisDataCache; dom.metricCardsContainer.innerHTML = `<div class="metric-card"><div class="metric-card-title">市場去化總銷售金額</div><div><span class="metric-card-value">${formatNumber(coreMetrics.totalSaleAmount, 0)}</span><span class="metric-card-unit">萬</span></div></div><div class="metric-card"><div class="metric-card-title">總銷去化房屋坪數</div><div><span class="metric-card-value">${formatNumber(coreMetrics.totalHouseArea, 2)}</span><span class="metric-card-unit">坪</span></div></div><div class="metric-card"><div class="metric-card-title">總平均單價</div><div><span class="metric-card-value">${formatNumber(coreMetrics.overallAveragePrice, 2)}</span><span class="metric-card-unit">萬/坪</span></div></div><div class="metric-card"><div class="metric-card-title">總交易筆數</div><div><span class="metric-card-value">${coreMetrics.transactionCount.toLocaleString()}</span><span class="metric-card-unit">筆</span></div></div>`; projectRanking.sort((a, b) => { const valA = a[currentSort.key]; const valB = b[currentSort.key]; return currentSort.order === 'desc' ? valB - valA : valA - valB; }); const tableHeaders = [{ key: 'rank', label: '排名', sortable: false },{ key: 'projectName', label: '建案名稱', sortable: false },{ key: 'saleAmountSum', label: '交易總價(萬)', sortable: true },{ key: 'houseAreaSum', label: '房屋面積(坪)', sortable: true },{ key: 'transactionCount', label: '資料筆數', sortable: true },{ key: 'marketShare', label: '市場佔比(%)', sortable: true },{ key: 'averagePrice', label: '平均單價(萬)', sortable: true },{ key: 'minPrice', label: '最低單價(萬)', sortable: true },{ key: 'maxPrice', label: '最高單價(萬)', sortable: true },{ key: 'medianPrice', label: '單價中位數(萬)', sortable: true },{ key: 'avgParkingPrice', label: '車位平均單價', sortable: true }]; let headerHtml = '<thead><tr>'; tableHeaders.forEach(h => { if (h.sortable) { const sortClass = currentSort.key === h.key ? currentSort.order : ''; headerHtml += `<th class="sortable-th ${sortClass}" data-sort-key="${h.key}">${h.label}<span class="sort-icon">▼</span></th>`; } else { headerHtml += `<th>${h.label}</th>`; } }); headerHtml += '</tr></thead>'; let bodyHtml = '<tbody>'; projectRanking.slice(0, 15).forEach((proj, index) => { bodyHtml += `<tr class="hover:bg-dark-card transition-colors"><td>${index + 1}</td><td>${proj.projectName}</td><td>${formatNumber(proj.saleAmountSum, 0)}</td><td>${formatNumber(proj.houseAreaSum)}</td><td>${proj.transactionCount.toLocaleString()}</td><td>${formatNumber(proj.marketShare)}%</td><td>${formatNumber(proj.averagePrice)}</td><td>${formatNumber(proj.minPrice)}</td><td>${formatNumber(proj.maxPrice)}</td><td>${formatNumber(proj.medianPrice)}</td><td>${formatNumber(proj.avgParkingPrice, 0)}</td></tr>`; }); bodyHtml += '</tbody>'; let footerHtml = `<tfoot class="bg-dark-card font-bold"><tr class="border-t-2 border-gray-600"><td colspan="2">總計</td><td>${formatNumber(coreMetrics.totalSaleAmount, 0)}</td><td>${formatNumber(coreMetrics.totalHouseArea)}</td><td>${coreMetrics.transactionCount.toLocaleString()}</td><td colspan="6"></td></tr></tfoot>`; dom.rankingTable.innerHTML = headerHtml + bodyHtml + footerHtml; }
 function renderPriceBandReport() { if (!analysisDataCache || !analysisDataCache.priceBandAnalysis) return; const { priceBandAnalysis } = analysisDataCache; priceBandAnalysis.sort((a, b) => { if (a.rooms !== b.rooms) return a.rooms - b.rooms; return a.bathrooms - b.bathrooms; }); const tableHeaders = ['房數', '衛浴數', '筆數', '平均房屋總價', '最低房屋總價', '1/4分位房屋總價', '中位數房屋總價', '3/4分位房屋總價', '最高房屋總價']; let headerHtml = '<thead><tr>' + tableHeaders.map(h => `<th>${h}</th>`).join('') + '</tr></thead>'; let bodyHtml = '<tbody>'; priceBandAnalysis.forEach(item => { bodyHtml += `<tr class="hover:bg-dark-card transition-colors"><td>${item.rooms}</td><td>${item.bathrooms}</td><td>${item.count.toLocaleString()}</td><td>${formatNumber(item.avgPrice, 0)}</td><td>${formatNumber(item.minPrice, 0)}</td><td>${formatNumber(item.q1Price, 0)}</td><td>${formatNumber(item.medianPrice, 0)}</td><td>${formatNumber(item.q3Price, 0)}</td><td>${formatNumber(item.maxPrice, 0)}</td></tr>`; }); bodyHtml += '</tbody>'; dom.priceBandTable.innerHTML = headerHtml + bodyHtml; }
@@ -528,16 +669,46 @@ function renderUnitColorLegend(unitColorMap) { if (!unitColorMap || Object.keys(
 function renderHorizontalPriceGrid(grid, floors, units, colorMap) { if (!grid || !floors || !units || floors.length === 0 || units.length === 0) { dom.horizontalPriceGridContainer.innerHTML = '<p class="text-gray-500">無水平價盤資料。</p>'; return; } let tableHtml = '<table class="min-w-full divide-y divide-gray-800 border-collapse">'; let headerHtml = '<thead><tr><th class="sticky left-0 bg-dark-card z-10 p-2">樓層 \\ 戶別</th>'; units.forEach(unit => { headerHtml += `<th class="text-center p-2" style="background-color:${colorMap[unit] || '#4b5563'}80;">${unit}</th>`; }); headerHtml += '</tr></thead>'; let bodyHtml = '<tbody>'; floors.forEach(floor => { bodyHtml += `<tr class="hover:bg-gray-800/50"><td class="font-bold sticky left-0 bg-dark-card z-10 p-2">${floor}</td>`; units.forEach(unit => { const cellData = grid[floor] ? grid[floor][unit] : null; if (cellData && cellData.length > 0) { const hasStorefront = cellData.some(tx => tx.isStorefront); const bgColor = hasStorefront ? 'rgba(107, 33, 168, 0.2)' : `${colorMap[unit] || '#374151'}40`; let cellContent = cellData.map(tx => { const parkingIcon = tx.hasParking ? ` <i class="fas fa-parking parking-icon" title="含車位"></i>` : ''; const storefrontIcon = tx.isStorefront ? `<i class="fas fa-store" title="店舖類型"></i> ` : ''; const tooltipText = tx.tooltip || `交易總價: ${formatNumber(tx.tooltipInfo.totalPrice, 0)} 萬`; return `<div class="has-tooltip py-1" data-tooltip="${tooltipText}"><span>${storefrontIcon}${formatNumber(tx.unitPrice, 1)}萬</span>${parkingIcon}<br><span class="text-xs text-gray-400">(${tx.transactionDate})</span></div>`; }).join(''); bodyHtml += `<td style="background-color: ${bgColor}; vertical-align: top; padding: 4px 8px; border-left: 1px solid #374151;"><div class="grid-cell-content">${cellContent}</div></td>`; } else { bodyHtml += `<td class="bg-dark-card/50" style="border-left: 1px solid #374151;">-</td>`; } }); bodyHtml += `</tr>`; }); bodyHtml += '</tbody>'; tableHtml += headerHtml + bodyHtml + '</table>'; dom.horizontalPriceGridContainer.innerHTML = tableHtml; }
 function renderTable(data) { if (!data || data.length === 0) { dom.resultsTable.innerHTML = '<tbody><tr><td colspan="99" class="text-center p-4">無資料</td></tr></tbody>'; return; } const isPresale = data[0]['交易類型'] === '預售交易'; const hiddenColumns = ['編號', '縣市代碼', '交易類型', '戶型']; const headers = Object.keys(data[0]); const headerRow = document.createElement('tr'); headerRow.innerHTML = '<th>操作</th>'; headers.forEach(header => { if (!hiddenColumns.includes(header)) { const th = document.createElement('th'); th.textContent = header; headerRow.appendChild(th); if (isPresale && header === '戶別') { const newTh = document.createElement('th'); newTh.textContent = '戶型'; headerRow.appendChild(newTh); } } }); const thead = document.createElement('thead'); thead.appendChild(headerRow); const tbody = document.createElement('tbody'); data.forEach(row => { const tr = document.createElement('tr'); tr.className = 'hover:bg-dark-card transition-colors'; const remark = row['備註'] || ''; if (remark.includes('露台') || remark.includes('親友') || remark.includes('員工')) { tr.classList.add('special-remark-row'); } tr.innerHTML = `<td><button class="details-btn bg-purple-600 hover:bg-purple-500 text-white text-xs px-3 py-1 rounded-md" data-id="${row['編號']}" data-type="${row['交易類型']}" data-county="${row['縣市代碼']}">附表</button></td>`; headers.forEach(header => { if (!hiddenColumns.includes(header)) { const td = document.createElement('td'); const value = row[header]; if (header === '地址' || header === '備註') { td.innerHTML = `<div class="scrollable-cell">${value ?? "-"}</div>`; } else { const cellText = (typeof value === 'number' && !Number.isInteger(value)) ? formatNumber(value) : (value ?? "-"); td.textContent = cellText; } tr.appendChild(td); if (isPresale && header === '戶別') { const unitTypeTd = document.createElement('td'); unitTypeTd.textContent = row['戶型'] || '-'; tr.appendChild(unitTypeTd); } } }); tbody.appendChild(tr); }); dom.resultsTable.innerHTML = ''; dom.resultsTable.append(thead, tbody); }
 function renderPagination() { dom.paginationControls.innerHTML = ''; if (totalRecords === 0 && currentPage === 1) { dom.paginationControls.innerHTML = `<span>共 0 筆資料</span>`; return; } const totalPages = Math.ceil(totalRecords / pageSize); dom.paginationControls.innerHTML = `<div>共 ${totalRecords} 筆資料</div><div class="flex items-center space-x-2"><button id="prev-page" class="bg-gray-700 hover:bg-cyan-600 text-white font-bold py-2 px-4 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors">上一頁</button><span class="px-4">第 ${currentPage} / ${totalPages > 0 ? totalPages : 1} 頁</span><button id="next-page" class="bg-gray-700 hover:bg-cyan-600 text-white font-bold py-2 px-4 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors">下一頁</button></div>`; const prevBtn = document.getElementById('prev-page'); const nextBtn = document.getElementById('next-page'); prevBtn.disabled = currentPage === 1; nextBtn.disabled = currentPage >= totalPages; prevBtn.onclick = () => { currentPage--; fetchData() }; nextBtn.onclick = () => { currentPage++; fetchData() }; }
-async function showSubTableDetails(btn) { const { id, type, county } = btn.dataset; dom.modalTitle.textContent = `附表詳細資料 (編號: ${id})`; dom.modalContent.innerHTML = '<div class="loader mx-auto"></div>'; dom.modal.classList.remove('hidden'); try { if (!id || !type || !county || county === 'undefined') { throw new Error(`前端參數不足，無法查詢附表。 (編號: ${id}, 類型: ${type}, 縣市: ${county})`); } const response = await fetch(SUB_DATA_ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4Ym1iYmZyemJ0dXVleXNpY29jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA2ODg5ODksImV4cCI6MjA2NjI2NDk4OX0.1IUynv5eK1xF_3pb-oasqaTrPvbeAOC4Sc1oykPBy4M' }, body: JSON.stringify({ id, type, county }) }); if (!response.ok) { const errorResult = await response.json().catch(() => ({ error: '無法從伺服器獲取附表資料' })); throw new Error(errorResult.error); } const result = await response.json(); let contentHTML = '<div class="space-y-6">'; if (type !== '預售交易') contentHTML += renderSubTable('建物資料', result.build); contentHTML += renderSubTable('土地資料', result.land); contentHTML += renderSubTable('車位資料', result.park); contentHTML = (contentHTML === '<div class="space-y-6">') ? '<p>此筆紀錄沒有對應的附表資料。</p>' : contentHTML + '</div>'; dom.modalContent.innerHTML = contentHTML; } catch (error) { dom.modalContent.innerHTML = `<p class="text-red-400">查詢失敗: ${error.message}</p>`; } }
+
+async function showSubTableDetails(btn) {
+    const { id, type, county } = btn.dataset;
+    dom.modalTitle.textContent = `附表詳細資料 (編號: ${id})`;
+    dom.modalContent.innerHTML = '<div class="loader mx-auto"></div>';
+    dom.modal.classList.remove('hidden');
+    try {
+        const headers = await getAuthHeaders();
+        if (!headers) return;
+
+        if (!id || !type || !county || county === 'undefined') {
+            throw new Error(`前端參數不足，無法查詢附表。 (編號: ${id}, 類型: ${type}, 縣市: ${county})`);
+        }
+        const response = await fetch(SUB_DATA_ENDPOINT, {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify({ id, type, county })
+        });
+        if (!response.ok) {
+            const errorResult = await response.json().catch(() => ({ error: '無法從伺服器獲取附表資料' }));
+            throw new Error(errorResult.error);
+        }
+        const result = await response.json();
+        let contentHTML = '<div class="space-y-6">';
+        if (type !== '預售交易') contentHTML += renderSubTable('建物資料', result.build);
+        contentHTML += renderSubTable('土地資料', result.land);
+        contentHTML += renderSubTable('車位資料', result.park);
+        contentHTML = (contentHTML === '<div class="space-y-6">') ? '<p>此筆紀錄沒有對應的附表資料。</p>' : contentHTML + '</div>';
+        dom.modalContent.innerHTML = contentHTML;
+    } catch (error) {
+        dom.modalContent.innerHTML = `<p class="text-red-400">查詢失敗: ${error.message}</p>`;
+    }
+}
 function renderSubTable(title, records) { if (!records || !Array.isArray(records) || records.length === 0) { return `<div class="mb-4"><h3 class="text-lg font-semibold text-cyan-400 mb-2">${title}</h3><p class="text-sm text-gray-500">無資料</p></div>`; } const headers = Object.keys(records[0]).filter(h => h !== 'id' && h !== '編號'); let html = `<div><h3 class="text-lg font-semibold text-cyan-400 mb-2">${title}</h3><div class="overflow-x-auto"><table class="w-full text-sm text-left"><thead><tr class="border-b border-gray-600">`; headers.forEach(header => { html += `<th class="py-2 pr-2 font-medium text-gray-400">${header}</th>` }); html += '</tr></thead><tbody>'; records.forEach(record => { html += '<tr class="border-b border-gray-700 last:border-b-0">'; headers.forEach(header => { html += `<td class="py-2 pr-2">${record[header] ?? "-"}</td>` }); html += '</tr>' }); html += '</tbody></table></div></div>'; return html; }
 function toggleAnalyzeButtonState() { const isCountySelected = !!dom.countySelect.value; const isValidType = dom.typeSelect.value === '預售交易'; dom.analyzeBtn.disabled = !(isCountySelected && isValidType); dom.analyzeHeatmapBtn.disabled = !(isCountySelected && isValidType); }
 
-// --- 行政區複選相關函式 ---
 function updateDistrictOptions() {
     const selectedCounty = dom.countySelect.value;
     clearSelectedDistricts();
     dom.districtSuggestions.innerHTML = '';
-    
     if (selectedCounty && districtData[selectedCounty]) {
         const districtNames = districtData[selectedCounty];
         const selectAllHtml = `<label class="suggestion-item font-bold text-cyan-400" data-name="all"><input type="checkbox" id="district-select-all"><span class="flex-grow">全選/全不選</span></label><hr class="border-gray-600 mx-2">`;
@@ -545,7 +716,6 @@ function updateDistrictOptions() {
             const isChecked = selectedDistricts.includes(name);
             return `<label class="suggestion-item" data-name="${name}"><input type="checkbox" ${isChecked ? 'checked' : ''}><span class="flex-grow">${name}</span></label>`
         }).join('');
-
         dom.districtSuggestions.innerHTML = selectAllHtml + districtsHtml;
         dom.districtContainer.classList.remove('disabled');
         dom.districtInputArea.textContent = "點擊選擇行政區";
@@ -561,99 +731,12 @@ function updateDistrictOptions() {
     clearSelectedProjects();
 }
 
-function clearSelectedDistricts() {
-    selectedDistricts = [];
-    renderDistrictTags();
-    dom.districtSuggestions.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
-}
-
-function renderDistrictTags() {
-    dom.districtContainer.querySelectorAll('.multi-tag').forEach(tag => tag.remove());
-    dom.districtContainer.insertBefore(dom.districtInputArea, dom.districtContainer.firstChild);
-
-    if (selectedDistricts.length > 0) {
-        dom.districtInputArea.classList.add('hidden');
-        selectedDistricts.forEach(name => {
-            const tagElement = document.createElement('span');
-            tagElement.className = 'multi-tag';
-            tagElement.textContent = name;
-            const removeBtn = document.createElement('span');
-            removeBtn.className = 'multi-tag-remove';
-            removeBtn.innerHTML = '&times;';
-            removeBtn.dataset.name = name;
-            tagElement.appendChild(removeBtn);
-            removeBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                removeDistrict(name);
-            });
-            dom.districtContainer.insertBefore(tagElement, dom.districtInputArea);
-        });
-    } else {
-        dom.districtInputArea.classList.remove('hidden');
-    }
-    dom.clearDistrictsBtn.classList.toggle('hidden', selectedDistricts.length === 0);
-}
-
-function onDistrictContainerClick(e) {
-    if (dom.districtContainer.classList.contains('disabled')) return;
-    if (!e.target.classList.contains('multi-tag-remove')) {
-        const isHidden = dom.districtSuggestions.classList.toggle('hidden');
-        dom.filterCard.classList.toggle('z-elevate-filters', !isHidden);
-    }
-}
-
-function onDistrictSuggestionClick(e) {
-    const target = e.target.closest('.suggestion-item');
-    if (!target) return;
-    
-    const name = target.dataset.name;
-    const checkbox = target.querySelector('input[type="checkbox"]');
-    if (!name || !checkbox) return;
-    
-    const allDistrictNames = districtData[dom.countySelect.value] || [];
-    const selectAllCheckbox = document.getElementById('district-select-all');
-
-    setTimeout(() => {
-        const isChecked = checkbox.checked;
-        if (name === 'all') {
-            selectedDistricts = isChecked ? [...allDistrictNames] : [];
-            dom.districtSuggestions.querySelectorAll('label:not([data-name="all"]) input[type="checkbox"]').forEach(cb => {
-                cb.checked = isChecked;
-            });
-        } else {
-            if (isChecked) {
-                if (!selectedDistricts.includes(name)) selectedDistricts.push(name);
-            } else {
-                selectedDistricts = selectedDistricts.filter(d => d !== name);
-            }
-        }
-
-        if (selectAllCheckbox) {
-            selectAllCheckbox.checked = allDistrictNames.length > 0 && selectedDistricts.length === allDistrictNames.length;
-        }
-        
-        renderDistrictTags();
-    }, 0);
-}
-
-function removeDistrict(name) {
-    selectedDistricts = selectedDistricts.filter(d => d !== name);
-    renderDistrictTags();
-    const checkbox = dom.districtSuggestions.querySelector(`label[data-name="${name}"] input`);
-    if (checkbox) checkbox.checked = false;
-    
-    const selectAllCheckbox = document.getElementById('district-select-all');
-    if (selectAllCheckbox) selectAllCheckbox.checked = false;
-}
-
-// --- 建案名稱相關函式 ---
-
-function onProjectInput() {
-    clearTimeout(suggestionDebounceTimer);
-    suggestionDebounceTimer = setTimeout(() => {
-        fetchProjectNameSuggestions(dom.projectNameInput.value)
-    }, 300);
-}
+function clearSelectedDistricts() { selectedDistricts = []; renderDistrictTags(); dom.districtSuggestions.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false); }
+function renderDistrictTags() { dom.districtContainer.querySelectorAll('.multi-tag').forEach(tag => tag.remove()); dom.districtContainer.insertBefore(dom.districtInputArea, dom.districtContainer.firstChild); if (selectedDistricts.length > 0) { dom.districtInputArea.classList.add('hidden'); selectedDistricts.forEach(name => { const tagElement = document.createElement('span'); tagElement.className = 'multi-tag'; tagElement.textContent = name; const removeBtn = document.createElement('span'); removeBtn.className = 'multi-tag-remove'; removeBtn.innerHTML = '&times;'; removeBtn.dataset.name = name; tagElement.appendChild(removeBtn); removeBtn.addEventListener('click', (e) => { e.stopPropagation(); removeDistrict(name); }); dom.districtContainer.insertBefore(tagElement, dom.districtInputArea); }); } else { dom.districtInputArea.classList.remove('hidden'); } dom.clearDistrictsBtn.classList.toggle('hidden', selectedDistricts.length === 0); }
+function onDistrictContainerClick(e) { if (dom.districtContainer.classList.contains('disabled')) return; if (!e.target.classList.contains('multi-tag-remove')) { const isHidden = dom.districtSuggestions.classList.toggle('hidden'); dom.filterCard.classList.toggle('z-elevate-filters', !isHidden); } }
+function onDistrictSuggestionClick(e) { const target = e.target.closest('.suggestion-item'); if (!target) return; const name = target.dataset.name; const checkbox = target.querySelector('input[type="checkbox"]'); if (!name || !checkbox) return; const allDistrictNames = districtData[dom.countySelect.value] || []; const selectAllCheckbox = document.getElementById('district-select-all'); setTimeout(() => { const isChecked = checkbox.checked; if (name === 'all') { selectedDistricts = isChecked ? [...allDistrictNames] : []; dom.districtSuggestions.querySelectorAll('label:not([data-name="all"]) input[type="checkbox"]').forEach(cb => { cb.checked = isChecked; }); } else { if (isChecked) { if (!selectedDistricts.includes(name)) selectedDistricts.push(name); } else { selectedDistricts = selectedDistricts.filter(d => d !== name); } } if (selectAllCheckbox) { selectAllCheckbox.checked = allDistrictNames.length > 0 && selectedDistricts.length === allDistrictNames.length; } renderDistrictTags(); }, 0); }
+function removeDistrict(name) { selectedDistricts = selectedDistricts.filter(d => d !== name); renderDistrictTags(); const checkbox = dom.districtSuggestions.querySelector(`label[data-name="${name}"] input`); if (checkbox) checkbox.checked = false; const selectAllCheckbox = document.getElementById('district-select-all'); if (selectAllCheckbox) selectAllCheckbox.checked = false; }
+function onProjectInput() { clearTimeout(suggestionDebounceTimer); suggestionDebounceTimer = setTimeout(() => { fetchProjectNameSuggestions(dom.projectNameInput.value) }, 300); }
 
 async function fetchProjectNameSuggestions(query) {
     const county = dom.countySelect.value;
@@ -664,15 +747,14 @@ async function fetchProjectNameSuggestions(query) {
         return;
     }
     try {
+        const headers = await getAuthHeaders();
+        if (!headers) return;
+        
         dom.filterCard.classList.add('z-elevate-filters');
-        const payload = {
-            countyCode,
-            query,
-            districts: selectedDistricts
-        };
+        const payload = { countyCode, query, districts: selectedDistricts };
         const response = await fetch(PROJECT_NAMES_ENDPOINT, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4Ym1iYmZyemJ0dXVleXNpY29jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA2ODg5ODksImV4cCI6MjA2NjI2NDk4OX0.1IUynv5eK1xF_3pb-oasqaTrPvbeAOC4Sc1oykPBy4M' },
+            headers: headers,
             body: JSON.stringify(payload)
         });
         if (!response.ok) throw new Error(`伺服器錯誤: ${response.status}`);
@@ -685,66 +767,11 @@ async function fetchProjectNameSuggestions(query) {
     }
 }
 
-function renderSuggestions(names) {
-    if (names.length === 0) {
-        dom.projectNameSuggestions.innerHTML = '<div class="p-2 text-gray-500">無相符建案</div>';
-    } else {
-        dom.projectNameSuggestions.innerHTML = names.map(name => {
-            const isChecked = selectedProjects.includes(name);
-            return `<label class="suggestion-item" data-name="${name}"><input type="checkbox" ${isChecked ? 'checked' : ''}><span class="flex-grow">${name}</span></label>`
-        }).join('');
-    }
-    dom.projectNameSuggestions.classList.remove('hidden');
-}
-
-function onSuggestionClick(e) {
-    const target = e.target.closest('.suggestion-item');
-    if (!target) return;
-    const name = target.dataset.name;
-    const checkbox = target.querySelector('input[type="checkbox"]');
-    if (!name || !checkbox) return;
-    setTimeout(() => {
-        if (checkbox.checked) {
-            if (!selectedProjects.includes(name)) {
-                selectedProjects.push(name);
-            }
-        } else {
-            selectedProjects = selectedProjects.filter(p => p !== name);
-        }
-        renderProjectTags();
-    }, 0);
-}
-
-function removeProject(name) {
-    selectedProjects = selectedProjects.filter(p => p !== name);
-    renderProjectTags();
-    const openSuggestionCheckbox = dom.projectNameSuggestions.querySelector(`label[data-name="${name}"] input`);
-    if (openSuggestionCheckbox) openSuggestionCheckbox.checked = false;
-}
-
-function renderProjectTags() {
-    dom.projectNameContainer.querySelectorAll('.multi-tag').forEach(tag => tag.remove());
-    dom.projectNameContainer.insertBefore(dom.projectNameInput, dom.projectNameContainer.firstChild);
-    selectedProjects.forEach(name => {
-        const tagElement = document.createElement('span');
-        tagElement.className = 'multi-tag';
-        tagElement.textContent = name;
-        const removeBtn = document.createElement('span');
-        removeBtn.className = 'multi-tag-remove';
-        removeBtn.innerHTML = '&times;';
-        removeBtn.dataset.name = name;
-        tagElement.appendChild(removeBtn);
-        dom.projectNameContainer.insertBefore(tagElement, dom.projectNameInput);
-    });
-    dom.clearProjectsBtn.classList.toggle('hidden', selectedProjects.length === 0);
-}
-
-function clearSelectedProjects() {
-    selectedProjects = [];
-    renderProjectTags();
-    const suggestionCheckboxes = dom.projectNameSuggestions.querySelectorAll('input[type="checkbox"]');
-    suggestionCheckboxes.forEach(cb => cb.checked = false);
-}
+function renderSuggestions(names) { if (names.length === 0) { dom.projectNameSuggestions.innerHTML = '<div class="p-2 text-gray-500">無相符建案</div>'; } else { dom.projectNameSuggestions.innerHTML = names.map(name => { const isChecked = selectedProjects.includes(name); return `<label class="suggestion-item" data-name="${name}"><input type="checkbox" ${isChecked ? 'checked' : ''}><span class="flex-grow">${name}</span></label>` }).join(''); } dom.projectNameSuggestions.classList.remove('hidden'); }
+function onSuggestionClick(e) { const target = e.target.closest('.suggestion-item'); if (!target) return; const name = target.dataset.name; const checkbox = target.querySelector('input[type="checkbox"]'); if (!name || !checkbox) return; setTimeout(() => { if (checkbox.checked) { if (!selectedProjects.includes(name)) { selectedProjects.push(name); } } else { selectedProjects = selectedProjects.filter(p => p !== name); } renderProjectTags(); }, 0); }
+function removeProject(name) { selectedProjects = selectedProjects.filter(p => p !== name); renderProjectTags(); const openSuggestionCheckbox = dom.projectNameSuggestions.querySelector(`label[data-name="${name}"] input`); if (openSuggestionCheckbox) openSuggestionCheckbox.checked = false; }
+function renderProjectTags() { dom.projectNameContainer.querySelectorAll('.multi-tag').forEach(tag => tag.remove()); dom.projectNameContainer.insertBefore(dom.projectNameInput, dom.projectNameContainer.firstChild); selectedProjects.forEach(name => { const tagElement = document.createElement('span'); tagElement.className = 'multi-tag'; tagElement.textContent = name; const removeBtn = document.createElement('span'); removeBtn.className = 'multi-tag-remove'; removeBtn.innerHTML = '&times;'; removeBtn.dataset.name = name; tagElement.appendChild(removeBtn); dom.projectNameContainer.insertBefore(tagElement, dom.projectNameInput); }); dom.clearProjectsBtn.classList.toggle('hidden', selectedProjects.length === 0); }
+function clearSelectedProjects() { selectedProjects = []; renderProjectTags(); const suggestionCheckboxes = dom.projectNameSuggestions.querySelectorAll('input[type="checkbox"]'); suggestionCheckboxes.forEach(cb => cb.checked = false); }
 
 initialize();
 </script>
