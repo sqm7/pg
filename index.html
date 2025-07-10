@@ -639,10 +639,24 @@ if (refreshError) throw new Error(`認證刷新失敗: ${refreshError.message}`)
         const headers = await getAuthHeaders();
 if (!headers) throw new Error("認證失敗，無法取得認證標頭");
 
+        const filters = getFilters();
+        const viewOptions = {};
+        
+        // 檢查是否為熱力圖模式
+        if (isHeatmapActive) {
+            const floorPremium = parseFloat(dom.floorPremiumInput.value);
+            if (typeof floorPremium === 'number' && !isNaN(floorPremium)) {
+                 viewOptions.floorPremium = floorPremium;
+            }
+        }
+
         const payload = {
             report_type: reportType,
-            filters: getFilters(),
-            date_config: {}
+            filters: filters,
+            date_config: {},
+            // 新增 view_mode 和 view_options
+            view_mode: isHeatmapActive ? 'heatmap' : 'standard',
+            view_options: viewOptions
         };
 const dateRangeValue = dom.dateRangeSelect.value;
         if (dateRangeValue === 'custom') {
