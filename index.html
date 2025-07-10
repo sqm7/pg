@@ -532,6 +532,7 @@ async function handleShareClick(reportType) {
                 value: dateRangeValue
             };
         }
+            console.log('正要發送的請求標頭 (Headers):', headers);
 
         const response = await fetch(GENERATE_SHARE_LINK_ENDPOINT, {
             method: 'POST',
