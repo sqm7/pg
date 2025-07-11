@@ -1571,6 +1571,11 @@ function onSuggestionClick(e) {
             selectedProjects = selectedProjects.filter(p => p !== name);
         }
         renderProjectTags();
+// 【新增以下兩行】
+        dom.projectNameInput.value = ''; // 清空輸入框的文字
+        dom.projectNameSuggestions.classList.add('hidden'); // 選擇後隱藏建議列表
+
+      
     }, 0);
 }
 
