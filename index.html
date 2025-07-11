@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SQM預售屋數據儀表板ver.68 (建案搜尋優化)</title>
+<title>SQM預售屋數據儀表板ver.69 (前後端整合修正版)</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -590,7 +589,7 @@ function applyHeatmapGridFilter() {
     });
 }
 
-// 【修正#2】修正 熱力圖分析失敗 的問題
+// 【修正#2】修正 熱力圖分析失敗 的問題，並使用後端傳來的結構化資料
 function renderPriceGapHeatmap() {
     const container = dom.horizontalPriceGridContainer;
     const projectAnalysisData = analysisDataCache.priceGridAnalysis.byProject[selectedPriceGridProject];
@@ -612,15 +611,23 @@ function renderPriceGapHeatmap() {
             const cellDataArray = horizontalGrid[floor] ? horizontalGrid[floor][unit] : null;
             if (cellDataArray && cellDataArray.length > 0) {
                 const cellContent = cellDataArray.map(tx => {
-                    const { premium, isStorefront, remark, tooltip } = tx;
+                    const { premium, isStorefront, remark, tooltipInfo } = tx;
                     const remarkText = remark || '';
                     let specialType = 'none';
                     let iconHtml = '';
                     const premiumCategory = getPremiumCategory(premium);
                     let bgColor = getHeatmapColor(premium);
                     
-                    // 直接使用後端傳來的 tooltip 字串進行格式化，避免讀取不存在的欄位
-                    const formattedTooltip = tooltip ? tooltip.replaceAll(' | ', '\n') : `成交價： ${tx.unitPrice.toFixed(1)} 萬`;
+                    // 依賴後端傳來的結構化 tooltipInfo 物件，而不是字串
+                    let formattedTooltip = `成交價：\t${tx.unitPrice.toFixed(1)} 萬`;
+                    if (tooltipInfo && typeof tooltipInfo.anchorPrice === 'number') {
+                        formattedTooltip += `\n基準價：\t${tooltipInfo.anchorPrice.toFixed(1)} 萬`;
+                        formattedTooltip += `\n樓層調整：\t${tooltipInfo.floorAdjustment.toFixed(2)} 萬`;
+                        formattedTooltip += `\n時間溢價：\t${typeof tooltipInfo.premium === 'number' ? tooltipInfo.premium.toFixed(1) : 'N/A'} %`;
+                    }
+                    if(remarkText) {
+                       formattedTooltip += `\n備註：\t${remarkText}`;
+                    }
 
                     if (isStorefront) {
                         specialType = 'storefront';
