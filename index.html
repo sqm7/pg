@@ -183,7 +183,7 @@ thead th { background-color: #252836; position: sticky; top: 0; z-index: 10; fon
                     <option value="custom">自訂範圍</option>
                     <option value="1q">近一季 (3個月)</option>
                     <option value="2q">近兩季 (6個月)</option>
-  <option value="3q">近三季 (9個月)</option>
+                    <option value="3q">近三季 (9個月)</option>
                     <option value="1y" selected>近一年 (12個月)</option>
                     <option value="this_year">今年以來</option>
                     <option value="last_2_years">去年＋今年</option>
@@ -743,8 +743,34 @@ function copyShareUrl() {
 
 // --- 核心功能函式 ---
 function initialize() {
+    // 步驟 1: 檢查 DOM 元素是否都已正確抓取
+    if (!dom.countySelect) {
+        console.error("錯誤：無法找到縣市選單元素(ID='county')。請檢查 HTML 的 ID 是否正確。");
+        showMessage("系統初始化失敗：找不到縣市選單。", true);
+        return; // 中斷初始化
+    }
+
+    // 步驟 2: 執行身份驗證
     checkAuthOnLoad();
-    Object.keys(districtData).forEach(name => dom.countySelect.add(new Option(name, name)));
+
+    // 步驟 3: 填入縣市資料
+    try {
+        const countyNames = Object.keys(districtData);
+        if (countyNames.length === 0) {
+            console.error("錯誤：districtData 物件為空，沒有縣市資料可以填入。");
+            return;
+        }
+        countyNames.forEach(name => {
+            // 使用 new Option(text, value) 來建立選項
+            dom.countySelect.add(new Option(name, name));
+        });
+    } catch (error) {
+        console.error("填入縣市資料時發生錯誤:", error);
+        showMessage("系統初始化失敗：載入縣市資料時出錯。", true);
+        return;
+    }
+
+    // 步驟 4: 綁定所有事件監聽器
     dom.searchBtn.addEventListener('click', () => { currentPage = 1; fetchData(); });
     dom.analyzeBtn.addEventListener('click', analyzeData);
     dom.countySelect.addEventListener('change', updateDistrictOptions);
@@ -799,6 +825,7 @@ function initialize() {
     dom.shareModalCloseBtn.addEventListener('click', () => dom.shareModal.classList.add('hidden'));
     dom.copyShareUrlBtn.addEventListener('click', copyShareUrl);
 
+    // 步驟 5: 最後才執行快捷時間初始化
     handleDateRangeChange();
     toggleAnalyzeButtonState();
 }
@@ -1110,13 +1137,11 @@ function renderVelocityTable() {
         selectedVelocityRooms.forEach(roomType => {
             const stats = periodData[roomType];
             if (stats) {
-     
                    rowHtml += `<td class="border-l border-gray-700">${stats.count.toLocaleString()}</td><td>${formatNumber(stats.priceSum, 0)}</td><td>${formatNumber(stats.areaSum, 2)}</td>`;
                 rowTotal.count += stats.count;
                 rowTotal.priceSum += stats.priceSum;
                 rowTotal.areaSum += stats.areaSum;
             } else {
-               
                  rowHtml += `<td class="border-l border-gray-700">-</td><td>-</td><td>-</td>`;
             }
         });
@@ -1503,6 +1528,7 @@ function onDistrictSuggestionClick(e) {
             selectedDistricts = isChecked ? [...allDistrictNames] : [];
             dom.districtSuggestions.querySelectorAll('label:not([data-name="all"]) input[type="checkbox"]').forEach(cb => { cb.checked = isChecked; });
         } else {
+            if (isChecked) {
               if (!selectedDistricts.includes(name)) selectedDistricts.push(name);
             } else {
                 selectedDistricts = selectedDistricts.filter(d => d !== name);
@@ -1511,8 +1537,7 @@ function onDistrictSuggestionClick(e) {
         if (selectAllCheckbox) {
            selectAllCheckbox.checked = allDistrictNames.length > 0 && selectedDistricts.length === allDistrictNames.length;
         }
-   
-         renderDistrictTags();
+        renderDistrictTags();
     }, 0);
 }
 
