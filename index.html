@@ -1247,37 +1247,52 @@ function renderPagination() {
 }
 
 async function showSubTableDetails(btn) {
-    const { id, type, county } = btn.dataset;
+    const { id, type } = btn.dataset; // 只從按鈕獲取 id 和 type
+    
+    // 從主篩選器直接獲取當前的縣市名稱和代碼，這是最可靠的來源
+    const selectedCountyName = dom.countySelect.value;
+    const countyCode = countyCodeMap[selectedCountyName];
+
     dom.modalTitle.textContent = `附表詳細資料 (編號: ${id})`;
     dom.modalContent.innerHTML = '<div class="loader mx-auto"></div>';
     dom.modal.classList.remove('hidden');
+
     try {
-        const headers = await getAuthHeaders();
-        if (!headers) return;
-        if (!id || !type || !county || county === 'undefined') {
-            throw new Error(`前端參數不足，無法查詢附表。 (編號: ${id}, 類型: ${type}, 縣市: ${county})`);
+        // 使用修正後的 countyCode 進行驗證
+        if (!id || !type || !countyCode) {
+            throw new Error(`前端參數不足，無法查詢附表。 (編號: ${id}, 類型: ${type}, 縣市代碼: ${countyCode})`);
         }
+
+        const headers = await getAuthHeaders();
+        if (!headers) throw new Error("認證失敗，無法取得認證標頭");
+
         const response = await fetch(SUB_DATA_ENDPOINT, {
             method: 'POST',
             headers: headers,
-            body: JSON.stringify({ id, type, county })
+            // 在傳送給後端的請求中，使用我們可靠獲取的 countyCode
+            body: JSON.stringify({ id, type, county: countyCode })
         });
+        
         if (!response.ok) {
-            const errorResult = await response.json().catch(() => ({ error: '無法從伺服器獲取附表資料' }));
+            // 如果後端真的回傳錯誤 (例如 500 Server Error), 仍可處理
+            const errorResult = await response.json().catch(() => ({ error: '無法從伺服器獲取附表資料，且回應非 JSON 格式' }));
             throw new Error(errorResult.error);
         }
+
         const result = await response.json();
+        
+        // 後續的渲染邏輯不變
         let contentHTML = '<div class="space-y-6">';
         if (type !== '預售交易') contentHTML += renderSubTable('建物資料', result.build);
         contentHTML += renderSubTable('土地資料', result.land);
         contentHTML += renderSubTable('車位資料', result.park);
         contentHTML = (contentHTML === '<div class="space-y-6">') ? '<p>此筆紀錄沒有對應的附表資料。</p>' : contentHTML + '</div>';
         dom.modalContent.innerHTML = contentHTML;
+
     } catch (error) {
         dom.modalContent.innerHTML = `<p class="text-red-400">查詢失敗: ${error.message}</p>`;
     }
 }
-
 function renderSubTable(title, records) {
     if (!records || !Array.isArray(records) || records.length === 0) {
         return `<div class="mb-4"><h3 class="text-lg font-semibold text-cyan-400 mb-2">${title}</h3><p class="text-sm text-gray-500">無資料</p></div>`;
