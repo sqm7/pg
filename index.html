@@ -634,12 +634,13 @@ function renderPriceGapHeatmap() {
 房屋面積: ${formatNumber(tooltipInfo.houseArea, 2)} 坪
 房間數: ${tooltipInfo.rooms || '-'} 房`;
 
-                    if (premium === 0) {
+                    if (premium === 0) { // 基準戶的邏輯
                         specialType = 'anchor';
                         iconHtml = `<span class="has-tooltip" data-tooltip="${specialTypeMapping[specialType].label}">${specialTypeMapping[specialType].icon}</span> `;
                         formattedTooltip = `本戶為基準戶\n--------------------\n${baseInfo}`;
-                    } else {
+                    } else { // 其他戶的邏輯
                         let specialLabel = '';
+                        // 判斷特殊標籤
                         if (isStorefront) {
                             specialType = 'storefront';
                             specialLabel = specialTypeMapping[specialType].label;
@@ -655,10 +656,14 @@ function renderPriceGapHeatmap() {
                             iconHtml = `<span class="has-tooltip" data-tooltip="${specialLabel}: ${remarkText}">${specialTypeMapping[specialType].icon}</span> `;
                         }
 
+                        // 【新增】建立溢價率文字行
+                        const premiumLine = `調價幅度: ${formatNumber(premium, 2)} %`;
+
+                        // 組合最終提示文字
                         if (specialLabel) {
-                            formattedTooltip = `${specialLabel}\n--------------------\n${baseInfo}`;
+                            formattedTooltip = `${specialLabel}\n${premiumLine}\n--------------------\n${baseInfo}`;
                         } else {
-                            formattedTooltip = baseInfo;
+                            formattedTooltip = `${premiumLine}\n--------------------\n${baseInfo}`;
                         }
                     }
 
