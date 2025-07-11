@@ -136,7 +136,6 @@ thead th { background-color: #252836; position: sticky; top: 0; z-index: 10; fon
         <div>
             <label for="county" class="block text-sm font-medium text-gray-300">縣市</label>
             <select id="county" class="form-select mt-1 block w-full pl-3 pr-10 py-2 text-base rounded-md">
-  
                <option value="">請選擇縣市</option>
             </select>
         </div>
@@ -144,13 +143,11 @@ thead th { background-color: #252836; position: sticky; top: 0; z-index: 10; fon
         <div id="district-filter-wrapper">
             <div class="flex justify-between items-center">
                 <label for="district-input-area" class="block text-sm font-medium text-gray-300">行政區 (可複選)</label>
-           
      <button id="clear-districts-btn" class="text-xs text-cyan-400 hover:text-cyan-300 hidden transition-opacity">清除選取</button>
             </div>
             <div class="relative mt-1">
                 <div id="district-container" class="form-multiselect flex flex-nowrap items-center gap-2 p-1 min-h-[42px] rounded-md overflow-x-auto disabled">
                     <div id="district-input-area" class="text-gray-400/80 flex-grow py-1 px-2 cursor-pointer">請先選縣市...</div>
-          
          </div>
                 <div id="district-suggestions" class="absolute z-50 w-full mt-1 bg-dark-card border border-gray-600 rounded-md shadow-lg hidden suggestions-container"></div>
             </div>
@@ -170,13 +167,11 @@ thead th { background-color: #252836; position: sticky; top: 0; z-index: 10; fon
             <div class="flex justify-between items-center">
                 <label for="project-name-input" class="block text-sm font-medium text-gray-300">建案名稱 (可複選)</label>
                 <button id="clear-projects-btn" class="text-xs text-cyan-400 hover:text-cyan-300 hidden transition-opacity">清除選取</button>
-            
  </div>
             <div class="relative mt-1">
                 <div id="project-name-container" class="form-multiselect flex flex-nowrap items-center gap-2 p-1 min-h-[42px] rounded-md overflow-x-auto">
                     <input type="text" id="project-name-input" placeholder="請先選縣市..." class="bg-transparent flex-grow outline-none text-base py-1 px-2" disabled autocomplete="off">
                 </div>
-             
     <div id="project-name-suggestions" class="absolute z-40 w-full mt-1 bg-dark-card border border-gray-600 rounded-md shadow-lg hidden suggestions-container"></div>
             </div>
         </div>
@@ -184,36 +179,33 @@ thead th { background-color: #252836; position: sticky; top: 0; z-index: 10; fon
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 xl:col-span-4 sm:col-span-2">
             <div>
                 <label for="date-range" class="block text-sm font-medium text-gray-300">快捷時間</label>
-          
        <select id="date-range" class="form-select mt-1 block w-full pl-3 pr-10 py-2 text-base rounded-md">
                     <option value="custom">自訂範圍</option>
                     <option value="1q">近一季 (3個月)</option>
                     <option value="2q">近兩季 (6個月)</option>
-                   
   <option value="3q">近三季 (9個月)</option>
                     <option value="1y" selected>近一年 (12個月)</option>
                     <option value="this_year">今年以來</option>
                     <option value="last_2_years">去年＋今年</option>
                     <option value="last_3_years">前年＋去年＋今年</option>
-           
-      </select>
+         </select>
             </div>
             <div><label for="date-start" class="block text-sm font-medium text-gray-300">起始日期</label><input type="date" id="date-start" class="form-input mt-1 block w-full pl-3 pr-2 py-2 text-base rounded-md"></div>
             <div>
                 <div class="flex justify-between items-center">
-                    <label for="date-end" class="block text-sm font-medium text-gray-300">結束日期</label>
+                     <label for="date-end" class="block text-sm font-medium text-gray-300">結束日期</label>
                     <button id="set-today-btn" class="text-xs text-cyan-400 hover:text-cyan-300 transition-opacity">抓取今日日期</button>
                 </div>
                 <input type="date" id="date-end" class="form-input mt-1 block w-full pl-3 pr-2 py-2 text-base rounded-md">
             </div>
         </div>
 
-        <div class="xl:col-span-3 sm:col-span-2 flex items-end gap-4">
+       <div class="xl:col-span-3 sm:col-span-2 flex items-end gap-4">
             <div class="flex items-center gap-4 flex-grow justify-end">
                 <button id="analyze-btn" class="bg-purple-600 hover:bg-purple-500 text-white font-bold py-2 px-6 rounded-lg shadow-lg hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed">分析報表</button>
                 <button id="search-btn" class="bg-gradient-to-r from-cyan-accent to-purple-accent text-white font-bold py-2 px-6 rounded-lg shadow-lg hover:opacity-90 transition-all">查詢資料列表</button>
             </div>
-        </div>
+     </div>
     
    </div>
     </div>
@@ -223,14 +215,13 @@ thead th { background-color: #252836; position: sticky; top: 0; z-index: 10; fon
             <nav class="flex flex-wrap -mb-px">
                 <button data-tab="ranking-report" class="tab-button active">核心指標與排名</button>
                 <button data-tab="price-band-report" class="tab-button">總價帶分析</button>
-                <button data-tab="unit-price-report" class="tab-button">房屋單價分析</button>
-  
+               <button data-tab="unit-price-report" class="tab-button">房屋單價分析</button>
                <button data-tab="parking-report" class="tab-button">車位單價分析</button>
                 <button data-tab="velocity-report" class="tab-button">去化時間分析</button>
                 <button data-tab="price-grid-report" class="tab-button">垂直水平分析</button>
                 <button data-tab="data-list" class="tab-button">資料列表</button>
             </nav>
-        </div>
+       </div>
         <div id="message-area" class="text-center p-8 text-gray-400">請設定篩選條件後點擊查詢或分析。</div>
        
         <div id="ranking-report-content" class="tab-content">
@@ -238,7 +229,7 @@ thead th { background-color: #252836; position: sticky; top: 0; z-index: 10; fon
             <div class="overflow-x-auto">
                 <table id="ranking-table" class="min-w-full divide-y divide-gray-800"></table>
             </div>
-        </div>
+       </div>
         <div id="price-band-report-content" class="tab-content">
             <div class="overflow-x-auto">
                   <table id="price-band-table" class="min-w-full divide-y divide-gray-800"></table>
@@ -246,11 +237,11 @@ thead th { background-color: #252836; position: sticky; top: 0; z-index: 10; fon
         </div>
         <div id="unit-price-report-content" class="tab-content">
             <div class="report-header flex justify-end items-center mb-4">
-                <label class="text-sm font-medium text-gray-400 mr-3">平均數類型:</label>
+                 <label class="text-sm font-medium text-gray-400 mr-3">平均數類型:</label>
                  <div id="avg-type-toggle" class="inline-flex bg-dark-card p-1 rounded-lg">
                     <button data-type="arithmetic" class="avg-type-btn active px-4 py-1 text-sm font-semibold rounded-md transition-colors">算術平均數</button>
                     <button data-type="weighted" class="avg-type-btn px-4 py-1 text-sm font-semibold rounded-md transition-colors">加權平均數</button>
-                </div>
+                 </div>
    
              </div>
              <div class="mb-8 report-header">
@@ -272,21 +263,24 @@ thead th { background-color: #252836; position: sticky; top: 0; z-index: 10; fon
             </div>
         </div>
         <div id="parking-report-content" class="tab-content">
-            <div class="mb-8 report-header">
+  
+           <div class="mb-8 report-header">
      
              <h3 class="report-section-title">房車配比</h3>
                  <div id="parking-ratio-table-container" class="overflow-x-auto"></div>
             </div>
             <div class="mb-8 report-header">
                 <h3 class="report-section-title">各類型車位平均單價</h3>
-                <div id="avg-price-by-type-table-container" class="overflow-x-auto"></div>
+       
+                 <div id="avg-price-by-type-table-container" class="overflow-x-auto"></div>
         
      </div>
              <div class="report-header">
                   <h3 class="report-section-title">坡道平面車位分層價格</h3>
                  <div id="ramp-plane-price-by-floor-table-container"></div>
                 <p class="text-sm text-gray-500 mt-2">* 此數據僅統計主表中「車位類別」為「坡道平面」的交易，並根據其附表中的車位資料進行彙總。</p>
-             </div>
+     
+              </div>
         </div>
     
    
@@ -294,13 +288,15 @@ thead th { background-color: #252836; position: sticky; top: 0; z-index: 10; fon
              <div class="mb-4 report-header">
                  <label class="block text-sm font-medium text-gray-300 mb-2">房型篩選器</label>
                  <div id="velocity-room-filter-container" class="flex flex-wrap gap-2"></div>
-            </div>
+         
+         </div>
              <div id="velocity-sub-tabs-container" class="report-header">
    
                <nav class="sub-tab-nav">
                     <button data-view="weekly" class="sub-tab-btn">每週去化</button>
                     <button data-view="monthly" class="sub-tab-btn active">每月去化</button>
-                    <button data-view="quarterly" class="sub-tab-btn">每季去化</button>
+                  
+               <button data-view="quarterly" class="sub-tab-btn">每季去化</button>
                   
    <button data-view="yearly" class="sub-tab-btn">年度去化</button>
                  </nav>
@@ -308,18 +304,21 @@ thead th { background-color: #252836; position: sticky; top: 0; z-index: 10; fon
              <div id="velocity-table-container" class="overflow-x-auto"></div>
         </div>
         <div id="price-grid-report-content" class="tab-content">
-             <div class="my-4 report-header">
+          
+          <div class="my-4 report-header">
                 <label class="block text-sm font-medium text-gray-300 mb-2">建案篩選器</label>
                 <div id="price-grid-project-filter-container" class="flex flex-nowrap gap-2 overflow-x-auto py-2 scrollable-filter-container"></div>
             </div>
             
             <div class="my-4 p-4 bg-dark-card border border-gray-700 rounded-lg flex items-center justify-between flex-wrap gap-4 report-header">
-                 <div>
+   
+              <div>
          
             <h4 class="font-bold text-gray-200">進階分析：建案調價熱力圖</h4>
                     <p class="text-sm text-gray-400 mt-1">
                         啟用此功能可分析建案的調價軌跡。顏色越深，代表該戶成交價相比開盤時的漲幅越大。
-                    </p>
+                
+                </p>
                 </div>
     
          
@@ -330,23 +329,27 @@ thead th { background-color: #252836; position: sticky; top: 0; z-index: 10; fon
       錨定樓層價差
                              <span class="has-tooltip text-gray-500" data-tooltip="輸入每高一層樓，房屋每坪單價增加的萬數。例如：0.3">
                                  <i class="fas fa-info-circle"></i>
-                           
+  
+                            
   </span>
                         </label>
                         <input type="number" id="floor-premium-input" class="form-input w-28 pl-3 pr-2 py-2 text-base rounded-md" value="0.3" step="0.05" min="0">
-                    </div>
+             
+                 </div>
                    
   <button id="back-to-grid-btn" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-lg shadow-lg transition-all hidden"><i class="fas fa-table mr-2"></i>返回銷控表</button>
                     <button id="analyze-heatmap-btn" class="bg-purple-600 hover:bg-purple-500 text-white font-bold py-2 px-4 rounded-lg shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"><i class="fas fa-fire mr-2"></i>開始分析</button>
                 </div>
-            </div>
+       
+             </div>
 
             <div id="heatmap-info-container" class="hidden my-4 space-y-4">
       
            <div class="p-4 bg-dark-card border border-gray-700 rounded-lg text-sm text-gray-400 space-y-3">
                     <h4 class="font-bold text-gray-200">名詞解釋</h4>
                      <p><strong class="text-cyan-400">樓層調整:</strong> <code>(成交樓層 - 基準樓層) * 樓層價差</code>。此數值模擬了因樓層不同而產生的理論價差。</p>
-                    <p><strong class="text-purple-400">調價幅度 (%):</strong> <code>(成交單價 - 基準單價 - 樓層調整) / (基準單價 + 樓層調整)</code>。此數值反映了相較於「開盤基準」，該戶在特定時間點成交時的價格漲跌幅。正值代表漲價，負值代表跌價。背景顏色深淺即代表此數值。</p>
+     
+                   <p><strong class="text-purple-400">調價幅度 (%):</strong> <code>(成交單價 - 基準單價 - 樓層調整) / (基準單價 + 樓層調整)</code>。此數值反映了相較於「開盤基準」，該戶在特定時間點成交時的價格漲跌幅。正值代表漲價，負值代表跌價。背景顏色深淺即代表此數值。</p>
   
                </div>
          
@@ -356,12 +359,14 @@ thead th { background-color: #252836; position: sticky; top: 0; z-index: 10; fon
  
                          <div id="heatmap-color-legend" class="flex flex-wrap gap-x-4 gap-y-2 text-sm"></div>
                      </div>
-                      <div class="p-4 bg-dark-card border border-gray-700 rounded-lg">
+                   
+               <div class="p-4 bg-dark-card border border-gray-700 rounded-lg">
                       
    <h4 class="font-bold text-gray-200 mb-2">特殊交易圖例 (點擊可篩選)</h4>
                          <div id="heatmap-icon-legend" class="flex flex-wrap gap-x-4 gap-y-2 text-sm"></div>
                    </div>
-                 </div>
+             
+             </div>
             </div>
 
             <div class="report-header">
@@ -369,12 +374,14 @@ thead th { background-color: #252836; position: sticky; top: 0; z-index: 10; fon
                <h3 class="report-section-title">
                     <span>銷控表</span>
                     <button id="share-price-grid-btn" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-1 px-3 rounded-lg text-sm shadow-md transition-all">
-                        <i class="fas fa-share-alt mr-2"></i>分享/內嵌
+  
+                       <i class="fas fa-share-alt mr-2"></i>分享/內嵌
        
              </button>
                 </h3>
                 <div id="unit-color-legend-container" class="flex flex-wrap gap-x-4 gap-y-2 my-4 text-sm"></div>
-                 <div id="horizontal-price-grid-container" class="w-full overflow-x-auto"></div>
+                
+                <div id="horizontal-price-grid-container" class="w-full overflow-x-auto"></div>
                   <div id="heatmap-summary-table-container" class="mt-8 hidden"></div>
        
          <div id="heatmap-horizontal-comparison-table-container" class="mt-8 hidden"></div>
@@ -383,7 +390,8 @@ thead th { background-color: #252836; position: sticky; top: 0; z-index: 10; fon
         </div>
        
         <div id="data-list-content" class="tab-content">
-             <div id="table-container" class="table-container overflow-x-auto">
+             
+          <div id="table-container" class="table-container overflow-x-auto">
                 <table id="results-table" class="min-w-full divide-y divide-gray-800"></table>
          
      </div>
@@ -397,6 +405,7 @@ thead th { background-color: #252836; position: sticky; top: 0; z-index: 10; fon
 <div id="details-modal" class="modal-overlay hidden">
      <div class="modal-container">
         <div class="flex justify-between items-center mb-6">
+        
              <h2 id="modal-title" class="text-2xl font-bold text-white">附表詳細資料</h2>
             <button id="modal-close-btn" class="text-gray-400 hover:text-white text-3xl font-bold">&times;</button>
        
@@ -417,7 +426,8 @@ thead th { background-color: #252836; position: sticky; top: 0; z-index: 10; fon
             <div class="relative">
                 <input type="text" id="share-url-input" readonly class="form-input w-full pr-12" style="background-color: #1a1d29;">
                 <button id="copy-share-url-btn" class="absolute inset-y-0 right-0 px-4 text-gray-400 hover:text-white">複製</button>
-            </div>
+  
+           </div>
             <div id="copy-feedback" class="text-green-400 text-sm hidden">已成功複製到剪貼簿！</div>
         </div>
  
@@ -589,7 +599,6 @@ function applyHeatmapGridFilter() {
     });
 }
 
-// 【修正#2】修正 熱力圖分析失敗 的問題，並使用後端傳來的結構化資料
 function renderPriceGapHeatmap() {
     const container = dom.horizontalPriceGridContainer;
     const projectAnalysisData = analysisDataCache.priceGridAnalysis.byProject[selectedPriceGridProject];
@@ -618,30 +627,39 @@ function renderPriceGapHeatmap() {
                     const premiumCategory = getPremiumCategory(premium);
                     let bgColor = getHeatmapColor(premium);
                     
-                    // 依賴後端傳來的結構化 tooltipInfo 物件，而不是字串
-                    let formattedTooltip = `成交價：\t${tx.unitPrice.toFixed(1)} 萬`;
-                    if (tooltipInfo && typeof tooltipInfo.anchorPrice === 'number') {
-                        formattedTooltip += `\n基準價：\t${tooltipInfo.anchorPrice.toFixed(1)} 萬`;
-                        formattedTooltip += `\n樓層調整：\t${tooltipInfo.floorAdjustment.toFixed(2)} 萬`;
-                        formattedTooltip += `\n調價幅度：\t${typeof tooltipInfo.premium === 'number' ? tooltipInfo.premium.toFixed(1) : 'N/A'} %`;
-                    }
-                    if(remarkText) {
-                       formattedTooltip += `\n備註：\t${remarkText}`;
-                    }
+                    let formattedTooltip = '';
+                    const baseInfo = `交易總價: ${formatNumber(tooltipInfo.totalPrice, 0)} 萬
+房屋總價: ${formatNumber(tooltipInfo.housePrice, 0)} 萬
+車位總價: ${formatNumber(tooltipInfo.parkingPrice, 0)} 萬
+房屋面積: ${formatNumber(tooltipInfo.houseArea, 2)} 坪
+房間數: ${tooltipInfo.rooms || '-'} 房`;
 
-                    if (isStorefront) {
-                        specialType = 'storefront';
-                        iconHtml = `<span class="has-tooltip" data-tooltip="${specialTypeMapping[specialType].label}">${specialTypeMapping[specialType].icon}</span> `;
-                        bgColor = '#1f2937';
-                    } else if (premium === 0) {
+                    if (premium === 0) {
                         specialType = 'anchor';
                         iconHtml = `<span class="has-tooltip" data-tooltip="${specialTypeMapping[specialType].label}">${specialTypeMapping[specialType].icon}</span> `;
-                    } else if (remarkText.includes('露台')) {
-                        specialType = 'terrace';
-                        iconHtml = `<span class="has-tooltip" data-tooltip="${specialTypeMapping[specialType].label}: ${remarkText}">${specialTypeMapping[specialType].icon}</span> `;
-                    } else if (remarkText.includes('親友') || remarkText.includes('員工')) {
-                        specialType = 'insider';
-                        iconHtml = `<span class="has-tooltip" data-tooltip="${specialTypeMapping[specialType].label}: ${remarkText}">${specialTypeMapping[specialType].icon}</span> `;
+                        formattedTooltip = `本戶為基準戶\n--------------------\n${baseInfo}`;
+                    } else {
+                        let specialLabel = '';
+                        if (isStorefront) {
+                            specialType = 'storefront';
+                            specialLabel = specialTypeMapping[specialType].label;
+                            iconHtml = `<span class="has-tooltip" data-tooltip="${specialLabel}">${specialTypeMapping[specialType].icon}</span> `;
+                            bgColor = '#1f2937';
+                        } else if (remarkText.includes('露台')) {
+                            specialType = 'terrace';
+                            specialLabel = specialTypeMapping[specialType].label;
+                            iconHtml = `<span class="has-tooltip" data-tooltip="${specialLabel}: ${remarkText}">${specialTypeMapping[specialType].icon}</span> `;
+                        } else if (remarkText.includes('親友') || remarkText.includes('員工')) {
+                            specialType = 'insider';
+                            specialLabel = specialTypeMapping[specialType].label;
+                            iconHtml = `<span class="has-tooltip" data-tooltip="${specialLabel}: ${remarkText}">${specialTypeMapping[specialType].icon}</span> `;
+                        }
+
+                        if (specialLabel) {
+                            formattedTooltip = `${specialLabel}\n--------------------\n${baseInfo}`;
+                        } else {
+                            formattedTooltip = baseInfo;
+                        }
                     }
 
                     return `<div class="has-tooltip py-1 heatmap-cell" data-tooltip="${formattedTooltip}" data-premium-category="${premiumCategory}" data-special-type="${specialType}" style="border-radius: 4px; margin-bottom: 4px; padding: 2px 4px; background-color: ${bgColor}; border: ${specialType === 'anchor' ? '1px solid #06b6d4' : 'none'};"> <span class="font-semibold">${iconHtml}${tx.unitPrice.toFixed(1)}萬</span><br><span class="text-xs text-gray-400">(${tx.transactionDate})</span> </div>`;
@@ -665,7 +683,6 @@ function renderPriceGapHeatmap() {
 function renderHeatmapSummaryTable(summary) { if (!summary || summary.transactionCount === 0) { dom.heatmapSummaryTableContainer.innerHTML = ''; return; } const { totalBaselineHousePrice, totalPricePremiumValue, totalSoldArea } = summary; const premiumPercentage = (totalPricePremiumValue / totalBaselineHousePrice) * 100; const avgPriceAdjustment = totalPricePremiumValue / totalSoldArea; const formatValue = (value, unit = '', decimals = 2) => { const num = formatNumber(value, decimals); return value > 0 ? `<span class="summary-value-positive">+${num} ${unit}</span>` : `<span class="summary-value-negative">${num} ${unit}</span>`; }; const tableHtml = ` <h3 class="report-section-title mt-8">調價幅度統計摘要 (排除店舖)</h3> <div class="overflow-x-auto"> <table class="min-w-full summary-table"> <thead> <tr> <th>基準房屋總價</th> <th>調價幅度總額</th> <th>總溢價率</th> <th>已售房屋坪數</th> <th>平均單價調價</th> </tr> </thead> <tbody> <tr> <td>${formatNumber(totalBaselineHousePrice, 0)} 萬</td> <td>${formatValue(totalPricePremiumValue, '萬', 0)}</td> <td>${formatValue(premiumPercentage, '%')}</td> <td>${formatNumber(totalSoldArea)} 坪</td> <td>${formatValue(avgPriceAdjustment, '萬/坪')}</td> </tr> </tbody> </table> </div> `; dom.heatmapSummaryTableContainer.innerHTML = tableHtml; }
 function renderHorizontalComparisonTable(projectData) { if (!projectData || !projectData.horizontalComparison || projectData.horizontalComparison.length === 0) { dom.heatmapHorizontalComparisonTableContainer.innerHTML = ''; return; } const { horizontalComparison, refFloorForComparison } = projectData; const formatValue = (value, unit = '', decimals = 2, addSign = false) => { if (typeof value !== 'number' || isNaN(value)) return '-'; const num = formatNumber(value, decimals); if (addSign) { return value > 0 ? `<span class="summary-value-positive">+${num} ${unit}</span>` : value < 0 ? `<span class="summary-value-negative">${num} ${unit}</span>` : `<span>${num} ${unit}</span>`; } return (unit === '%') ? num + unit : num + ' ' + unit; }; const tableHtml = ` <h3 class="report-section-title mt-8">戶型水平價差與溢價貢獻 (基準樓層: F${refFloorForComparison || 'N/A'})</h3> <p class="text-sm text-gray-500 mt-2 mb-4">* 水平價差是將各戶型基準價換算至共同基準樓層後的價差，以最低價戶型為 0 基準。</p> <div class="overflow-x-auto"> <table class="min-w-full summary-table"> <thead> <tr> <th>戶型</th> <th>基準戶 (樓/價)</th> <th>水平價差(萬/坪)</th> <th>去化戶數</th> <th>溢價貢獻</th> <th>貢獻佔比</th> <th>基準房屋總價</th> <th>平均單價調價</th> </tr> </thead> <tbody> ${horizontalComparison.map(item => ` <tr> <td>${item.unitType}</td> <td>${item.anchorInfo}</td> <td>${formatValue(item.horizontalPriceDiff, '萬/坪', 2, true)}</td> <td>${item.unitsSold.toLocaleString()} 戶</td> <td>${formatValue(item.timePremiumContribution, '萬', 0, true)}</td> <td>${formatValue(item.contributionPercentage, '%')}</td> <td>${formatNumber(item.baselineHousePrice, 0)} 萬</td> <td>${formatValue(item.avgPriceAdjustment, '萬/坪', 2, true)}</td> </tr> `).join('')} </tbody> </table> </div> `; dom.heatmapHorizontalComparisonTableContainer.innerHTML = tableHtml; }
 
-  
 // --- 分享功能相關函式 ---
 async function handleShareClick(reportType) {
     const btnIdMapping = { 'price_grid': 'sharePriceGridBtn' };
@@ -745,7 +762,6 @@ function initialize() {
     dom.modalCloseBtn.addEventListener('click', () => dom.modal.classList.add('hidden'));
     dom.resultsTable.addEventListener('click', e => { if (e.target.closest('.details-btn')) showSubTableDetails(e.target.closest('.details-btn')); });
     
-    // 【修改#1】新增 focus 事件監聽器
     dom.projectNameInput.addEventListener('focus', onProjectInputFocus);
     dom.projectNameInput.addEventListener('input', onProjectInput);
 
@@ -756,6 +772,7 @@ function initialize() {
         const isClickInsideProject = dom.projectFilterWrapper.contains(e.target);
         if (!isClickInsideProject) {
             dom.projectNameSuggestions.classList.add('hidden');
+            dom.projectNameInput.value = ''; // 當點擊外部時，清空輸入框
         }
         const isClickInsideDistrict = dom.districtFilterWrapper.contains(e.target);
         if (!isClickInsideDistrict) dom.districtSuggestions.classList.add('hidden');
@@ -1093,12 +1110,14 @@ function renderVelocityTable() {
         selectedVelocityRooms.forEach(roomType => {
             const stats = periodData[roomType];
             if (stats) {
-                rowHtml += `<td class="border-l border-gray-700">${stats.count.toLocaleString()}</td><td>${formatNumber(stats.priceSum, 0)}</td><td>${formatNumber(stats.areaSum, 2)}</td>`;
+     
+                   rowHtml += `<td class="border-l border-gray-700">${stats.count.toLocaleString()}</td><td>${formatNumber(stats.priceSum, 0)}</td><td>${formatNumber(stats.areaSum, 2)}</td>`;
                 rowTotal.count += stats.count;
                 rowTotal.priceSum += stats.priceSum;
                 rowTotal.areaSum += stats.areaSum;
             } else {
-                rowHtml += `<td class="border-l border-gray-700">-</td><td>-</td><td>-</td>`;
+               
+                 rowHtml += `<td class="border-l border-gray-700">-</td><td>-</td><td>-</td>`;
             }
         });
         rowHtml += `<td class="font-semibold border-l border-gray-700">${rowTotal.count.toLocaleString()}</td><td class="font-semibold">${formatNumber(rowTotal.priceSum, 0)}</td><td class="font-semibold">${formatNumber(rowTotal.areaSum, 2)}</td></tr>`;
@@ -1144,7 +1163,6 @@ function syncMainProjectFilter(projectName) {
     });
 }
 
-// 【修改#2】重寫「垂直水平分析」的渲染邏輯
 function renderPriceGridAnalysis() {
     // 重設狀態
     isHeatmapActive = false;
@@ -1255,7 +1273,11 @@ function renderHorizontalPriceGrid(grid, floors, units, colorMap) {
                 let cellContent = cellData.map(tx => {
                     const parkingIcon = tx.hasParking ? ` <i class="fas fa-parking parking-icon" title="含車位"></i>` : '';
                     const storefrontIcon = tx.isStorefront ? `<i class="fas fa-store" title="店舖類型"></i> ` : '';
-                    const tooltipText = `交易總價: ${formatNumber(tx.tooltipInfo.totalPrice, 0)} 萬\n房屋總價: ${formatNumber(tx.tooltipInfo.housePrice, 0)} 萬\n車位總價: ${formatNumber(tx.tooltipInfo.parkingPrice, 0)} 萬`;
+                    const tooltipText = `交易總價: ${formatNumber(tx.tooltipInfo.totalPrice, 0)} 萬
+房屋總價: ${formatNumber(tx.tooltipInfo.housePrice, 0)} 萬
+車位總價: ${formatNumber(tx.tooltipInfo.parkingPrice, 0)} 萬
+房屋面積: ${formatNumber(tx.tooltipInfo.houseArea, 2)} 坪
+房間數: ${tx.tooltipInfo.rooms || '-'} 房`;
                     return `<div class="has-tooltip py-1" data-tooltip="${tooltipText}"><span>${storefrontIcon}${formatNumber(tx.unitPrice, 1)}萬</span>${parkingIcon}<br><span class="text-xs text-gray-400">(${tx.transactionDate})</span></div>`;
                 }).join('');
                 bodyHtml += `<td style="background-color: ${bgColor}; vertical-align: top; padding: 4px 8px; border-left: 1px solid #374151;"><div class="grid-cell-content">${cellContent}</div></td>`;
@@ -1270,9 +1292,6 @@ function renderHorizontalPriceGrid(grid, floors, units, colorMap) {
     dom.horizontalPriceGridContainer.innerHTML = tableHtml;
 }
 
-// ==================================================================
-// ====================== START: FINAL FIX BLOCK ======================
-// ==================================================================
 function renderTable(data) {
     if (!data || data.length === 0) {
         dom.resultsTable.innerHTML = '<tbody><tr><td colspan="99" class="text-center p-4">無資料</td></tr></tbody>';
@@ -1368,9 +1387,6 @@ async function showSubTableDetails(btn) {
         dom.modalContent.innerHTML = `<p class="text-red-400 font-semibold">查詢失敗:</p><p class="mt-2 text-sm text-gray-400">${error.message}</p>`;
     }
 }
-// ==================================================================
-// ======================= END: FINAL FIX BLOCK =======================
-// ==================================================================
 
 function renderPagination() {
     dom.paginationControls.innerHTML = '';
@@ -1487,8 +1503,7 @@ function onDistrictSuggestionClick(e) {
             selectedDistricts = isChecked ? [...allDistrictNames] : [];
             dom.districtSuggestions.querySelectorAll('label:not([data-name="all"]) input[type="checkbox"]').forEach(cb => { cb.checked = isChecked; });
         } else {
-            if (isChecked) {
-                if (!selectedDistricts.includes(name)) selectedDistricts.push(name);
+              if (!selectedDistricts.includes(name)) selectedDistricts.push(name);
             } else {
                 selectedDistricts = selectedDistricts.filter(d => d !== name);
             }
@@ -1496,7 +1511,8 @@ function onDistrictSuggestionClick(e) {
         if (selectAllCheckbox) {
            selectAllCheckbox.checked = allDistrictNames.length > 0 && selectedDistricts.length === allDistrictNames.length;
         }
-        renderDistrictTags();
+   
+         renderDistrictTags();
     }, 0);
 }
 
@@ -1509,7 +1525,6 @@ function removeDistrict(name) {
     if (selectAllCheckbox) selectAllCheckbox.checked = false;
 }
 
-// 【修改#1】新增 focus 事件的處理函式
 function onProjectInputFocus() {
     if (!dom.projectNameInput.value.trim() && dom.countySelect.value) {
         fetchProjectNameSuggestions('');
@@ -1571,11 +1586,6 @@ function onSuggestionClick(e) {
             selectedProjects = selectedProjects.filter(p => p !== name);
         }
         renderProjectTags();
-// 【新增以下兩行】
-        dom.projectNameInput.value = ''; // 清空輸入框的文字
-        dom.projectNameSuggestions.classList.add('hidden'); // 選擇後隱藏建議列表
-
-      
     }, 0);
 }
 
