@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SQM預售屋數據儀表板ver.66 (最終修改版)</title>
+<title>SQM預售屋數據儀表板ver.67 (穩定版)</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -73,29 +73,28 @@ thead th { background-color: #252836; position: sticky; top: 0; z-index: 10; fon
 .sub-tab-btn { padding: 0.5rem 1rem; border-radius: 0.5rem; color: #9ca3af; font-weight: 500; cursor: pointer; transition: background-color 0.2s; }
 .sub-tab-btn.active, .sub-tab-btn:hover { background-color: #252836; color: #e5e7eb; }
 .has-tooltip { position: relative; cursor: help; display: inline-block; }
-/* 【修改#3】最終版 Tooltip 樣式 */
 .has-tooltip::after {
     content: attr(data-tooltip);
     position: absolute;
     top: 100%;
     left: 50%;
     transform: translateX(-50%) translateY(8px);
-    background-color: #1a1d29; /* 深色背景 */
+    background-color: #1a1d29;
     color: white;
     padding: 8px 12px;
-    border-radius: 8px; /* 圓角 */
+    border-radius: 8px;
     font-size: 0.875rem;
-    font-family: 'Noto Sans TC', sans-serif; /* 使用更適合中文的字體 */
-    text-align: left; /* 文字靠左對齊 */
+    font-family: 'Noto Sans TC', sans-serif;
+    text-align: left;
     z-index: 100;
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.2s, visibility 0.2s;
     pointer-events: none;
-    white-space: pre-line; /* 支援換行 */
-    border: 1px solid #4b5563; /* 邊框 */
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); /* 增加陰影 */
-    min-width: 240px; /* 設定最小寬度 */
+    white-space: pre-line;
+    border: 1px solid #4b5563;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    min-width: 240px;
 }
 .has-tooltip:hover::after { opacity: 1; visibility: visible; }
 .parking-icon { color: #a5b4fc; margin-left: 4px; font-size: 0.75rem; }
@@ -438,14 +437,15 @@ const SUB_DATA_ENDPOINT = 'https://zxbmbbfrzbtuueysicoc.supabase.co/functions/v1
 const PROJECT_NAMES_ENDPOINT = 'https://zxbmbbfrzbtuueysicoc.supabase.co/functions/v1/query-names';
 const RANKING_ANALYSIS_ENDPOINT = 'https://zxbmbbfrzbtuueysicoc.supabase.co/functions/v1/analyze-project-ranking';
 const GENERATE_SHARE_LINK_ENDPOINT = 'https://zxbmbbfrzbtuueysicoc.supabase.co/functions/v1/generate-share-link';
+
 // 認證輔助函數
 async function getAuthHeaders() {
     const { data: { session }, error } = await supabase.auth.getSession();
-if (error || !session) {
+    if (error || !session) {
         console.error('無法獲取 Session，將跳轉回登入頁面');
         window.location.href = 'login.html';
         return null;
-}
+    }
     return {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${session.access_token}`,
@@ -454,9 +454,9 @@ if (error || !session) {
 
 async function checkAuthOnLoad() {
     const { data: { session } } = await supabase.auth.getSession();
-if (!session) {
+    if (!session) {
         window.location.href = 'login.html';
-}
+    }
 }
 
 // DOM Elements
@@ -589,7 +589,7 @@ function applyHeatmapGridFilter() {
     });
 }
 
-// 【修改#3】重寫 Tooltip 內容生成，使其符合新樣式
+// 【修正#2】修正 熱力圖分析失敗 的問題
 function renderPriceGapHeatmap() {
     const container = dom.horizontalPriceGridContainer;
     const projectAnalysisData = analysisDataCache.priceGridAnalysis.byProject[selectedPriceGridProject];
@@ -611,29 +611,20 @@ function renderPriceGapHeatmap() {
             const cellDataArray = horizontalGrid[floor] ? horizontalGrid[floor][unit] : null;
             if (cellDataArray && cellDataArray.length > 0) {
                 const cellContent = cellDataArray.map(tx => {
-                    const { premium, isStorefront, remark } = tx;
+                    const { premium, isStorefront, remark, tooltip } = tx;
                     const remarkText = remark || '';
                     let specialType = 'none';
                     let iconHtml = '';
                     const premiumCategory = getPremiumCategory(premium);
                     let bgColor = getHeatmapColor(premium);
                     
-                    // 格式化 tooltip 內容
-                    let tooltipContent = `成交價：\t${tx.unitPrice.toFixed(1)} 萬`;
-                    if (tx.tooltipInfo.anchorPrice !== null) {
-                        tooltipContent += `\n基準價：\t${tx.tooltipInfo.anchorPrice.toFixed(1)} 萬`;
-                        tooltipContent += `\n樓層調整：\t${tx.tooltipInfo.floorAdjustment.toFixed(2)} 萬`;
-                        tooltipContent += `\n時間溢價：\t${premium !== null ? premium.toFixed(1) : 'N/A'} %`;
-                    }
-                    if(remarkText) {
-                       tooltipContent += `\n備註：\t${remarkText}`;
-                    }
+                    // 直接使用後端傳來的 tooltip 字串進行格式化，避免讀取不存在的欄位
+                    const formattedTooltip = tooltip ? tooltip.replaceAll(' | ', '\n') : `成交價： ${tx.unitPrice.toFixed(1)} 萬`;
 
                     if (isStorefront) {
                         specialType = 'storefront';
                         iconHtml = `<span class="has-tooltip" data-tooltip="${specialTypeMapping[specialType].label}">${specialTypeMapping[specialType].icon}</span> `;
                         bgColor = '#1f2937';
-                        tooltipContent = `店舖類型 - 成交價: ${tx.unitPrice.toFixed(1)}萬`;
                     } else if (premium === 0) {
                         specialType = 'anchor';
                         iconHtml = `<span class="has-tooltip" data-tooltip="${specialTypeMapping[specialType].label}">${specialTypeMapping[specialType].icon}</span> `;
@@ -645,7 +636,7 @@ function renderPriceGapHeatmap() {
                         iconHtml = `<span class="has-tooltip" data-tooltip="${specialTypeMapping[specialType].label}: ${remarkText}">${specialTypeMapping[specialType].icon}</span> `;
                     }
 
-                    return `<div class="has-tooltip py-1 heatmap-cell" data-tooltip="${tooltipContent}" data-premium-category="${premiumCategory}" data-special-type="${specialType}" style="border-radius: 4px; margin-bottom: 4px; padding: 2px 4px; background-color: ${bgColor}; border: ${specialType === 'anchor' ? '1px solid #06b6d4' : 'none'};"> <span class="font-semibold">${iconHtml}${tx.unitPrice.toFixed(1)}萬</span><br><span class="text-xs text-gray-400">(${tx.transactionDate})</span> </div>`;
+                    return `<div class="has-tooltip py-1 heatmap-cell" data-tooltip="${formattedTooltip}" data-premium-category="${premiumCategory}" data-special-type="${specialType}" style="border-radius: 4px; margin-bottom: 4px; padding: 2px 4px; background-color: ${bgColor}; border: ${specialType === 'anchor' ? '1px solid #06b6d4' : 'none'};"> <span class="font-semibold">${iconHtml}${tx.unitPrice.toFixed(1)}萬</span><br><span class="text-xs text-gray-400">(${tx.transactionDate})</span> </div>`;
                 }).join('');
                 bodyHtml += `<td style="vertical-align: top; padding: 4px 8px; border-left: 1px solid #374151;">${cellContent}</td>`;
             } else {
@@ -666,6 +657,7 @@ function renderPriceGapHeatmap() {
 function renderHeatmapSummaryTable(summary) { if (!summary || summary.transactionCount === 0) { dom.heatmapSummaryTableContainer.innerHTML = ''; return; } const { totalBaselineHousePrice, totalPricePremiumValue, totalSoldArea } = summary; const premiumPercentage = (totalPricePremiumValue / totalBaselineHousePrice) * 100; const avgPriceAdjustment = totalPricePremiumValue / totalSoldArea; const formatValue = (value, unit = '', decimals = 2) => { const num = formatNumber(value, decimals); return value > 0 ? `<span class="summary-value-positive">+${num} ${unit}</span>` : `<span class="summary-value-negative">${num} ${unit}</span>`; }; const tableHtml = ` <h3 class="report-section-title mt-8">時間溢價統計摘要 (排除店舖)</h3> <div class="overflow-x-auto"> <table class="min-w-full summary-table"> <thead> <tr> <th>基準房屋總價</th> <th>時間溢價總額</th> <th>總溢價率</th> <th>已售房屋坪數</th> <th>平均單價調價</th> </tr> </thead> <tbody> <tr> <td>${formatNumber(totalBaselineHousePrice, 0)} 萬</td> <td>${formatValue(totalPricePremiumValue, '萬', 0)}</td> <td>${formatValue(premiumPercentage, '%')}</td> <td>${formatNumber(totalSoldArea)} 坪</td> <td>${formatValue(avgPriceAdjustment, '萬/坪')}</td> </tr> </tbody> </table> </div> `; dom.heatmapSummaryTableContainer.innerHTML = tableHtml; }
 function renderHorizontalComparisonTable(projectData) { if (!projectData || !projectData.horizontalComparison || projectData.horizontalComparison.length === 0) { dom.heatmapHorizontalComparisonTableContainer.innerHTML = ''; return; } const { horizontalComparison, refFloorForComparison } = projectData; const formatValue = (value, unit = '', decimals = 2, addSign = false) => { if (typeof value !== 'number' || isNaN(value)) return '-'; const num = formatNumber(value, decimals); if (addSign) { return value > 0 ? `<span class="summary-value-positive">+${num} ${unit}</span>` : value < 0 ? `<span class="summary-value-negative">${num} ${unit}</span>` : `<span>${num} ${unit}</span>`; } return (unit === '%') ? num + unit : num + ' ' + unit; }; const tableHtml = ` <h3 class="report-section-title mt-8">戶型水平價差與溢價貢獻 (基準樓層: F${refFloorForComparison || 'N/A'})</h3> <p class="text-sm text-gray-500 mt-2 mb-4">* 水平價差是將各戶型基準價換算至共同基準樓層後的價差，以最低價戶型為 0 基準。</p> <div class="overflow-x-auto"> <table class="min-w-full summary-table"> <thead> <tr> <th>戶型</th> <th>基準戶 (樓/價)</th> <th>水平價差(萬/坪)</th> <th>去化戶數</th> <th>時間溢價貢獻</th> <th>貢獻佔比</th> <th>基準房屋總價</th> <th>平均單價調價</th> </tr> </thead> <tbody> ${horizontalComparison.map(item => ` <tr> <td>${item.unitType}</td> <td>${item.anchorInfo}</td> <td>${formatValue(item.horizontalPriceDiff, '萬/坪', 2, true)}</td> <td>${item.unitsSold.toLocaleString()} 戶</td> <td>${formatValue(item.timePremiumContribution, '萬', 0, true)}</td> <td>${formatValue(item.contributionPercentage, '%')}</td> <td>${formatNumber(item.baselineHousePrice, 0)} 萬</td> <td>${formatValue(item.avgPriceAdjustment, '萬/坪', 2, true)}</td> </tr> `).join('')} </tbody> </table> </div> `; dom.heatmapHorizontalComparisonTableContainer.innerHTML = tableHtml; }
 
+  
 // --- 分享功能相關函式 ---
 async function handleShareClick(reportType) {
     const btnIdMapping = { 'price_grid': 'sharePriceGridBtn' };
